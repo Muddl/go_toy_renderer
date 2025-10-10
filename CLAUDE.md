@@ -16,6 +16,8 @@ This is a **toy 3D software renderer** implemented in Go - a learning project th
 
 **MVP Target:** Render a simple 3D object (cube/tetrahedron) with perspective projection and save as PNG image.
 
+**📚 For detailed vision and success criteria:** See [MVP Vision & Scope](./.claude/docs/01-mvp-vision.md)
+
 ## Development Commands
 
 ### Setup
@@ -307,20 +309,28 @@ pkg/rasterize/
 
 **Test files alongside source:** Keep `_test.go` files next to the code they test.
 
+**📚 For comprehensive testing strategy:** See [Test Strategy](./.claude/docs/11-test-strategy.md)
+
 ## Architecture Guidelines
 
 ### MVP Documentation
 
-Comprehensive planning documentation is available in `.claude/docs/`:
+**📚 Documentation Hub:** [.claude/docs/README.md](./.claude/docs/README.md) - **Start here for complete navigation**
 
-- **[MVP Vision & Scope](/.claude/docs/01-mvp-vision.md)** - Project goals and success criteria
-- **[Architecture Overview](/.claude/docs/02-architecture-overview.md)** - Pipeline design and patterns
-- **[Core Components](/.claude/docs/)** - Detailed specs for math, geometry, camera, rasterizer, framebuffer, shader, and pipeline
-- **[MVP Features](/.claude/docs/10-mvp-features.md)** - Required vs optional features checklist
-- **[Test Strategy](/.claude/docs/11-test-strategy.md)** - Unit, integration, and golden image testing approach
-- **[Development Roadmap](/.claude/docs/12-development-roadmap.md)** - 8-phase implementation plan (est. 12-20 days)
+**Quick Links:**
+- 🎯 [MVP Vision & Scope](./.claude/docs/01-mvp-vision.md) - Project goals and success criteria
+- 🏗️ [Architecture Overview](./.claude/docs/02-architecture-overview.md) - Pipeline design and patterns
+- 📋 [MVP Features Checklist](./.claude/docs/10-mvp-features.md) - Required vs optional features
+- 🗺️ [Development Roadmap](./.claude/docs/12-development-roadmap.md) - 8-phase implementation plan (12-20 days)
 
-**Start here:** Read `.claude/docs/README.md` for navigation guide.
+**Component Specifications:**
+- 🔢 [Math Component](./.claude/docs/03-math-component.md) - Vec3, Mat4x4, transformations
+- 📐 [Geometry Component](./.claude/docs/04-geometry-component.md) - Vertex, Mesh, primitives
+- 📷 [Camera Component](./.claude/docs/05-camera-component.md) - View & projection matrices
+- 🎨 [Rasterizer Component](./.claude/docs/06-rasterizer-component.md) - Triangle rasterization
+- 🖼️ [Framebuffer Component](./.claude/docs/07-framebuffer-component.md) - Pixel storage & depth testing
+- 💡 [Shader Component](./.claude/docs/08-shader-component.md) - Shading system
+- ⚙️ [Render Pipeline](./.claude/docs/09-render-pipeline.md) - End-to-end pipeline
 
 ### Recommended Project Structure
 
@@ -387,18 +397,19 @@ See `.claude/docs/11-test-strategy.md` for detailed testing approach and TDD sec
 
 ## Development Workflow
 
-### Phase-Based Implementation (Recommended)
+### Phase-Based Implementation
 
-Follow the 8-phase roadmap in `.claude/docs/12-development-roadmap.md`:
+**📚 Complete 8-phase roadmap:** See [Development Roadmap](./.claude/docs/12-development-roadmap.md)
 
-1. **Phase 1: Math Foundation** (Days 1-3) - Vector3, Matrix4x4, transformations
-2. **Phase 2: Geometry & Scene** (Days 4-5) - Vertex, Mesh, primitives
-3. **Phase 3: Camera System** (Days 6-7) - View and projection matrices
-4. **Phase 4: Framebuffer** (Days 8-9) - Pixel storage with depth test
-5. **Phase 5: Rasterization** (Days 10-12) - Triangle to pixels with interpolation
-6. **Phase 6: Shading** (Days 13-14) - Per-pixel color calculation
-7. **Phase 7: Pipeline Integration** (Days 15-18) - Connect all components
-8. **Phase 8: Testing & Polish** (Days 19-21) - Tests, docs, demo app
+**Quick phase overview:**
+1. **Phase 1** (Days 1-3) - Math Foundation → [Details](./.claude/docs/03-math-component.md)
+2. **Phase 2** (Days 4-5) - Geometry & Scene → [Details](./.claude/docs/04-geometry-component.md)
+3. **Phase 3** (Days 6-7) - Camera System → [Details](./.claude/docs/05-camera-component.md)
+4. **Phase 4** (Days 8-9) - Framebuffer → [Details](./.claude/docs/07-framebuffer-component.md)
+5. **Phase 5** (Days 10-12) - Rasterization → [Details](./.claude/docs/06-rasterizer-component.md)
+6. **Phase 6** (Days 13-14) - Shading → [Details](./.claude/docs/08-shader-component.md)
+7. **Phase 7** (Days 15-18) - Pipeline Integration → [Details](./.claude/docs/09-render-pipeline.md)
+8. **Phase 8** (Days 19-21) - Testing & Polish
 
 **Daily workflow (TDD-focused):**
 - Start: Pull latest `main`, create feature branch, identify first behavior to test
@@ -411,25 +422,56 @@ Follow the 8-phase roadmap in `.claude/docs/12-development-roadmap.md`:
 
 ### Design Principles
 
-**Separation of concerns:** Each pipeline stage isolated and testable
-**Data flow:** Geometry → Transform → Project → Rasterize → Shade → Framebuffer → Output
-**Simplicity first:** Optimize for readability and correctness over performance (for MVP)
-**Right-handed coordinates:** +X=Right, +Y=Up, +Z=Out (OpenGL style)
-**Column-major matrices:** Multiply on right (result = matrix × vector)
+**📚 Detailed architecture:** See [Architecture Overview](./.claude/docs/02-architecture-overview.md)
+
+**Core principles:**
+- **Separation of concerns:** Each pipeline stage isolated and testable
+- **Data flow:** Geometry → Transform → Project → Rasterize → Shade → Framebuffer → Output
+- **Simplicity first:** Optimize for readability and correctness over performance (for MVP)
+- **Right-handed coordinates:** +X=Right, +Y=Up, +Z=Out (OpenGL style)
+- **Column-major matrices:** Multiply on right (result = matrix × vector)
+
+## Task Tracking
+
+**📋 Task History:** All completed tasks are documented in `.claude/tasks/`
+
+**Current task summaries:**
+- [2025-10-10: Project Setup & Documentation](./.claude/tasks/2025-10-10_project-setup-and-documentation.md)
+
+**Task documentation format:**
+- Structured sections: Objective, Actions, Decisions, Results, Next Steps
+- Parsable YAML metadata for automated tracking
+- Complete file modification tracking
+- Lessons learned and technical notes
+
+**When to create task summaries:**
+- After completing major features or milestones
+- At end of each development phase
+- When significant architectural decisions are made
+- After resolving complex bugs or issues
 
 ## Recent Updates
 
-**2025-10-10:** Initial project setup and development guidelines
-- Created comprehensive MVP documentation (13 files in `.claude/docs/`)
-- Defined architecture, components, features, test strategy, and roadmap
-- Established 8-phase development plan with ~12-20 day timeline
+**2025-10-10 (Latest):** Task tracking system established
+- Created `.claude/tasks/` directory for task summaries
+- Added standardized task documentation format
+- Task summaries now complement CLAUDE.md for historical tracking
+
+**2025-10-10:** Git workflow and TDD methodology established
 - **Added trunk-based Git workflow with feature branches and PR requirements**
 - **Established Test-Driven Development (TDD) as mandatory practice**
+- **CRITICAL:** Never commit directly to `main` - all changes via PRs
+
+**2025-10-10:** Initial project setup and comprehensive documentation
+- Created comprehensive MVP documentation (13 files in `.claude/docs/`)
+- Established 8-phase development plan with ~12-20 day timeline
 - Project ready for Phase 1 implementation (Math Foundation)
 
 ## Important Notes for Development
 
 ### MVP Scope (Don't Over-Engineer!)
+
+**📚 Complete feature list:** See [MVP Features Checklist](./.claude/docs/10-mvp-features.md)
 
 **Must have for MVP:**
 - Basic 3D math (vectors, matrices, transformations)

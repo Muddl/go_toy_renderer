@@ -72,6 +72,241 @@ golangci-lint run
 go vet ./...
 ```
 
+### Git Workflow
+```bash
+# Create a new feature branch
+git checkout -b feature/descriptive-name
+
+# Create a new bugfix branch
+git checkout -b bugfix/issue-description
+
+# Create a new release branch
+git checkout -b release/version-number
+
+# Check status and stage changes
+git status
+git add .
+
+# Commit with descriptive message
+git commit -m "type: brief description"
+
+# Push branch to remote
+git push -u origin branch-name
+
+# Create pull request (using GitHub CLI)
+gh pr create --title "Title" --body "Description"
+```
+
+## Git Development Guidelines
+
+**CRITICAL: Always use trunk-based development with feature branches**
+
+### Branching Strategy
+
+**Never commit directly to `main`.** All changes must go through feature/bugfix/release branches and pull requests.
+
+**Branch naming conventions:**
+- `feature/` - New functionality (e.g., `feature/add-rasterizer`)
+- `bugfix/` - Bug fixes (e.g., `bugfix/fix-matrix-multiply`)
+- `release/` - Release preparation (e.g., `release/v0.1.0`)
+- `hotfix/` - Critical production fixes (e.g., `hotfix/depth-buffer-crash`)
+
+**Before making ANY code changes:**
+1. Ensure you're on `main` branch: `git checkout main`
+2. Pull latest changes: `git pull origin main`
+3. Create a new branch: `git checkout -b feature/your-feature-name`
+4. Make changes, commit frequently with clear messages
+5. Push branch: `git push -u origin feature/your-feature-name`
+6. Create pull request for review
+
+### Commit Message Format
+
+Use conventional commit format:
+```
+<type>: <brief description>
+
+<optional detailed description>
+
+<optional footer>
+```
+
+**Types:**
+- `feat:` - New feature
+- `fix:` - Bug fix
+- `test:` - Add or update tests
+- `refactor:` - Code refactoring
+- `docs:` - Documentation changes
+- `style:` - Code formatting (no logic change)
+- `perf:` - Performance improvements
+- `chore:` - Build/tooling changes
+
+**Examples:**
+```
+feat: implement Vec3 cross product operation
+
+test: add unit tests for matrix multiplication
+
+fix: correct perspective divide by zero handling
+
+docs: update CLAUDE.md with git workflow guidelines
+```
+
+### Pull Request Workflow
+
+**Required for all changes:**
+1. Create feature/bugfix branch from latest `main`
+2. Implement changes with tests
+3. Ensure all tests pass: `go test ./...`
+4. Format code: `go fmt ./...`
+5. Push branch to remote
+6. Create pull request with:
+   - Clear title describing the change
+   - Description of what and why
+   - Reference to any related issues
+   - Test coverage summary
+7. Address review feedback if any
+8. Merge to `main` only after approval (if working with team) or all checks pass
+
+**Self-review checklist before creating PR:**
+- All tests pass
+- Code is formatted (`go fmt`)
+- No linter warnings (`go vet`)
+- Changes match the branch purpose (feature/bugfix/etc.)
+- Commit messages are clear and descriptive
+
+### Branch Lifecycle
+
+**Short-lived branches:** Aim to merge within 1-3 days to minimize divergence from `main`.
+
+**Keep branches focused:** One branch = one feature/fix. Don't mix unrelated changes.
+
+**Delete after merge:** Clean up merged branches to keep repository tidy.
+
+**Sync with main regularly:** If working on long-running branch, periodically merge `main` into your branch to avoid conflicts.
+
+## Test-Driven Development (TDD)
+
+**CRITICAL: Always use Test-Driven Development for all code changes**
+
+### TDD Workflow (Red-Green-Refactor)
+
+**Every feature and bug fix must follow this cycle:**
+
+1. **RED** - Write a failing test first
+   - Write test that describes desired behavior
+   - Run test to confirm it fails (proves test is valid)
+   - Commit: `test: add failing test for [feature]`
+
+2. **GREEN** - Write minimal code to pass the test
+   - Implement simplest solution that makes test pass
+   - Run test to confirm it passes
+   - Commit: `feat/fix: implement [feature] to pass test`
+
+3. **REFACTOR** - Improve code quality
+   - Clean up implementation while keeping tests green
+   - Optimize, remove duplication, improve readability
+   - Commit: `refactor: improve [component] implementation`
+
+### TDD Rules
+
+**Never write production code without a failing test first.** The only exception is when setting up initial project structure (package declarations, empty files).
+
+**One test at a time.** Focus on one behavior, write one test, make it pass, then move to next.
+
+**Tests are documentation.** Test names should clearly describe what behavior is being tested.
+
+**Test naming convention:**
+```go
+func TestComponentName_Behavior_ExpectedOutcome(t *testing.T) {
+    // Example: TestVec3_Add_ReturnsSumOfVectors
+    // Example: TestMatrix_Multiply_HandlesIdentityMatrix
+    // Example: TestRasterizer_DrawTriangle_InterpolatesColors
+}
+```
+
+### TDD Benefits for This Project
+
+**Immediate feedback:** Know instantly if transformations are correct
+**Confidence:** Refactor rendering pipeline without fear of breaking things
+**Design quality:** TDD forces modular, testable architecture
+**Regression prevention:** Catch bugs before they reach production
+**Documentation:** Tests show how to use each component
+
+### TDD Examples
+
+**Example 1: Vector Addition**
+```go
+// RED - Write failing test first
+func TestVec3_Add_ReturnsSumOfVectors(t *testing.T) {
+    v1 := Vec3{1.0, 2.0, 3.0}
+    v2 := Vec3{4.0, 5.0, 6.0}
+    expected := Vec3{5.0, 7.0, 9.0}
+
+    result := v1.Add(v2)
+
+    if !result.Equals(expected, 0.0001) {
+        t.Errorf("Add() = %v, want %v", result, expected)
+    }
+}
+
+// GREEN - Implement minimal solution
+func (v Vec3) Add(other Vec3) Vec3 {
+    return Vec3{v.X + other.X, v.Y + other.Y, v.Z + other.Z}
+}
+
+// REFACTOR - Already clean, no refactoring needed
+```
+
+**Example 2: Matrix Multiplication**
+```go
+// RED - Write failing test with known result
+func TestMatrix_Multiply_WithIdentityMatrix(t *testing.T) {
+    m := NewMatrix4x4(/* some values */)
+    identity := NewIdentityMatrix()
+
+    result := m.Multiply(identity)
+
+    if !result.Equals(m, 0.0001) {
+        t.Errorf("Multiply with identity should return original matrix")
+    }
+}
+
+// GREEN - Implement multiplication
+// REFACTOR - Optimize after all multiplication tests pass
+```
+
+### When to Write Tests
+
+**Always before implementation:**
+- New functions/methods
+- Bug fixes (write test that reproduces bug, then fix)
+- Edge cases (test boundary conditions)
+- Mathematical operations (verify with known results)
+
+**Integration tests:**
+- After individual components work
+- Test full pipeline stages (e.g., vertex transform → clip → project)
+
+**Golden image tests:**
+- After rendering pipeline complete
+- Compare output against reference images
+
+### Test Organization
+
+```
+pkg/math/
+  vec3.go
+  vec3_test.go        # Tests for Vec3
+  matrix.go
+  matrix_test.go      # Tests for Matrix
+pkg/rasterize/
+  rasterizer.go
+  rasterizer_test.go  # Unit tests
+  integration_test.go # Integration tests
+```
+
+**Test files alongside source:** Keep `_test.go` files next to the code they test.
+
 ## Architecture Guidelines
 
 ### MVP Documentation
@@ -116,24 +351,39 @@ Organize code into these packages for MVP:
 
 ### Testing Strategy
 
+**MANDATORY: Test-Driven Development (TDD) for all code.**
+
 **Test pyramid approach:**
 1. **Unit tests (many)** - Math operations, individual components with known inputs/outputs
+   - Write BEFORE implementation (Red-Green-Refactor cycle)
+   - One test at a time, make it pass, move to next
 2. **Integration tests (some)** - Transform pipeline, end-to-end rendering workflows
+   - Write after unit tests pass for individual components
 3. **Golden image tests (few)** - Compare rendered output against reference images for visual correctness
+   - Write after rendering pipeline is complete
 
 **Coverage goals:**
 - Math package: >90% (critical foundation)
 - Core packages: >80%
 - Overall: >70% minimum for MVP
 
-**Key testing practices:**
-- Write tests BEFORE implementation (TDD)
-- Use table-driven tests for edge cases
+**Key testing practices (TDD-focused):**
+- **ALWAYS write tests BEFORE implementation** (Red-Green-Refactor)
+- Commit failing test first: `test: add failing test for [feature]`
+- Commit passing implementation: `feat: implement [feature]`
+- Use table-driven tests for edge cases and multiple scenarios
 - Test with epsilon comparison for floats (±0.0001)
-- Benchmark performance-critical paths
+- Benchmark performance-critical paths after functionality works
 - Create reference images for regression testing
 
-See `.claude/docs/11-test-strategy.md` for detailed testing approach.
+**Test execution order:**
+1. Write failing test → commit
+2. Make test pass → commit
+3. Refactor (if needed) → commit
+4. Run full test suite: `go test ./...`
+5. Check coverage: `go test -cover ./...`
+
+See `.claude/docs/11-test-strategy.md` for detailed testing approach and TDD section above for workflow examples.
 
 ## Development Workflow
 
@@ -150,10 +400,14 @@ Follow the 8-phase roadmap in `.claude/docs/12-development-roadmap.md`:
 7. **Phase 7: Pipeline Integration** (Days 15-18) - Connect all components
 8. **Phase 8: Testing & Polish** (Days 19-21) - Tests, docs, demo app
 
-**Daily workflow:**
-- Start: Review yesterday's progress, identify 1-2 tasks
-- During: Write tests first, commit frequently, run tests after changes
-- End: All tests passing, code committed, update progress
+**Daily workflow (TDD-focused):**
+- Start: Pull latest `main`, create feature branch, identify first behavior to test
+- RED: Write failing test for behavior → commit: `test: add failing test for X`
+- GREEN: Write minimal code to pass → commit: `feat: implement X`
+- REFACTOR: Clean up code (optional) → commit: `refactor: improve X`
+- Repeat: Next behavior/test in same feature
+- End: All tests passing (`go test ./...`), push branch, create PR
+- Cleanup: Merge PR, delete branch, pull updated `main`
 
 ### Design Principles
 
@@ -165,10 +419,12 @@ Follow the 8-phase roadmap in `.claude/docs/12-development-roadmap.md`:
 
 ## Recent Updates
 
-**2025-10-10:** Initial project setup
+**2025-10-10:** Initial project setup and development guidelines
 - Created comprehensive MVP documentation (13 files in `.claude/docs/`)
 - Defined architecture, components, features, test strategy, and roadmap
 - Established 8-phase development plan with ~12-20 day timeline
+- **Added trunk-based Git workflow with feature branches and PR requirements**
+- **Established Test-Driven Development (TDD) as mandatory practice**
 - Project ready for Phase 1 implementation (Math Foundation)
 
 ## Important Notes for Development

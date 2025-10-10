@@ -6,7 +6,13 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 This is a **toy 3D software renderer** implemented in Go - a learning project that demonstrates fundamental 3D graphics concepts without GPU acceleration. The renderer performs all calculations on the CPU, converting 3D geometry to 2D images through a complete graphics pipeline.
 
-**Current Status:** Project is in initial stages with comprehensive MVP documentation completed.
+**Current Status:** Phase 1 (Math Foundation) complete ✅ | CI/CD pipeline pending merge | Ready for Phase 2 (Geometry)
+
+**Progress Summary:**
+- ✅ Phase 1 complete: Vec3 and Mat4x4 with 100% test coverage
+- ⏳ Phase 0 pending: CI/CD infrastructure awaiting PR approval
+- 📋 13 comprehensive MVP documentation files established
+- 🔄 Active development using TDD and trunk-based Git workflow
 
 **Learning Goals:**
 - Understand 3D graphics pipeline from first principles
@@ -72,6 +78,40 @@ golangci-lint run
 
 # Check for common issues
 go vet ./...
+
+# Security scanning (requires govulncheck)
+go install golang.org/x/vuln/cmd/govulncheck@latest
+govulncheck ./...
+```
+
+### Continuous Integration
+
+The project uses GitHub Actions for automated CI/CD. The pipeline automatically runs on:
+- Pushes to `main` branch
+- Pull requests to `main` and feature branches
+- Manual workflow dispatch
+
+**CI Pipeline includes:**
+- **Format & Validation:** Code formatting, `go vet`, dependency verification
+- **Linting:** golangci-lint with 48+ linters
+- **Build Matrix:** Multi-platform builds (Linux, macOS, Windows) on Go 1.22 & 1.23
+- **Test Matrix:** Comprehensive testing with race detector and coverage reporting
+- **Coverage Enforcement:** Fails if <70% overall or <90% for math package
+- **Security Scanning:** govulncheck for vulnerability detection
+
+**View status:**
+- Check PR status checks before merging
+- View workflow runs at: `https://github.com/muddl/go_toy_renderer/actions`
+- CI badges displayed in README.md
+
+**Local pre-commit checks** (run before pushing):
+```bash
+# Run all checks locally (mimics CI)
+go fmt ./...
+go vet ./...
+golangci-lint run
+go test -race -coverprofile=coverage.out ./...
+govulncheck ./...
 ```
 
 ### Git Workflow
@@ -166,15 +206,22 @@ docs: update CLAUDE.md with git workflow guidelines
    - Description of what and why
    - Reference to any related issues
    - Test coverage summary
-7. Address review feedback if any
-8. Merge to `main` only after approval (if working with team) or all checks pass
+7. **Wait for CI checks to pass** - GitHub Actions will automatically:
+   - Run all tests on multiple platforms
+   - Check code formatting and linting
+   - Verify test coverage meets thresholds (70% overall, 90% math)
+   - Scan for security vulnerabilities
+8. Address review feedback or CI failures if any
+9. Merge to `main` only after all CI checks pass ✅
 
 **Self-review checklist before creating PR:**
-- All tests pass
-- Code is formatted (`go fmt`)
-- No linter warnings (`go vet`)
+- All tests pass locally (`go test ./...`)
+- Code is formatted (`go fmt ./...`)
+- No linter warnings (`go vet ./...`)
+- Coverage meets thresholds (check with `go test -cover ./...`)
 - Changes match the branch purpose (feature/bugfix/etc.)
 - Commit messages are clear and descriptive
+- CI pipeline will verify all of the above automatically
 
 ### Branch Lifecycle
 
@@ -332,21 +379,32 @@ pkg/rasterize/
 - 💡 [Shader Component](./.claude/docs/08-shader-component.md) - Shading system
 - ⚙️ [Render Pipeline](./.claude/docs/09-render-pipeline.md) - End-to-end pipeline
 
-### Recommended Project Structure
+### Current Project Structure
 
-Organize code into these packages for MVP:
+**Implemented packages:**
+- `pkg/math/` - ✅ **Complete** - Vector, matrix, and mathematical operations
+  - `vec3.go` - 3D vector operations (91 lines, 100% coverage)
+  - `vec3_test.go` - Comprehensive Vec3 tests (464 lines, 46 tests)
+  - `mat4x4.go` - 4x4 matrix operations (161 lines, 100% coverage)
+  - `mat4x4_test.go` - Comprehensive Mat4x4 tests (338 lines, 28 tests)
 
-- `cmd/renderer/` - Main application entry point
-- `pkg/math/` - Vector, matrix, and mathematical operations (Vec3, Mat4x4, transformations)
-- `pkg/geometry/` - Mesh, vertex, and primitive types (Vertex, Triangle, Mesh)
-- `pkg/camera/` - Camera and view transformation logic (LookAt, Perspective)
-- `pkg/render/` - Core rendering pipeline and algorithms (vertex transform, primitive assembly)
-- `pkg/rasterize/` - Triangle rasterization with attribute interpolation
-- `pkg/shader/` - Shader implementations (vertex color, flat color)
-- `pkg/framebuffer/` - Framebuffer with depth testing and image output
-- `internal/` - Internal implementation details
+**Pending packages for MVP:**
+- `cmd/renderer/` - ⏳ Main application entry point
+- `pkg/geometry/` - ⏳ Mesh, vertex, and primitive types (Vertex, Triangle, Mesh)
+- `pkg/camera/` - ⏳ Camera and view transformation logic (LookAt, Perspective)
+- `pkg/render/` - ⏳ Core rendering pipeline and algorithms (vertex transform, primitive assembly)
+- `pkg/rasterize/` - ⏳ Triangle rasterization with attribute interpolation
+- `pkg/shader/` - ⏳ Shader implementations (vertex color, flat color)
+- `pkg/framebuffer/` - ⏳ Framebuffer with depth testing and image output
+- `internal/` - ⏳ Internal implementation details
 
 **Post-MVP packages:** `pkg/scene/`, `pkg/light/`, `pkg/texture/` (not needed initially)
+
+**Infrastructure:**
+- `.github/workflows/` - ⏳ CI/CD pipeline (pending merge)
+- `.golangci.yml` - ⏳ Linter configuration (pending merge)
+- `.claude/docs/` - ✅ Complete MVP documentation (13 files)
+- `.claude/tasks/` - ✅ Task tracking summaries
 
 ### Performance Considerations
 
@@ -399,11 +457,14 @@ See `.claude/docs/11-test-strategy.md` for detailed testing approach and TDD sec
 
 ### Phase-Based Implementation
 
-**📚 Complete 8-phase roadmap:** See [Development Roadmap](./.claude/docs/12-development-roadmap.md)
+**📚 Complete 9-phase roadmap:** See [Development Roadmap](./.claude/docs/12-development-roadmap.md)
+
+**Current Progress:** Phase 0 pending merge, Phase 1 complete ✅
 
 **Quick phase overview:**
-1. **Phase 1** (Days 1-3) - Math Foundation → [Details](./.claude/docs/03-math-component.md)
-2. **Phase 2** (Days 4-5) - Geometry & Scene → [Details](./.claude/docs/04-geometry-component.md)
+0. **Phase 0** (Day 0-1) - ⏳ **Pending** - CI/CD Infrastructure (GitHub Actions, linting, security scanning)
+1. **Phase 1** (Days 1-3) - ✅ **Complete** - Math Foundation → [Details](./.claude/docs/03-math-component.md)
+2. **Phase 2** (Days 4-5) - ⏳ **Next** - Geometry & Scene → [Details](./.claude/docs/04-geometry-component.md)
 3. **Phase 3** (Days 6-7) - Camera System → [Details](./.claude/docs/05-camera-component.md)
 4. **Phase 4** (Days 8-9) - Framebuffer → [Details](./.claude/docs/07-framebuffer-component.md)
 5. **Phase 5** (Days 10-12) - Rasterization → [Details](./.claude/docs/06-rasterizer-component.md)
@@ -452,7 +513,28 @@ See `.claude/docs/11-test-strategy.md` for detailed testing approach and TDD sec
 
 ## Recent Updates
 
-**2025-10-10 (Latest):** Task tracking system established
+**2025-10-10 (Latest):** CI/CD Infrastructure Ready for Implementation 🚀
+- **CI/CD pipeline configuration files ready** (.github/workflows/, .golangci.yml)
+- Implementation adds Phase 0 (CI/CD Infrastructure) before Phase 1
+- Multi-platform testing (Linux, macOS, Windows) on Go 1.22 & 1.23
+- Automated coverage enforcement (70% overall, 90% math package)
+- Security scanning with govulncheck and 48+ golangci-lint linters
+- Branch: `feature/gh_actions_integration` ready for PR review
+- **Status:** Pending merge to establish automated quality gates
+
+**2025-10-10:** Phase 1 Complete - Math Foundation Implemented ✅
+- **Implemented Vec3 type with comprehensive operations (46 tests, 100% coverage)**
+  - Merged via PR #1: feat: Implement Vec3 type with basic and advanced operations
+  - Basic ops: Add, Sub, Mul, Div, Dot, Cross, Normalize
+  - Advanced ops: Length, Distance, Lerp, Reflect, Project
+- **Implemented Mat4x4 type with transformation matrices (100% coverage)**
+  - Merged via PR #2: feat: implement Mat4x4 with transformation matrices
+  - Core ops: NewIdentity, Multiply, Transpose
+  - Transformations: Translate, Scale, RotateX/Y/Z
+- **Applied TDD methodology throughout (tests written first, 3.2:1 test-to-code ratio)**
+- Ready for Phase 2 (Geometry & Scene component) after CI/CD merge
+
+**2025-10-10:** Task tracking system established
 - Created `.claude/tasks/` directory for task summaries
 - Added standardized task documentation format
 - Task summaries now complement CLAUDE.md for historical tracking

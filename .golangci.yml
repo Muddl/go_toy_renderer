@@ -43,7 +43,7 @@ linters:
     - predeclared   # Find code that shadows predeclared identifiers
     - unconvert     # Remove unnecessary type conversions
     - whitespace    # Detect leading/trailing whitespace
-    - exportloopref # Detect pointers to enclosing loop variables
+    - copyloopvar   # Detect pointers to enclosing loop variables (replaces exportloopref)
     - gocognit      # Cognitive complexity analysis
     - nestif        # Report deeply nested if statements
     - nakedret      # Find naked returns in functions
@@ -153,7 +153,7 @@ linters-settings:
 
   # Unused settings
   unused:
-    go: "1.22"
+    go: "1.23"
 
   # Nolintlint settings
   nolintlint:

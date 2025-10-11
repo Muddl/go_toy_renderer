@@ -1,5 +1,6 @@
 # golangci-lint configuration for go_toy_renderer
 # A learning project focused on 3D software rendering
+# Configuration format: v2.x (golangci-lint >= 1.52.0)
 
 run:
   # Timeout for analysis
@@ -12,10 +13,6 @@ run:
   skip-dirs:
     - vendor
     - .github
-
-  # Enable all available linters, then disable specific ones
-  # This ensures we get maximum benefit from static analysis
-  enable-all: false
 
 linters:
   enable:
@@ -136,8 +133,11 @@ linters-settings:
 
   # Govet settings
   govet:
-    check-shadowing: true
-    enable-all: true
+    enable:
+      - shadow
+    settings:
+      shadow:
+        strict: true
 
   # Staticcheck settings
   staticcheck:
@@ -146,17 +146,14 @@ linters-settings:
   # Stylecheck settings
   stylecheck:
     checks: ["all", "-ST1000", "-ST1003"]  # Disable package comment requirements
-    dot-import-whitelist: []
-    http-status-code-whitelist: []
 
   # Misspell settings
   misspell:
     locale: US
-    ignore-words: []
 
   # Unused settings
   unused:
-    check-exported: false  # Don't require all exports to be used
+    go: "1.22"
 
   # Nolintlint settings
   nolintlint:
@@ -204,8 +201,9 @@ issues:
   fix: false
 
 output:
-  # Format for output
-  format: colored-line-number
+  # Formats: colored-line-number, line-number, json, tab, checkstyle, code-climate, html, junit-xml, github-actions
+  formats:
+    - format: colored-line-number
 
   # Print lines of code with issue
   print-issued-lines: true

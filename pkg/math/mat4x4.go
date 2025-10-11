@@ -49,7 +49,7 @@ func (m *Mat4x4) Set(row, col int, value float64) {
 
 // Multiply returns the product of two matrices (m * other).
 // Matrix multiplication is not commutative: A*B ≠ B*A in general.
-// Used for combining transformations: result = m * other
+// Used for combining transformations: result = m * other.
 func (m Mat4x4) Multiply(other Mat4x4) Mat4x4 {
 	var result Mat4x4
 

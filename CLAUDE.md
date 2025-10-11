@@ -73,7 +73,9 @@ go run ./cmd/renderer [args]
 # Format code
 go fmt ./...
 
-# Run linter (requires golangci-lint)
+# Run linter (requires golangci-lint v1.61.0)
+# Note: Project uses golangci-lint v1.x config format
+# Install: https://golangci-lint.run/usage/install/
 golangci-lint run
 
 # Check for common issues
@@ -83,6 +85,8 @@ go vet ./...
 go install golang.org/x/vuln/cmd/govulncheck@latest
 govulncheck ./...
 ```
+
+**Important:** This project uses **golangci-lint v1.61.0**. The configuration file (`.golangci.yml`) is in v1 format. If you have v2.x installed locally, you may see configuration format errors. The CI pipeline uses v1.61.0 which will work correctly.
 
 ### Continuous Integration
 
@@ -94,7 +98,7 @@ The project uses GitHub Actions for automated CI/CD. The pipeline automatically 
 **CI Pipeline includes:**
 - **Format & Validation:** Code formatting, `go vet`, dependency verification
 - **Linting:** golangci-lint with 48+ linters
-- **Build Matrix:** Multi-platform builds (Linux, macOS, Windows) on Go 1.22 & 1.23
+- **Build Matrix:** Multi-platform builds (Linux, macOS, Windows) on Go 1.24 & 1.25
 - **Test Matrix:** Comprehensive testing with race detector and coverage reporting
 - **Coverage Enforcement:** Fails if <70% overall or <90% for math package
 - **Security Scanning:** govulncheck for vulnerability detection
@@ -565,7 +569,24 @@ See `.claude/docs/11-test-strategy.md` for detailed testing approach and TDD sec
 
 ## Recent Updates
 
-**2025-10-10 (Latest):** CI/CD Infrastructure Ready for Implementation 🚀
+**2025-10-10 (Latest):** Go Version Standardized to 1.25.2 🚀
+- **Updated go.mod:** Changed Go directive from 1.22.5 to 1.25.2
+- **Updated CI workflow:** All jobs now use Go 1.24 & 1.25 in build/test matrices
+- **Updated golangci-lint config:** Changed unused linter setting from 1.23 to 1.25
+- **Updated documentation:** Reflected Go 1.24 & 1.25 in CI pipeline description
+- **Root cause:** Go version mismatch between local environment (1.25.2) and configurations (1.22.5/1.23)
+- **Branch:** `feature/geometry-component` - resolving persistent CI lint failures
+- **Impact:** CI pipeline will now run with consistent Go versions across all jobs
+
+**2025-10-10:** CI Linting Configuration Fixed 🔧
+- **Fixed deprecated linter in .golangci.yml:** Replaced `exportloopref` with `copyloopvar` (deprecated in golangci-lint v1.60+)
+- **Updated Go version in linter config:** Changed from 1.22 to 1.23 to match CI environment
+- **Pinned golangci-lint version in CI:** Changed from `latest` to `v1.61.0` for reproducible builds
+- **Updated documentation:** Added golangci-lint version requirements to Code Quality section
+- **Branch:** `feature/geometry-component` - fixes applied to resolve CI failures on PR #5
+- **Impact:** CI pipeline lint job will now pass consistently
+
+**2025-10-10:** CI/CD Infrastructure Ready for Implementation 🚀
 - **CI/CD pipeline configuration files ready** (.github/workflows/, .golangci.yml)
 - Implementation adds Phase 0 (CI/CD Infrastructure) as first phase
 - Multi-platform testing (Linux, macOS, Windows) on Go 1.22 & 1.23

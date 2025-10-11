@@ -5,7 +5,7 @@ import (
 	"testing"
 )
 
-// Helper function to compare Mat4x4 with epsilon tolerance
+// Helper function to compare Mat4x4 with epsilon tolerance.
 func mat4Equals(m1, m2 Mat4x4, tolerance float64) bool {
 	for i := 0; i < 16; i++ {
 		if math.Abs(m1[i]-m2[i]) > tolerance {
@@ -15,7 +15,7 @@ func mat4Equals(m1, m2 Mat4x4, tolerance float64) bool {
 	return true
 }
 
-// TestMat4x4_NewIdentity tests identity matrix creation
+// TestMat4x4_NewIdentity tests identity matrix creation.
 func TestMat4x4_NewIdentity_CreatesIdentityMatrix(t *testing.T) {
 	m := NewIdentity()
 
@@ -32,7 +32,7 @@ func TestMat4x4_NewIdentity_CreatesIdentityMatrix(t *testing.T) {
 	}
 }
 
-// TestMat4x4_NewZero tests zero matrix creation
+// TestMat4x4_NewZero tests zero matrix creation.
 func TestMat4x4_NewZero_CreatesZeroMatrix(t *testing.T) {
 	m := NewZero()
 
@@ -49,7 +49,7 @@ func TestMat4x4_NewZero_CreatesZeroMatrix(t *testing.T) {
 	}
 }
 
-// TestMat4x4_Get tests element access
+// TestMat4x4_Get tests element access.
 func TestMat4x4_Get_ReturnsCorrectElement(t *testing.T) {
 	// Matrix stored in column-major order: [col0, col1, col2, col3]
 	// This represents the visual matrix:
@@ -88,7 +88,7 @@ func TestMat4x4_Get_ReturnsCorrectElement(t *testing.T) {
 	}
 }
 
-// TestMat4x4_Set tests element modification
+// TestMat4x4_Set tests element modification.
 func TestMat4x4_Set_ModifiesElement(t *testing.T) {
 	m := NewZero()
 	m.Set(1, 2, 42.0)
@@ -113,7 +113,7 @@ func TestMat4x4_Set_ModifiesElement(t *testing.T) {
 	}
 }
 
-// TestMat4x4_Multiply_WithIdentity tests matrix multiplication with identity
+// TestMat4x4_Multiply_WithIdentity tests matrix multiplication with identity.
 func TestMat4x4_Multiply_WithIdentity_ReturnsOriginal(t *testing.T) {
 	m := Mat4x4{
 		1, 2, 3, 4,
@@ -136,7 +136,7 @@ func TestMat4x4_Multiply_WithIdentity_ReturnsOriginal(t *testing.T) {
 	}
 }
 
-// TestMat4x4_Multiply_WithZero tests matrix multiplication with zero
+// TestMat4x4_Multiply_WithZero tests matrix multiplication with zero.
 func TestMat4x4_Multiply_WithZero_ReturnsZero(t *testing.T) {
 	m := Mat4x4{
 		1, 2, 3, 4,
@@ -154,7 +154,7 @@ func TestMat4x4_Multiply_WithZero_ReturnsZero(t *testing.T) {
 	}
 }
 
-// TestMat4x4_Multiply_General tests general matrix multiplication
+// TestMat4x4_Multiply_General tests general matrix multiplication.
 func TestMat4x4_Multiply_General_ReturnsCorrectProduct(t *testing.T) {
 	// Simple 2x2-like matrices in 4x4 form for easy verification
 	m1 := Mat4x4{
@@ -183,7 +183,7 @@ func TestMat4x4_Multiply_General_ReturnsCorrectProduct(t *testing.T) {
 	}
 }
 
-// TestMat4x4_MultiplyVec3 tests matrix-vector multiplication
+// TestMat4x4_MultiplyVec3 tests matrix-vector multiplication.
 func TestMat4x4_MultiplyVec3_WithIdentity_ReturnsOriginal(t *testing.T) {
 	identity := NewIdentity()
 	v := Vec3{1.0, 2.0, 3.0}
@@ -195,7 +195,7 @@ func TestMat4x4_MultiplyVec3_WithIdentity_ReturnsOriginal(t *testing.T) {
 	}
 }
 
-// TestMat4x4_MultiplyVec3_Scale tests scaling transformation
+// TestMat4x4_MultiplyVec3_Scale tests scaling transformation.
 func TestMat4x4_MultiplyVec3_Scale_ScalesVector(t *testing.T) {
 	// Scale matrix: 2x in X, 3x in Y, 4x in Z
 	scale := Mat4x4{
@@ -214,7 +214,7 @@ func TestMat4x4_MultiplyVec3_Scale_ScalesVector(t *testing.T) {
 	}
 }
 
-// TestMat4x4_Transpose tests matrix transposition
+// TestMat4x4_Transpose tests matrix transposition.
 func TestMat4x4_Transpose_SwapsRowsAndColumns(t *testing.T) {
 	// Original matrix in column-major:
 	//  1  5  9 13
@@ -246,7 +246,7 @@ func TestMat4x4_Transpose_SwapsRowsAndColumns(t *testing.T) {
 	}
 }
 
-// TestMat4x4_Transpose_Identity tests transposing identity matrix
+// TestMat4x4_Transpose_Identity tests transposing identity matrix.
 func TestMat4x4_Transpose_Identity_ReturnsIdentity(t *testing.T) {
 	identity := NewIdentity()
 	result := identity.Transpose()
@@ -256,7 +256,7 @@ func TestMat4x4_Transpose_Identity_ReturnsIdentity(t *testing.T) {
 	}
 }
 
-// TestMat4x4_NewTranslation tests translation matrix creation
+// TestMat4x4_NewTranslation tests translation matrix creation.
 func TestMat4x4_NewTranslation_CreatesTranslationMatrix(t *testing.T) {
 	translation := NewTranslation(10, 20, 30)
 
@@ -279,7 +279,7 @@ func TestMat4x4_NewTranslation_CreatesTranslationMatrix(t *testing.T) {
 	}
 }
 
-// TestMat4x4_NewScale tests scale matrix creation
+// TestMat4x4_NewScale tests scale matrix creation.
 func TestMat4x4_NewScale_CreatesScaleMatrix(t *testing.T) {
 	scale := NewScale(2, 3, 4)
 
@@ -292,7 +292,7 @@ func TestMat4x4_NewScale_CreatesScaleMatrix(t *testing.T) {
 	}
 }
 
-// TestMat4x4_NewRotationX tests X-axis rotation matrix
+// TestMat4x4_NewRotationX tests X-axis rotation matrix.
 func TestMat4x4_NewRotationX_RotatesAroundXAxis(t *testing.T) {
 	// 90 degree rotation around X axis
 	rotation := NewRotationX(math.Pi / 2)
@@ -307,7 +307,7 @@ func TestMat4x4_NewRotationX_RotatesAroundXAxis(t *testing.T) {
 	}
 }
 
-// TestMat4x4_NewRotationY tests Y-axis rotation matrix
+// TestMat4x4_NewRotationY tests Y-axis rotation matrix.
 func TestMat4x4_NewRotationY_RotatesAroundYAxis(t *testing.T) {
 	// 90 degree rotation around Y axis
 	rotation := NewRotationY(math.Pi / 2)
@@ -322,7 +322,7 @@ func TestMat4x4_NewRotationY_RotatesAroundYAxis(t *testing.T) {
 	}
 }
 
-// TestMat4x4_NewRotationZ tests Z-axis rotation matrix
+// TestMat4x4_NewRotationZ tests Z-axis rotation matrix.
 func TestMat4x4_NewRotationZ_RotatesAroundZAxis(t *testing.T) {
 	// 90 degree rotation around Z axis
 	rotation := NewRotationZ(math.Pi / 2)

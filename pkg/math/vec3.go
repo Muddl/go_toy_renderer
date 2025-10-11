@@ -3,6 +3,7 @@
 package math
 
 import (
+	"fmt"
 	stdmath "math"
 )
 
@@ -13,7 +14,7 @@ type Vec3 struct {
 }
 
 // Add returns the sum of two vectors (component-wise addition).
-// This operation is commutative: v1.Add(v2) == v2.Add(v1)
+// This operation is commutative: v1.Add(v2) == v2.Add(v1).
 func (v Vec3) Add(other Vec3) Vec3 {
 	return Vec3{
 		X: v.X + other.X,
@@ -52,7 +53,7 @@ func (v Vec3) Dot(other Vec3) float64 {
 // Cross returns the cross product of two vectors.
 // The result is a vector perpendicular to both input vectors.
 // The magnitude equals the area of the parallelogram formed by the vectors.
-// Uses right-handed coordinate system: i×j=k, j×k=i, k×i=j
+// Uses right-handed coordinate system: i×j=k, j×k=i, k×i=j.
 func (v Vec3) Cross(other Vec3) Vec3 {
 	return Vec3{
 		X: v.Y*other.Z - v.Z*other.Y,
@@ -81,6 +82,19 @@ func (v Vec3) Normalize() Vec3 {
 // Calculated as the length of the vector between the two points.
 func (v Vec3) Distance(other Vec3) float64 {
 	return v.Subtract(other).Length()
+}
+
+// Equals checks if two vectors are approximately equal within the given epsilon tolerance.
+// This is useful for comparing floating-point vectors where exact equality is unreliable.
+func (v Vec3) Equals(other Vec3, epsilon float64) bool {
+	return stdmath.Abs(v.X-other.X) <= epsilon &&
+		stdmath.Abs(v.Y-other.Y) <= epsilon &&
+		stdmath.Abs(v.Z-other.Z) <= epsilon
+}
+
+// String returns a string representation of the vector for debugging and logging.
+func (v Vec3) String() string {
+	return fmt.Sprintf("Vec3(%.4f, %.4f, %.4f)", v.X, v.Y, v.Z)
 }
 
 // sqrt is a helper function wrapper around math.Sqrt for cleaner code.

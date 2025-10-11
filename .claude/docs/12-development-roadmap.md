@@ -8,7 +8,7 @@ This roadmap breaks MVP development into phases, each building on the previous. 
 
 ---
 
-## Phase 0: CI/CD Infrastructure (Day 0-1)
+## Phase 0: CI/CD Infrastructure ⏳ **IN PROGRESS** (Day 0-1)
 
 **Goal:** Establish automated testing and quality gates before development begins.
 
@@ -40,55 +40,60 @@ This roadmap breaks MVP development into phases, each building on the previous. 
    - Go version badge
 
 ### Completion Criteria
-- [ ] CI workflow file created and tested
-- [ ] All jobs passing on main branch
-- [ ] Linter configuration in place
-- [ ] Coverage thresholds enforced
-- [ ] Security scanning operational
-- [ ] Badges added to README
-- [ ] Local pre-commit checks documented
+- [x] CI workflow file created and tested
+- [ ] All jobs passing on main branch (pending PR merge)
+- [x] Linter configuration in place
+- [x] Coverage thresholds enforced
+- [x] Security scanning operational
+- [ ] Badges added to README (post-merge)
+- [x] Local pre-commit checks documented
 
 **When complete:** All future PRs will be automatically validated for quality, tests, and security.
+
+**Status:** ⏳ **IN PROGRESS** - PR #4 pending merge
 
 **Estimated time:** 2-4 hours (mostly configuration and testing)
 
 ---
 
-## Phase 1: Math Foundation (Days 1-3)
+## Phase 1: Math Foundation ✅ **COMPLETED** (Day 1)
 
 **Goal:** Rock-solid math library that everything else depends on.
 
-### Tasks
-1. Implement Vector3 type and operations
-   - Add, subtract, scale, dot, cross, normalize, length
-   - Test extensively with known results
+**Status:** Completed 2025-10-10
 
-2. Implement Matrix4x4 type and operations
-   - Identity, multiply, transpose
-   - Test matrix multiplication properties
+### Tasks Completed ✅
+1. ✅ Implement Vec3 type and operations
+   - Add, subtract, scale, dot, cross, normalize, length, distance
+   - 46 comprehensive tests with known results
+   - 100% test coverage
 
-3. Create transformation matrices
-   - Translation, rotation (axis-angle or Euler), scale
-   - Test known transformations (90° rotation, etc.)
+2. ✅ Implement Mat4x4 type and operations
+   - Identity, zero, multiply, transpose, element access
+   - Comprehensive tests for matrix multiplication properties
 
-4. Implement camera matrices
-   - LookAt (view matrix)
-   - Perspective projection
-   - Test with known camera positions
+3. ✅ Create basic transformation matrices
+   - Translation, rotation (X/Y/Z axes), scale
+   - Tests for known transformations (90° rotation, identity, etc.)
 
-5. Viewport transformation
-   - NDC to screen coordinates
-   - Test coordinate mapping
+### Tasks Deferred to Phase 3 (Camera System)
+- ⏳ LookAt matrix (view matrix) - part of Camera implementation
+- ⏳ Perspective projection - part of Camera implementation
+- ⏳ Viewport transformation - part of Camera implementation
 
 ### Completion Criteria
-- [x] All vector operations pass tests
-- [x] Matrix operations pass tests
-- [x] Can create all transformation matrices
-- [x] >90% test coverage in math package (100% achieved)
-- [x] No known bugs
-- [x] CI pipeline validates all changes
+- ✅ All vector operations pass tests (46 tests)
+- ✅ Matrix operations pass tests (comprehensive coverage)
+- ✅ Can create basic transformation matrices (translation, rotation, scale)
+- ✅ >90% test coverage in math package (100% achieved)
+- ✅ No known bugs
+- ⏳ Camera matrices deferred to Phase 3
 
-**When complete:** You can transform points from 3D to 2D. Foundation is solid.
+**Achievement:** Foundation is solid. Ready for Phase 2 (Geometry & Scene).
+
+**Time taken:** ~1 day (faster than 2-3 day estimate due to TDD efficiency)
+
+**Next:** Phase 2 - Geometry & Scene component (after Phase 0 CI/CD merge)
 
 **Status:** ✅ **COMPLETED** (2025-10-10)
 
@@ -141,13 +146,13 @@ This roadmap breaks MVP development into phases, each building on the previous. 
    - Position, target, up vector
    - FOV, aspect, near, far
 
-2. Implement view matrix generation
-   - Use LookAt from Phase 1
-   - Test camera transformations
+2. Implement view matrix generation (LookAt)
+   - Create LookAt matrix function
+   - Test camera transformations with known results
 
-3. Implement projection matrix generation
-   - Use perspective projection from Phase 1
-   - Test projection properties
+3. Implement projection matrix generation (Perspective)
+   - Create perspective projection matrix function
+   - Test projection properties with known cases
 
 4. Combine into view-projection matrix
    - Pre-multiply for efficiency
@@ -433,20 +438,22 @@ This roadmap breaks MVP development into phases, each building on the previous. 
 
 MVP is complete when:
 
-- [x] CI/CD pipeline operational
-- [x] Math library fully implemented and tested
-- [ ] Can create test geometry (cube/tetrahedron)
-- [ ] Camera system works
-- [ ] Framebuffer stores and saves images
-- [ ] Rasterizer fills triangles correctly
-- [ ] Shader calculates colors
-- [ ] Render pipeline connects all components
-- [ ] Can render colored 3D object with perspective
-- [ ] Output image saved as PNG
-- [ ] Tests pass (>70% coverage)
-- [ ] All CI checks pass on main
-- [ ] Demo app works
-- [ ] No critical bugs
+- ⏳ CI/CD pipeline operational (Phase 0 - pending PR merge)
+- ✅ Math library fully implemented and tested (Phase 1 complete)
+- [ ] Can create test geometry (cube/tetrahedron) (Phase 2)
+- [ ] Camera system works (Phase 3)
+- [ ] Framebuffer stores and saves images (Phase 4)
+- [ ] Rasterizer fills triangles correctly (Phase 5)
+- [ ] Shader calculates colors (Phase 6)
+- [ ] Render pipeline connects all components (Phase 7)
+- [ ] Can render colored 3D object with perspective (Phase 7)
+- [ ] Output image saved as PNG (Phase 7)
+- [ ] Tests pass (>70% coverage) (Phase 8)
+- ⏳ All CI checks pass on main (Phase 0 - pending)
+- [ ] Demo app works (Phase 8)
+- [ ] No critical bugs (Phase 8)
+
+**Progress: 1/14 major milestones complete (7.1%), 2/14 in progress (14.3%)**
 
 **When all checked: MVP is done!**
 

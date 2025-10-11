@@ -29,16 +29,18 @@ These features are REQUIRED for MVP completion. Without these, the renderer is n
 **What:** Vector and matrix operations
 
 **Requirements:**
-- Vec3 add, subtract, scale, dot, cross, normalize
-- Mat4x4 multiply, identity, transpose
-- Transform creation: translation, rotation, scale
-- LookAt matrix for camera
-- Perspective projection matrix
-- Viewport transformation
+- ✅ Vec3 add, subtract, scale, dot, cross, normalize, distance (46 tests, 100% coverage)
+- ✅ Mat4x4 multiply, identity, zero, transpose, element access (100% coverage)
+- ✅ Transform creation: translation, rotation (X/Y/Z), scale (all tested)
+- ⏳ LookAt matrix for camera (Phase 3 - Camera System)
+- ⏳ Perspective projection matrix (Phase 3 - Camera System)
+- ⏳ Viewport transformation (Phase 3 - Camera System)
 
-**Success criteria:** All math operations pass unit tests with known results.
+**Status:** ✅ Phase 1 complete (2025-10-10). Camera matrices deferred to Phase 3.
 
-**Status:** ✅ **Complete** (100% test coverage achieved)
+**Success criteria:**
+- ✅ All basic math operations pass unit tests with known results
+- ⏳ Camera transformation matrices (Phase 3)
 
 ---
 
@@ -205,6 +207,7 @@ These features are valuable but too complex for initial MVP:
 
 Use this checklist to verify MVP is complete:
 
+<<<<<<< HEAD
 - [x] CI/CD pipeline operational with all quality gates
 - [x] Math library has all required operations
 - [ ] Can create at least one test mesh (cube/tetrahedron)
@@ -217,6 +220,20 @@ Use this checklist to verify MVP is complete:
 - [ ] Output image visually shows 3D object with perspective
 - [ ] All core components have basic tests
 - [ ] All CI checks pass on main branch
+=======
+- ⏳ Math library has all required operations (Phase 1 basic ops ✅, Phase 3 camera ops pending)
+- [ ] Can create at least one test mesh (cube/tetrahedron) (Phase 2)
+- [ ] Camera can be positioned and oriented (Phase 3)
+- [ ] Framebuffer can store and export pixels (Phase 4)
+- [ ] Triangle rasterizer fills correct pixels (Phase 5)
+- [ ] Colors interpolate smoothly across triangles (Phase 5)
+- [ ] Depth test prevents Z-fighting (Phase 4)
+- [ ] Complete pipeline renders mesh to image file (Phase 7)
+- [ ] Output image visually shows 3D object with perspective (Phase 7)
+- ✅ All core components have basic tests (Phase 1: 100% math coverage)
+
+**Progress: 1/10 items complete, 1/10 partially complete**
+>>>>>>> origin/main
 
 ---
 

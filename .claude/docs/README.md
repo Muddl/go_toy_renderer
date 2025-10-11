@@ -161,14 +161,20 @@ These docs are designed to be:
 
 ## Next Steps
 
-**Ready to start coding?**
+**✅ Phase 1 Complete** (Math Foundation)
 
-1. Set up Go project structure (see CLAUDE.md in repo root)
-2. **Begin with Phase 0: CI/CD Infrastructure** (ensure quality gates from day 1)
-3. Continue with Phase 1: Math Foundation ✅ **COMPLETED**
-4. Write tests first (TDD)
-5. Commit frequently
-6. Refer back to these docs as needed
+**Current Phase: Phase 0 - CI/CD Infrastructure** (pending PR merge)
+
+**Next Phase: Phase 2 - Geometry & Scene**
+
+1. Merge Phase 0 CI/CD infrastructure PR
+2. Set up Go project structure (see CLAUDE.md in repo root)
+3. Create feature branch: `git checkout -b feature/geometry-component`
+4. Implement Vertex type with position and color
+5. Implement Mesh type with vertex/index buffers
+6. Create hardcoded primitives (tetrahedron, cube)
+7. Write tests first (TDD) for all components
+8. See [Development Roadmap](12-development-roadmap.md) for details
 
 **Questions or stuck?**
 - Review the relevant component doc
@@ -188,10 +194,13 @@ These docs are written for MVP scope only. As the project evolves:
 - Keep architecture doc current with major changes
 
 **Last updated:** 2025-10-10
+- Phase 1 (Math Foundation) completed and documented (✅ 100% coverage)
 - Added comprehensive CI/CD Infrastructure documentation (doc 13)
 - Consolidated CI/CD docs from .github/ into .claude/docs/
 - Added Phase 0 (CI/CD Infrastructure) to roadmap
-- Updated feature status tracking (Phase 1 complete)
+- Math component doc updated with implementation status
+- Development roadmap updated with Phase 1 completion
+- MVP features checklist updated with Phase 1 progress
 - Added CI/CD requirements to MVP features
 
 ---

@@ -3,12 +3,6 @@
 // Full implementation will be added in Phase 7 (Pipeline Integration).
 package main
 
-import (
-	"fmt"
-)
-
 func main() {
-	fmt.Println("go_toy_renderer - 3D Software Renderer")
-	fmt.Println("MVP implementation in progress...")
-	fmt.Println("Current status: Phase 2 (Geometry Component) complete")
+	// Pass for now, just need a main class for CI
 }

@@ -4,7 +4,7 @@ import (
 	"testing"
 )
 
-// TestNewTetrahedron_CreatesValidMesh tests tetrahedron creation
+// TestNewTetrahedron_CreatesValidMesh tests tetrahedron creation.
 func TestNewTetrahedron_CreatesValidMesh(t *testing.T) {
 	mesh := NewTetrahedron()
 
@@ -29,7 +29,7 @@ func TestNewTetrahedron_CreatesValidMesh(t *testing.T) {
 	}
 }
 
-// TestNewTetrahedron_HasUniqueColors tests each vertex has a distinct color
+// TestNewTetrahedron_HasUniqueColors tests each vertex has a distinct color.
 func TestNewTetrahedron_HasUniqueColors(t *testing.T) {
 	mesh := NewTetrahedron()
 
@@ -48,7 +48,7 @@ func TestNewTetrahedron_HasUniqueColors(t *testing.T) {
 	}
 }
 
-// TestNewTetrahedron_VerticesFormValidShape tests tetrahedron geometry
+// TestNewTetrahedron_VerticesFormValidShape tests tetrahedron geometry.
 func TestNewTetrahedron_VerticesFormValidShape(t *testing.T) {
 	mesh := NewTetrahedron()
 
@@ -63,7 +63,7 @@ func TestNewTetrahedron_VerticesFormValidShape(t *testing.T) {
 	}
 }
 
-// TestNewCube_CreatesValidMesh tests cube creation
+// TestNewCube_CreatesValidMesh tests cube creation.
 func TestNewCube_CreatesValidMesh(t *testing.T) {
 	mesh := NewCube()
 
@@ -88,7 +88,7 @@ func TestNewCube_CreatesValidMesh(t *testing.T) {
 	}
 }
 
-// TestNewCube_HasCorrectWindingOrder tests cube triangle winding
+// TestNewCube_HasCorrectWindingOrder tests cube triangle winding.
 func TestNewCube_HasCorrectWindingOrder(t *testing.T) {
 	mesh := NewCube()
 
@@ -115,7 +115,7 @@ func TestNewCube_HasCorrectWindingOrder(t *testing.T) {
 	}
 }
 
-// TestNewCube_VerticesAt8Corners tests cube vertex positions
+// TestNewCube_VerticesAt8Corners tests cube vertex positions.
 func TestNewCube_VerticesAt8Corners(t *testing.T) {
 	mesh := NewCube()
 
@@ -131,7 +131,7 @@ func TestNewCube_VerticesAt8Corners(t *testing.T) {
 	}
 }
 
-// TestNewCube_HasColoredVertices tests cube vertices have colors
+// TestNewCube_HasColoredVertices tests cube vertices have colors.
 func TestNewCube_HasColoredVertices(t *testing.T) {
 	mesh := NewCube()
 

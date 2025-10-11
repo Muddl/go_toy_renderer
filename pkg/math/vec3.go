@@ -14,7 +14,7 @@ type Vec3 struct {
 }
 
 // Add returns the sum of two vectors (component-wise addition).
-// This operation is commutative: v1.Add(v2) == v2.Add(v1)
+// This operation is commutative: v1.Add(v2) == v2.Add(v1).
 func (v Vec3) Add(other Vec3) Vec3 {
 	return Vec3{
 		X: v.X + other.X,
@@ -53,7 +53,7 @@ func (v Vec3) Dot(other Vec3) float64 {
 // Cross returns the cross product of two vectors.
 // The result is a vector perpendicular to both input vectors.
 // The magnitude equals the area of the parallelogram formed by the vectors.
-// Uses right-handed coordinate system: i×j=k, j×k=i, k×i=j
+// Uses right-handed coordinate system: i×j=k, j×k=i, k×i=j.
 func (v Vec3) Cross(other Vec3) Vec3 {
 	return Vec3{
 		X: v.Y*other.Z - v.Z*other.Y,

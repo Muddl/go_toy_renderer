@@ -6,7 +6,7 @@ import (
 	"github.com/muddl/go_toy_renderer/pkg/math"
 )
 
-// TestMesh_Creation_CreatesEmptyMesh tests creating an empty mesh
+// TestMesh_Creation_CreatesEmptyMesh tests creating an empty mesh.
 func TestMesh_Creation_CreatesEmptyMesh(t *testing.T) {
 	mesh := NewMesh()
 
@@ -19,7 +19,7 @@ func TestMesh_Creation_CreatesEmptyMesh(t *testing.T) {
 	}
 }
 
-// TestMesh_AddVertex_AddsVertexToMesh tests adding vertices to a mesh
+// TestMesh_AddVertex_AddsVertexToMesh tests adding vertices to a mesh.
 func TestMesh_AddVertex_AddsVertexToMesh(t *testing.T) {
 	mesh := NewMesh()
 
@@ -42,7 +42,7 @@ func TestMesh_AddVertex_AddsVertexToMesh(t *testing.T) {
 	}
 }
 
-// TestMesh_AddTriangle_AddsTriangleIndices tests adding triangle indices
+// TestMesh_AddTriangle_AddsTriangleIndices tests adding triangle indices.
 func TestMesh_AddTriangle_AddsTriangleIndices(t *testing.T) {
 	mesh := NewMesh()
 
@@ -61,7 +61,7 @@ func TestMesh_AddTriangle_AddsTriangleIndices(t *testing.T) {
 	}
 }
 
-// TestMesh_TriangleCount_ReturnsNumberOfTriangles tests triangle counting
+// TestMesh_TriangleCount_ReturnsNumberOfTriangles tests triangle counting.
 func TestMesh_TriangleCount_ReturnsNumberOfTriangles(t *testing.T) {
 	tests := []struct {
 		name     string
@@ -102,7 +102,7 @@ func TestMesh_TriangleCount_ReturnsNumberOfTriangles(t *testing.T) {
 	}
 }
 
-// TestMesh_GetTriangle_ReturnsTriangleIndices tests retrieving triangle indices
+// TestMesh_GetTriangle_ReturnsTriangleIndices tests retrieving triangle indices.
 func TestMesh_GetTriangle_ReturnsTriangleIndices(t *testing.T) {
 	mesh := NewMesh()
 	mesh.AddTriangle(0, 1, 2)
@@ -156,7 +156,7 @@ func TestMesh_GetTriangle_ReturnsTriangleIndices(t *testing.T) {
 	}
 }
 
-// TestMesh_GetTriangleVertices_ReturnsVertexData tests retrieving triangle vertex data
+// TestMesh_GetTriangleVertices_ReturnsVertexData tests retrieving triangle vertex data.
 func TestMesh_GetTriangleVertices_ReturnsVertexData(t *testing.T) {
 	mesh := NewMesh()
 
@@ -186,7 +186,7 @@ func TestMesh_GetTriangleVertices_ReturnsVertexData(t *testing.T) {
 	}
 }
 
-// TestMesh_ValidateIndices_ChecksIndexBounds tests index validation
+// TestMesh_ValidateIndices_ChecksIndexBounds tests index validation.
 func TestMesh_ValidateIndices_ChecksIndexBounds(t *testing.T) {
 	tests := []struct {
 		name        string

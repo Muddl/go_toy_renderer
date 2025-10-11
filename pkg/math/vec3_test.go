@@ -5,17 +5,17 @@ import (
 	"testing"
 )
 
-// epsilon for floating point comparisons
+// epsilon for floating point comparisons.
 const epsilon = 0.0001
 
-// Helper function to compare Vec3 with epsilon tolerance
+// Helper function to compare Vec3 with epsilon tolerance.
 func vec3Equals(v1, v2 Vec3, tolerance float64) bool {
 	return math.Abs(v1.X-v2.X) < tolerance &&
 		math.Abs(v1.Y-v2.Y) < tolerance &&
 		math.Abs(v1.Z-v2.Z) < tolerance
 }
 
-// TestVec3_Add tests vector addition operation
+// TestVec3_Add tests vector addition operation.
 func TestVec3_Add_ReturnsSumOfVectors(t *testing.T) {
 	tests := []struct {
 		name     string
@@ -65,7 +65,7 @@ func TestVec3_Add_ReturnsSumOfVectors(t *testing.T) {
 	}
 }
 
-// TestVec3_Subtract tests vector subtraction operation
+// TestVec3_Subtract tests vector subtraction operation.
 func TestVec3_Subtract_ReturnsDifferenceOfVectors(t *testing.T) {
 	tests := []struct {
 		name     string
@@ -115,7 +115,7 @@ func TestVec3_Subtract_ReturnsDifferenceOfVectors(t *testing.T) {
 	}
 }
 
-// TestVec3_Scale tests scalar multiplication operation
+// TestVec3_Scale tests scalar multiplication operation.
 func TestVec3_Scale_ReturnsScaledVector(t *testing.T) {
 	tests := []struct {
 		name     string
@@ -171,7 +171,7 @@ func TestVec3_Scale_ReturnsScaledVector(t *testing.T) {
 	}
 }
 
-// TestVec3_Construction tests basic Vec3 construction
+// TestVec3_Construction tests basic Vec3 construction.
 func TestVec3_Construction_CreatesVectorWithCorrectValues(t *testing.T) {
 	v := Vec3{1.0, 2.0, 3.0}
 
@@ -186,7 +186,7 @@ func TestVec3_Construction_CreatesVectorWithCorrectValues(t *testing.T) {
 	}
 }
 
-// TestVec3_Dot tests dot product operation
+// TestVec3_Dot tests dot product operation.
 func TestVec3_Dot_ReturnsScalarProduct(t *testing.T) {
 	tests := []struct {
 		name     string
@@ -242,7 +242,7 @@ func TestVec3_Dot_ReturnsScalarProduct(t *testing.T) {
 	}
 }
 
-// TestVec3_Cross tests cross product operation
+// TestVec3_Cross tests cross product operation.
 func TestVec3_Cross_ReturnsPerpendicularVector(t *testing.T) {
 	tests := []struct {
 		name     string
@@ -304,7 +304,7 @@ func TestVec3_Cross_ReturnsPerpendicularVector(t *testing.T) {
 	}
 }
 
-// TestVec3_Length tests vector magnitude calculation
+// TestVec3_Length tests vector magnitude calculation.
 func TestVec3_Length_ReturnsVectorMagnitude(t *testing.T) {
 	tests := []struct {
 		name     string
@@ -358,7 +358,7 @@ func TestVec3_Length_ReturnsVectorMagnitude(t *testing.T) {
 	}
 }
 
-// TestVec3_Normalize tests vector normalization
+// TestVec3_Normalize tests vector normalization.
 func TestVec3_Normalize_ReturnsUnitVector(t *testing.T) {
 	tests := []struct {
 		name     string
@@ -402,7 +402,7 @@ func TestVec3_Normalize_ReturnsUnitVector(t *testing.T) {
 	}
 }
 
-// TestVec3_Normalize_ZeroVector tests normalization edge case with zero vector
+// TestVec3_Normalize_ZeroVector tests normalization edge case with zero vector.
 func TestVec3_Normalize_ZeroVector_ReturnsZeroVector(t *testing.T) {
 	v := Vec3{0.0, 0.0, 0.0}
 	result := v.Normalize()
@@ -413,7 +413,7 @@ func TestVec3_Normalize_ZeroVector_ReturnsZeroVector(t *testing.T) {
 	}
 }
 
-// TestVec3_Distance tests distance calculation between two points
+// TestVec3_Distance tests distance calculation between two points.
 func TestVec3_Distance_ReturnsDistanceBetweenPoints(t *testing.T) {
 	tests := []struct {
 		name     string

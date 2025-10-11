@@ -6,7 +6,7 @@ import (
 	"github.com/muddl/go_toy_renderer/pkg/math"
 )
 
-// TestVertex_Creation_CreatesVertexWithPositionAndColor tests vertex creation
+// TestVertex_Creation_CreatesVertexWithPositionAndColor tests vertex creation.
 func TestVertex_Creation_CreatesVertexWithPositionAndColor(t *testing.T) {
 	position := math.Vec3{X: 1.0, Y: 2.0, Z: 3.0}
 	color := math.Vec3{X: 1.0, Y: 0.0, Z: 0.0} // Red
@@ -25,7 +25,7 @@ func TestVertex_Creation_CreatesVertexWithPositionAndColor(t *testing.T) {
 	}
 }
 
-// TestVertex_NewVertex_CreatesVertexWithGivenValues tests NewVertex constructor
+// TestVertex_NewVertex_CreatesVertexWithGivenValues tests NewVertex constructor.
 func TestVertex_NewVertex_CreatesVertexWithGivenValues(t *testing.T) {
 	tests := []struct {
 		name     string
@@ -64,7 +64,7 @@ func TestVertex_NewVertex_CreatesVertexWithGivenValues(t *testing.T) {
 	}
 }
 
-// TestVertex_Equals_ReturnsTrueForEqualVertices tests vertex equality
+// TestVertex_Equals_ReturnsTrueForEqualVertices tests vertex equality.
 func TestVertex_Equals_ReturnsTrueForEqualVertices(t *testing.T) {
 	v1 := NewVertex(
 		math.Vec3{X: 1.0, Y: 2.0, Z: 3.0},
@@ -80,7 +80,7 @@ func TestVertex_Equals_ReturnsTrueForEqualVertices(t *testing.T) {
 	}
 }
 
-// TestVertex_Equals_ReturnsFalseForDifferentVertices tests vertex inequality
+// TestVertex_Equals_ReturnsFalseForDifferentVertices tests vertex inequality.
 func TestVertex_Equals_ReturnsFalseForDifferentVertices(t *testing.T) {
 	tests := []struct {
 		name string
@@ -131,7 +131,7 @@ func TestVertex_Equals_ReturnsFalseForDifferentVertices(t *testing.T) {
 	}
 }
 
-// TestVertex_Equals_HandlesEpsilonComparison tests epsilon-based float comparison
+// TestVertex_Equals_HandlesEpsilonComparison tests epsilon-based float comparison.
 func TestVertex_Equals_HandlesEpsilonComparison(t *testing.T) {
 	v1 := NewVertex(
 		math.Vec3{X: 1.0, Y: 2.0, Z: 3.0},

@@ -8,6 +8,54 @@ This roadmap breaks MVP development into phases, each building on the previous. 
 
 ---
 
+## Phase 0: CI/CD Infrastructure ⏳ **IN PROGRESS** (Day 0-1)
+
+**Goal:** Establish automated testing and quality gates before development begins.
+
+### Tasks
+1. Set up GitHub Actions CI/CD pipeline
+   - Create `.github/workflows/ci.yml` with complete workflow
+   - Configure multi-platform build matrix (Linux, macOS, Windows)
+   - Set up test execution with race detector and coverage reporting
+   - Add golangci-lint for code quality enforcement
+
+2. Configure linter settings
+   - Create `.golangci.yml` with recommended Go linters
+   - Enable 48+ linters (gofmt, govet, errcheck, staticcheck, etc.)
+   - Set reasonable complexity thresholds for learning project
+
+3. Integrate security scanning
+   - Add govulncheck for vulnerability detection
+   - Configure scheduled security scans (weekly)
+   - Set up GitHub Security tab integration
+
+4. Set up coverage enforcement
+   - Configure 70% overall coverage threshold
+   - Configure 90% math package coverage threshold
+   - Automatic coverage reporting to Codecov (optional)
+
+5. Add CI badges to README
+   - Build status badge
+   - Coverage badge (if using Codecov)
+   - Go version badge
+
+### Completion Criteria
+- [x] CI workflow file created and tested
+- [ ] All jobs passing on main branch (pending PR merge)
+- [x] Linter configuration in place
+- [x] Coverage thresholds enforced
+- [x] Security scanning operational
+- [ ] Badges added to README (post-merge)
+- [x] Local pre-commit checks documented
+
+**When complete:** All future PRs will be automatically validated for quality, tests, and security.
+
+**Status:** ⏳ **IN PROGRESS** - PR #4 pending merge
+
+**Estimated time:** 2-4 hours (mostly configuration and testing)
+
+---
+
 ## Phase 1: Math Foundation ✅ **COMPLETED** (Day 1)
 
 **Goal:** Rock-solid math library that everything else depends on.
@@ -45,7 +93,9 @@ This roadmap breaks MVP development into phases, each building on the previous. 
 
 **Time taken:** ~1 day (faster than 2-3 day estimate due to TDD efficiency)
 
-**Next:** Phase 2 - Geometry & Scene component
+**Next:** Phase 2 - Geometry & Scene component (after Phase 0 CI/CD merge)
+
+**Status:** ✅ **COMPLETED** (2025-10-10)
 
 ---
 
@@ -388,6 +438,7 @@ This roadmap breaks MVP development into phases, each building on the previous. 
 
 MVP is complete when:
 
+- ⏳ CI/CD pipeline operational (Phase 0 - pending PR merge)
 - ✅ Math library fully implemented and tested (Phase 1 complete)
 - [ ] Can create test geometry (cube/tetrahedron) (Phase 2)
 - [ ] Camera system works (Phase 3)
@@ -398,10 +449,11 @@ MVP is complete when:
 - [ ] Can render colored 3D object with perspective (Phase 7)
 - [ ] Output image saved as PNG (Phase 7)
 - [ ] Tests pass (>70% coverage) (Phase 8)
+- ⏳ All CI checks pass on main (Phase 0 - pending)
 - [ ] Demo app works (Phase 8)
 - [ ] No critical bugs (Phase 8)
 
-**Progress: 1/12 major milestones complete (8.3%)**
+**Progress: 1/14 major milestones complete (7.1%), 2/14 in progress (14.3%)**
 
 **When all checked: MVP is done!**
 

@@ -61,6 +61,7 @@ Each component doc explains purpose, requirements, and testing approach:
 ### Planning & Execution
 
 10. **[MVP Features](10-mvp-features.md)**
+    - CI/CD infrastructure requirements (Phase 0)
     - Required features checklist
     - Nice-to-have features
     - Out-of-scope items
@@ -72,9 +73,22 @@ Each component doc explains purpose, requirements, and testing approach:
     - Testing best practices
 
 12. **[Development Roadmap](12-development-roadmap.md)**
-    - Phase-by-phase implementation plan
+    - Phase 0: CI/CD Infrastructure (NEW)
+    - Phase 1-8: Implementation phases
     - Time estimates
     - Completion criteria per phase
+
+---
+
+### Infrastructure & Tooling
+
+13. **[CI/CD Infrastructure](13-cicd-infrastructure.md)**
+    - GitHub Actions pipeline architecture
+    - Automated testing and security scanning
+    - Linter configuration (48+ linters)
+    - Coverage enforcement (70%/90%)
+    - Badge setup and troubleshooting
+    - Integration with TDD workflow
 
 ---
 
@@ -83,8 +97,9 @@ Each component doc explains purpose, requirements, and testing approach:
 ### If you're starting fresh:
 1. Read [01-mvp-vision.md](01-mvp-vision.md) to understand the goal
 2. Skim [02-architecture-overview.md](02-architecture-overview.md) for big picture
-3. Follow [12-development-roadmap.md](12-development-roadmap.md) phase by phase
-4. Reference component docs as you implement each part
+3. Review [13-cicd-infrastructure.md](13-cicd-infrastructure.md) for CI/CD setup details
+4. Follow [12-development-roadmap.md](12-development-roadmap.md) starting with Phase 0 (CI/CD)
+5. Reference component docs as you implement each part
 
 ### If you're mid-development:
 - Use component docs as reference for what to implement
@@ -114,8 +129,15 @@ These docs are designed to be:
 
 ## Quick Reference
 
+### Must-Have Infrastructure (Phase 0)
+- GitHub Actions CI/CD pipeline
+- Multi-platform builds (Linux, macOS, Windows)
+- Automated testing with coverage enforcement
+- Security scanning (govulncheck)
+- Linting (golangci-lint)
+
 ### Must-Have Features (MVP)
-- 3D math (vectors, matrices)
+- 3D math (vectors, matrices) ✅
 - Basic geometry (cube/tetrahedron)
 - Camera system
 - Framebuffer with depth test
@@ -131,9 +153,9 @@ These docs are designed to be:
 ✓ Core tests pass
 
 ### Timeline Estimate
-- Conservative: 20-25 days
-- Moderate: 12-15 days
-- Optimistic: 8-10 days
+- Phase 0 (CI/CD): 0.5-1 day
+- Phases 1-8 (Development): 12-20 days
+- Total: ~13-21 days
 
 ---
 
@@ -141,14 +163,18 @@ These docs are designed to be:
 
 **✅ Phase 1 Complete** (Math Foundation)
 
-**Current Phase: Phase 2 - Geometry & Scene**
+**Current Phase: Phase 0 - CI/CD Infrastructure** (pending PR merge)
 
-1. Create feature branch: `git checkout -b feature/geometry-component`
-2. Implement Vertex type with position and color
-3. Implement Mesh type with vertex/index buffers
-4. Create hardcoded primitives (tetrahedron, cube)
-5. Write tests first (TDD) for all components
-6. See [Development Roadmap](12-development-roadmap.md) for details
+**Next Phase: Phase 2 - Geometry & Scene**
+
+1. Merge Phase 0 CI/CD infrastructure PR
+2. Set up Go project structure (see CLAUDE.md in repo root)
+3. Create feature branch: `git checkout -b feature/geometry-component`
+4. Implement Vertex type with position and color
+5. Implement Mesh type with vertex/index buffers
+6. Create hardcoded primitives (tetrahedron, cube)
+7. Write tests first (TDD) for all components
+8. See [Development Roadmap](12-development-roadmap.md) for details
 
 **Questions or stuck?**
 - Review the relevant component doc
@@ -168,10 +194,14 @@ These docs are written for MVP scope only. As the project evolves:
 - Keep architecture doc current with major changes
 
 **Last updated:** 2025-10-10
-- Phase 1 (Math Foundation) completed and documented
+- Phase 1 (Math Foundation) completed and documented (✅ 100% coverage)
+- Added comprehensive CI/CD Infrastructure documentation (doc 13)
+- Consolidated CI/CD docs from .github/ into .claude/docs/
+- Added Phase 0 (CI/CD Infrastructure) to roadmap
 - Math component doc updated with implementation status
 - Development roadmap updated with Phase 1 completion
 - MVP features checklist updated with Phase 1 progress
+- Added CI/CD requirements to MVP features
 
 ---
 

@@ -1,10 +1,31 @@
 # MVP Feature Requirements
 
+## Infrastructure (Must Have First)
+
+These infrastructure features are REQUIRED before development begins. They ensure code quality and prevent regressions.
+
+### 0. CI/CD Pipeline ✓
+**What:** Automated testing, building, and quality enforcement
+
+**Requirements:**
+- GitHub Actions workflow with multi-platform builds (Linux, macOS, Windows)
+- Automated test execution with race detector on all PRs
+- Code coverage enforcement (70% overall, 90% math package)
+- Linting with golangci-lint (48+ linters)
+- Security scanning with govulncheck
+- Status badges in README
+
+**Success criteria:** All PRs automatically validated for tests, coverage, quality, and security before merge.
+
+**Status:** ⏳ **Planned** - Implementation pending approval
+
+---
+
 ## Core Features (Must Have)
 
 These features are REQUIRED for MVP completion. Without these, the renderer is not functional.
 
-### 1. Basic 3D Math ⏳ **PARTIALLY COMPLETE**
+### 1. Basic 3D Math ✅
 **What:** Vector and matrix operations
 
 **Requirements:**
@@ -15,7 +36,7 @@ These features are REQUIRED for MVP completion. Without these, the renderer is n
 - ⏳ Perspective projection matrix (Phase 3 - Camera System)
 - ⏳ Viewport transformation (Phase 3 - Camera System)
 
-**Status:** Phase 1 complete (2025-10-10). Camera matrices deferred to Phase 3.
+**Status:** ✅ Phase 1 complete (2025-10-10). Camera matrices deferred to Phase 3.
 
 **Success criteria:**
 - ✅ All basic math operations pass unit tests with known results
@@ -23,7 +44,7 @@ These features are REQUIRED for MVP completion. Without these, the renderer is n
 
 ---
 
-### 2. Simple Geometry ✓
+### 2. Simple Geometry ⏳
 **What:** Basic 3D shapes
 
 **Requirements:**
@@ -34,9 +55,11 @@ These features are REQUIRED for MVP completion. Without these, the renderer is n
 
 **Success criteria:** Can create a mesh with valid triangles.
 
+**Status:** ⏳ **Pending** (Phase 2)
+
 ---
 
-### 3. Camera System ✓
+### 3. Camera System ⏳
 **What:** Viewpoint control
 
 **Requirements:**
@@ -48,9 +71,11 @@ These features are REQUIRED for MVP completion. Without these, the renderer is n
 
 **Success criteria:** Camera transformations produce correct screen-space coordinates.
 
+**Status:** ⏳ **Pending** (Phase 3)
+
 ---
 
-### 4. Framebuffer ✓
+### 4. Framebuffer ⏳
 **What:** Pixel storage with depth testing
 
 **Requirements:**
@@ -62,9 +87,11 @@ These features are REQUIRED for MVP completion. Without these, the renderer is n
 
 **Success criteria:** Can write pixels and save valid image file.
 
+**Status:** ⏳ **Pending** (Phase 4)
+
 ---
 
-### 5. Triangle Rasterization ✓
+### 5. Triangle Rasterization ⏳
 **What:** Convert triangles to pixels
 
 **Requirements:**
@@ -75,9 +102,11 @@ These features are REQUIRED for MVP completion. Without these, the renderer is n
 
 **Success criteria:** Rasterized triangle fills correct pixels with interpolated colors.
 
+**Status:** ⏳ **Pending** (Phase 5)
+
 ---
 
-### 6. Basic Shader ✓
+### 6. Basic Shader ⏳
 **What:** Per-pixel color calculation
 
 **Requirements:**
@@ -87,9 +116,11 @@ These features are REQUIRED for MVP completion. Without these, the renderer is n
 
 **Success criteria:** Shader receives interpolated attributes and produces colors.
 
+**Status:** ⏳ **Pending** (Phase 6)
+
 ---
 
-### 7. Rendering Pipeline ✓
+### 7. Rendering Pipeline ⏳
 **What:** Orchestrate all components
 
 **Requirements:**
@@ -101,6 +132,8 @@ These features are REQUIRED for MVP completion. Without these, the renderer is n
 - Save final image
 
 **Success criteria:** Complete render of a simple mesh produces valid output image.
+
+**Status:** ⏳ **Pending** (Phase 7)
 
 ---
 
@@ -174,6 +207,20 @@ These features are valuable but too complex for initial MVP:
 
 Use this checklist to verify MVP is complete:
 
+<<<<<<< HEAD
+- [x] CI/CD pipeline operational with all quality gates
+- [x] Math library has all required operations
+- [ ] Can create at least one test mesh (cube/tetrahedron)
+- [ ] Camera can be positioned and oriented
+- [ ] Framebuffer can store and export pixels
+- [ ] Triangle rasterizer fills correct pixels
+- [ ] Colors interpolate smoothly across triangles
+- [ ] Depth test prevents Z-fighting
+- [ ] Complete pipeline renders mesh to image file
+- [ ] Output image visually shows 3D object with perspective
+- [ ] All core components have basic tests
+- [ ] All CI checks pass on main branch
+=======
 - ⏳ Math library has all required operations (Phase 1 basic ops ✅, Phase 3 camera ops pending)
 - [ ] Can create at least one test mesh (cube/tetrahedron) (Phase 2)
 - [ ] Camera can be positioned and oriented (Phase 3)
@@ -186,6 +233,7 @@ Use this checklist to verify MVP is complete:
 - ✅ All core components have basic tests (Phase 1: 100% math coverage)
 
 **Progress: 1/10 items complete, 1/10 partially complete**
+>>>>>>> origin/main
 
 ---
 

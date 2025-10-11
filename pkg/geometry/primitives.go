@@ -13,8 +13,8 @@ func NewTetrahedron() *Mesh {
 	// Define tetrahedron vertices in a regular configuration
 	// Using a tetrahedron centered at origin with edge length ~1.63
 	v0 := NewVertex(
-		math.Vec3{X: 1.0, Y: 1.0, Z: 1.0},   // Top-front-right
-		math.Vec3{X: 1.0, Y: 0.0, Z: 0.0},   // Red
+		math.Vec3{X: 1.0, Y: 1.0, Z: 1.0}, // Top-front-right
+		math.Vec3{X: 1.0, Y: 0.0, Z: 0.0}, // Red
 	)
 	v1 := NewVertex(
 		math.Vec3{X: -1.0, Y: -1.0, Z: 1.0}, // Bottom-back-right

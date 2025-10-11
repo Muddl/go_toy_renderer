@@ -110,11 +110,11 @@ func TestMesh_GetTriangle_ReturnsTriangleIndices(t *testing.T) {
 	mesh.AddTriangle(6, 7, 8)
 
 	tests := []struct {
-		name      string
+		name          string
 		triangleIndex int
-		expectedI0 int
-		expectedI1 int
-		expectedI2 int
+		expectedI0    int
+		expectedI1    int
+		expectedI2    int
 	}{
 		{
 			name:          "first triangle",

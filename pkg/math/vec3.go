@@ -3,6 +3,7 @@
 package math
 
 import (
+	"fmt"
 	stdmath "math"
 )
 
@@ -89,6 +90,11 @@ func (v Vec3) Equals(other Vec3, epsilon float64) bool {
 	return stdmath.Abs(v.X-other.X) <= epsilon &&
 		stdmath.Abs(v.Y-other.Y) <= epsilon &&
 		stdmath.Abs(v.Z-other.Z) <= epsilon
+}
+
+// String returns a string representation of the vector for debugging and logging.
+func (v Vec3) String() string {
+	return fmt.Sprintf("Vec3(%.4f, %.4f, %.4f)", v.X, v.Y, v.Z)
 }
 
 // sqrt is a helper function wrapper around math.Sqrt for cleaner code.

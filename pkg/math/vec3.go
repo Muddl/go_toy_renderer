@@ -83,6 +83,14 @@ func (v Vec3) Distance(other Vec3) float64 {
 	return v.Subtract(other).Length()
 }
 
+// Equals checks if two vectors are approximately equal within the given epsilon tolerance.
+// This is useful for comparing floating-point vectors where exact equality is unreliable.
+func (v Vec3) Equals(other Vec3, epsilon float64) bool {
+	return stdmath.Abs(v.X-other.X) <= epsilon &&
+		stdmath.Abs(v.Y-other.Y) <= epsilon &&
+		stdmath.Abs(v.Z-other.Z) <= epsilon
+}
+
 // sqrt is a helper function wrapper around math.Sqrt for cleaner code.
 // Using Go's built-in math.Sqrt for square root calculation.
 // Import aliased as stdmath to avoid package name conflict.

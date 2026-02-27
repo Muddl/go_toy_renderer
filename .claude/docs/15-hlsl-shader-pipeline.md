@@ -1,0 +1,283 @@
+# HLSL Shader Pipeline
+
+**Status:** 📋 Planned — Phase 13 (HLSL Shader Pipeline)
+
+---
+
+## Overview
+
+Shaders are authored in **HLSL** (High Level Shading Language) — the same language used by DirectX and widely documented across the games industry. At build time, HLSL is compiled to **WGSL** (WebGPU Shading Language) using the `naga` toolchain, which is then loaded at runtime by wgpu.
+
+```
+HLSL source (.hlsl)       ← authoring language
+      │
+  go generate
+      │
+   naga-cli                ← transpiler (or dxc → spirv → naga)
+      │
+WGSL output (.wgsl)       ← committed to repo (reproducible builds)
+      │
+  wgpu runtime             ← loads WGSL, validates, compiles to native ISA
+      │
+  GPU execution            ← D3D12 / Metal / Vulkan
+```
+
+---
+
+## Why HLSL → WGSL?
+
+- **HLSL** is expressive, widely documented, and familiar to anyone with DirectX experience
+- **WGSL** is WebGPU's native language — tightly validated, safe, and fast to compile at runtime
+- **naga** is the transpiler from the wgpu project; it understands both languages natively
+- Compiled WGSL is committed to the repo so builds don't require the HLSL toolchain at runtime
+
+---
+
+## Shader Directory Layout
+
+```
+assets/
+└── shaders/
+    ├── vertex_color.hlsl       ← HLSL source (edit this)
+    ├── flat_color.hlsl
+    ├── depth.hlsl
+    ├── phong.hlsl              ← Phase 15
+    ├── pbr.hlsl                ← Phase 15 (stretch)
+    └── compiled/
+        ├── vertex_color.wgsl   ← generated (committed)
+        ├── flat_color.wgsl
+        ├── depth.wgsl
+        ├── phong.wgsl
+        └── pbr.wgsl
+```
+
+---
+
+## Compilation Toolchain
+
+### Option A: naga-cli (recommended)
+
+[naga-cli](https://github.com/gfx-rs/naga) is part of the wgpu project:
+
+```bash
+# Install (requires Rust)
+cargo install naga-cli
+
+# Compile one shader
+naga assets/shaders/vertex_color.hlsl assets/shaders/compiled/vertex_color.wgsl
+
+# Compile all shaders (via go generate)
+go generate ./assets/shaders/
+```
+
+`assets/shaders/gen.go`:
+```go
+//go:generate naga vertex_color.hlsl compiled/vertex_color.wgsl
+//go:generate naga flat_color.hlsl compiled/flat_color.wgsl
+//go:generate naga depth.hlsl compiled/depth.wgsl
+```
+
+### Option B: DXC + naga
+
+For shaders requiring DX-specific features:
+
+```bash
+# HLSL → SPIR-V (requires dxc)
+dxc -T vs_6_0 -E VSMain -spirv -Fo vertex_color.vert.spv vertex_color.hlsl
+
+# SPIR-V → WGSL (requires naga-cli)
+naga vertex_color.vert.spv compiled/vertex_color_vert.wgsl
+```
+
+---
+
+## Built-in Shaders
+
+### vertex_color.hlsl
+
+Interpolates per-vertex color through the fragment stage. Applies MVP matrix from uniform buffer.
+
+```hlsl
+cbuffer Transforms : register(b0) {
+    float4x4 u_mvp;
+};
+
+struct VSInput {
+    float3 pos   : POSITION;
+    float3 color : COLOR;
+};
+
+struct VSOutput {
+    float4 pos   : SV_Position;
+    float3 color : COLOR;
+};
+
+VSOutput VSMain(VSInput input) {
+    VSOutput output;
+    output.pos   = mul(float4(input.pos, 1.0), u_mvp);
+    output.color = input.color;
+    return output;
+}
+
+float4 PSMain(VSOutput input) : SV_Target {
+    return float4(input.color, 1.0);
+}
+```
+
+### flat_color.hlsl
+
+Fills every fragment with a constant color. Color is passed via push constant / small uniform.
+
+```hlsl
+cbuffer Material : register(b1) {
+    float3 u_color;
+};
+
+// VSMain: same as vertex_color.hlsl (pass position only)
+
+float4 PSMain(VSOutput input) : SV_Target {
+    return float4(u_color, 1.0);
+}
+```
+
+### depth.hlsl
+
+Encodes depth as grayscale (black = near, white = far).
+
+```hlsl
+float4 PSMain(VSOutput input) : SV_Target {
+    float depth = input.pos.z; // SV_Position.z is NDC depth [0, 1]
+    return float4(depth, depth, depth, 1.0);
+}
+```
+
+### phong.hlsl (Phase 15)
+
+Full Phong lighting: ambient + diffuse + specular.
+
+```hlsl
+cbuffer Transforms : register(b0) {
+    float4x4 u_model;
+    float4x4 u_vp;
+    float4x4 u_normalMatrix; // inverse-transpose of model
+};
+
+cbuffer Lights : register(b1) {
+    float3 u_lightDir;    // world space, normalized
+    float3 u_lightColor;
+    float  u_lightIntensity;
+    float3 u_ambient;
+    float3 u_camPos;      // for specular
+};
+
+cbuffer Material : register(b2) {
+    float3 u_albedo;
+    float  u_shininess;
+};
+
+// VSMain: outputs worldPos + worldNormal + color
+// PSMain: Phong = ambient + diffuse + specular
+```
+
+---
+
+## Uniform Buffers (Phase 13–14)
+
+### Binding Layout
+
+| Binding | Set | Content |
+|---------|-----|---------|
+| 0       | 0   | Per-frame camera (VP matrix, camera position) |
+| 1       | 1   | Per-object transform (model matrix, normal matrix) |
+| 2       | 2   | Per-material properties (color, shininess, metallic, roughness) |
+
+### Update Frequency
+
+- **Per-frame** (binding 0): Updated once before any draw calls with the current VP matrix
+- **Per-object** (binding 1): Updated for each mesh in the draw loop; use dynamic offsets for efficiency
+- **Per-material** (binding 2): Updated when material changes; can be batched by material
+
+### WGSL Equivalent (auto-generated by naga)
+
+The WGSL generated by naga from the HLSL cbuffer declarations maps cleanly to wgpu bind groups:
+
+```wgsl
+struct Transforms {
+    u_mvp: mat4x4<f32>,
+}
+@group(0) @binding(0) var<uniform> transforms: Transforms;
+```
+
+---
+
+## Shader Loader (Phase 13)
+
+```go
+// pkg/gpu/shader.go
+type ShaderCache struct {
+    modules map[string]*wgpu.ShaderModule
+    device  *wgpu.Device
+}
+
+func (sc *ShaderCache) Load(name string) (*wgpu.ShaderModule, error) {
+    if mod, ok := sc.modules[name]; ok {
+        return mod, nil
+    }
+    src, err := assets.ReadFile("shaders/compiled/" + name + ".wgsl")
+    // …
+    mod := sc.device.CreateShaderModule(&wgpu.ShaderModuleDescriptor{
+        WGSLDescriptor: &wgpu.ShaderModuleWGSLDescriptor{Code: string(src)},
+    })
+    sc.modules[name] = mod
+    return mod, nil
+}
+```
+
+Compiled WGSL files are embedded in the binary using `//go:embed`:
+
+```go
+//go:embed shaders/compiled/*.wgsl
+var assets embed.FS
+```
+
+---
+
+## Custom Shaders
+
+Users can add custom HLSL shaders by:
+
+1. Creating `assets/shaders/my_shader.hlsl`
+2. Adding a `//go:generate naga` line to `assets/shaders/gen.go`
+3. Running `go generate ./assets/shaders/`
+4. Referencing the shader by name in the renderer
+
+```go
+renderer, _ := gpu.New(device, swapChain, "my_shader")
+```
+
+---
+
+## Testing
+
+- Shader compilation is tested as part of `go generate` — a failed compile is caught at build time
+- A minimal "shader smoke test" loads each compiled WGSL into a wgpu ShaderModule and validates it (no draw call needed)
+- Visual output of the shader is validated by comparing a rendered frame against a CPU-rendered reference (tolerance ±2 per channel)
+
+---
+
+## Common Gotchas
+
+- **HLSL `mul()` order:** In HLSL, `mul(vector, matrix)` is row-vector × matrix; `mul(matrix, vector)` is matrix × column-vector. The vertex shader must use `mul(float4(pos, 1.0), u_mvp)` if MVP is stored row-major, or `mul(u_mvp, float4(pos, 1.0))` if column-major. The Go math package uses column-major matrices, so pass them transposed or adjust the HLSL.
+- **NDC depth in `SV_Position.z`:** In WebGPU (and D3D12), the depth range is [0, 1] (not [-1, 1] as in OpenGL). The depth shader reads `input.pos.z` directly.
+- **naga HLSL support:** naga's HLSL frontend is mature but may not support every DX12-specific intrinsic. Keep shaders to standard HLSL SM 5.0 features for maximum compatibility.
+- **Shader hot-reload:** In development, shaders can be hot-reloaded by watching for file changes and re-creating the pipeline. This is faster than restarting the renderer for shader iteration.
+
+---
+
+## References
+
+- [naga (HLSL → WGSL transpiler)](https://github.com/gfx-rs/naga)
+- [DXC (DirectX Shader Compiler)](https://github.com/microsoft/DirectXShaderCompiler)
+- [HLSL Reference](https://learn.microsoft.com/en-us/windows/win32/direct3dhlsl/dx-graphics-hlsl-reference)
+- [WGSL Specification](https://www.w3.org/TR/WGSL/)
+- [WebGPU Bind Groups](https://www.w3.org/TR/webgpu/#bind-groups)

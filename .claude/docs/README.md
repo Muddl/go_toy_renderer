@@ -1,6 +1,6 @@
-# Toy 3D Renderer MVP Documentation
+# Toy 3D Renderer Documentation
 
-This directory contains comprehensive planning and architecture documentation for building a bare-bones toy 3D software renderer in Go.
+This directory contains comprehensive planning and architecture documentation for the go_toy_renderer project — a CPU software renderer (MVP complete) evolving toward cross-platform GPU acceleration with real-time rendering.
 
 **Purpose:** These docs define WHAT to build and WHY, not HOW to implement it. Use them as a guide during development.
 
@@ -73,10 +73,10 @@ Each component doc explains purpose, requirements, and testing approach:
     - Testing best practices
 
 12. **[Development Roadmap](12-development-roadmap.md)**
-    - Phase 0: CI/CD Infrastructure (NEW)
-    - Phase 1-8: Implementation phases
-    - Time estimates
-    - Completion criteria per phase
+    - Phase 0: CI/CD Infrastructure ✅
+    - Phase 1–8: MVP implementation phases ✅
+    - Phase 9–16: GPU acceleration roadmap 📋
+    - Time estimates and completion criteria per phase
 
 ---
 
@@ -92,14 +92,33 @@ Each component doc explains purpose, requirements, and testing approach:
 
 ---
 
+### GPU Acceleration (Post-MVP)
+
+14. **[GPU Backend](14-gpu-backend.md)**
+    - WebGPU / wgpu-native architecture
+    - Cross-platform backend selection (D3D12 / Metal / Vulkan)
+    - Device, swapchain, render pass design
+
+15. **[HLSL Shader Pipeline](15-hlsl-shader-pipeline.md)**
+    - HLSL authoring workflow
+    - Compilation: HLSL → WGSL via naga/DXC
+    - Uniform buffers and bind groups
+    - Built-in and custom shader guide
+
+16. **[Real-time Display](16-realtime-display.md)**
+    - Window creation and event loop
+    - Frame timing, vsync, camera controls
+    - CPU-blit bridge and GPU swap chain
+
+---
+
 ## How to Use These Docs
 
 ### If you're starting fresh:
-1. Read [01-mvp-vision.md](01-mvp-vision.md) to understand the goal
-2. Skim [02-architecture-overview.md](02-architecture-overview.md) for big picture
-3. Review [13-cicd-infrastructure.md](13-cicd-infrastructure.md) for CI/CD setup details
-4. Follow [12-development-roadmap.md](12-development-roadmap.md) starting with Phase 0 (CI/CD)
-5. Reference component docs as you implement each part
+1. Read [01-mvp-vision.md](01-mvp-vision.md) to understand the original goal
+2. Skim [02-architecture-overview.md](02-architecture-overview.md) for big picture (includes GPU pipeline)
+3. Follow [12-development-roadmap.md](12-development-roadmap.md) — MVP phases 0–8 are complete; GPU phases 9–16 are next
+4. Reference component docs as you implement each part
 
 ### If you're mid-development:
 - Use component docs as reference for what to implement
@@ -153,32 +172,48 @@ These docs are designed to be:
 ✓ Core tests pass
 
 ### Timeline Estimate
-- Phase 0 (CI/CD): 0.5-1 day
-- Phases 1-8 (Development): 12-20 days
-- Total: ~13-21 days
+- Phase 0 (CI/CD): 0.5–1 day ✅
+- Phases 1–8 (MVP): 12–20 days ✅ **DONE**
+- Phases 9–16 (GPU): ~31–42 days 📋 planned
 
 ---
 
-## Next Steps
+## Current Status
 
-**✅ Phase 0 Complete** (CI/CD Infrastructure — merged PR #5)
-**✅ Phase 1 Complete** (Math Foundation)
-**✅ Phase 2 Complete** (Geometry & Scene — merged PR #5)
-**✅ Phase 3 Complete** (Camera System — `pkg/camera/`, ViewMatrix/ProjectionMatrix/ViewProjectionMatrix)
-**✅ Phase 4 Complete** (Framebuffer — `pkg/framebuffer/`, color/depth buffers, PNG export, 21 tests)
-**✅ Phase 5 Complete** (Rasterization — `pkg/rasterize/`, barycentric triangle rasterizer, 13 tests, 100% coverage)
-**✅ Phase 6 Complete** (Shading — `pkg/shader/`, `Attributes`, `Func`, `VertexColor`/`NewFlatColor`/`Depth`, 10 tests, 100% coverage)
-**✅ Phase 7 Complete** (Pipeline Integration — `pkg/render/`, `Scene`/`Render`/`transformVertex`, 12 tests, 100% coverage; `cmd/renderer/main.go` renders `output.png`)
+### MVP (Phases 0–8) — ✅ COMPLETE (2026-02-27)
 
-**✅ Phase 8 Complete** (Testing & Polish — 2026-02-27)
+| Phase | Description | Status |
+|-------|-------------|--------|
+| 0 | CI/CD Infrastructure | ✅ Complete |
+| 1 | Math Foundation (Vec3, Mat4x4) | ✅ Complete |
+| 2 | Geometry & Scene (Mesh, Cube, Tetrahedron) | ✅ Complete |
+| 3 | Camera System (LookAt, Perspective) | ✅ Complete |
+| 4 | Framebuffer (color/depth, PNG export) | ✅ Complete |
+| 5 | Triangle Rasterization (barycentric) | ✅ Complete |
+| 6 | Shading (VertexColor, FlatColor, Depth) | ✅ Complete |
+| 7 | Render Pipeline Integration | ✅ Complete |
+| 8 | Testing & Polish (golden image, benchmarks) | ✅ Complete |
 
-**MVP is complete! All 8 phases done.**
+### GPU Roadmap (Phases 9–16) — 📋 Planned
+
+| Phase | Description | Status |
+|-------|-------------|--------|
+| 9  | Window & Real-time Display | 📋 Planned |
+| 10 | GPU Backend Abstraction Layer | 📋 Planned |
+| 11 | WebGPU Integration (wgpu-native) | 📋 Planned |
+| 12 | GPU Geometry & Draw Pipeline | 📋 Planned |
+| 13 | HLSL Shader Pipeline | 📋 Planned |
+| 14 | Uniform Buffers & Per-Mesh Transforms | 📋 Planned |
+| 15 | Lighting, Normals & Physical Shading | 📋 Planned |
+| 16 | Advanced Features & Polish | 📋 Planned |
+
+**Next step:** Begin Phase 9 — Window & Real-time Display
 
 **Questions or stuck?**
 - Review the relevant component doc
-- Check "Common Gotchas" sections
+- Check "Common Gotchas" in CLAUDE.md
 - Verify against test strategy
-- Remember: MVP is minimal, not perfect
+- See GPU docs in files 14, 15, 16
 
 ---
 
@@ -192,12 +227,13 @@ These docs are written for MVP scope only. As the project evolves:
 - Keep architecture doc current with major changes
 
 **Last updated:** 2026-02-27
+- GPU roadmap (Phases 9–16) added with WebGPU/HLSL north star
+- Architecture doc updated with GPU pipeline diagram and backend table
+- New GPU component docs: 14-gpu-backend.md, 15-hlsl-shader-pipeline.md, 16-realtime-display.md
+- Roadmap "Beyond MVP" placeholder replaced with detailed Phase 9–16 specs
+- MVP features doc updated: viewport transform marked complete, out-of-scope section revised
+- Depth buffer convention clarified (0 = near, 1 = far)
 - Phase 8 (Testing & Polish) completed — MVP is fully done!
-- Golden image test in `pkg/render/testdata/golden_triangle.png` with `-update` flag support
-- 6 new integration tests in `pkg/render/integration_test.go`
-- Benchmarks in `pkg/render/bench_test.go` and `pkg/rasterize/rasterizer_bench_test.go`
-- `README.md` rewritten with usage instructions, API example, performance table
-- All tests passing, coverage well above 70% threshold
 
 ---
 

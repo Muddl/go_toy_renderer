@@ -5,6 +5,7 @@ import (
 
 	"github.com/muddl/go_toy_renderer/pkg/framebuffer"
 	math "github.com/muddl/go_toy_renderer/pkg/math"
+	"github.com/muddl/go_toy_renderer/pkg/shader"
 )
 
 const epsilon = 0.001
@@ -251,5 +252,114 @@ func TestRasterizer_Triangle_ClockwiseWindingRendersCorrectly(t *testing.T) {
 	}
 	if ccwCount != cwCount {
 		t.Errorf("CCW set %d pixels, CW set %d pixels — should be equal", ccwCount, cwCount)
+	}
+}
+
+// --- TriangleShaded tests ---
+
+// TestRasterizer_TriangleShaded_VertexColorMatchesTriangle verifies that
+// TriangleShaded with shader.VertexColor produces identical output to Triangle.
+func TestRasterizer_TriangleShaded_VertexColorMatchesTriangle(t *testing.T) {
+	fbA := framebuffer.New(10, 10)
+	fbB := framebuffer.New(10, 10)
+	red := math.Vec3{X: 1, Y: 0, Z: 0}
+	green := math.Vec3{X: 0, Y: 1, Z: 0}
+	blue := math.Vec3{X: 0, Y: 0, Z: 1}
+
+	v0 := ScreenVertex{X: 1.5, Y: 1.5, Z: 0.5, Color: red}
+	v1 := ScreenVertex{X: 7.5, Y: 1.5, Z: 0.5, Color: green}
+	v2 := ScreenVertex{X: 4.5, Y: 7.5, Z: 0.5, Color: blue}
+
+	Triangle(v0, v1, v2, fbA)
+	TriangleShaded(v0, v1, v2, shader.VertexColor, fbB)
+
+	for y := 0; y < 10; y++ {
+		for x := 0; x < 10; x++ {
+			a := fbA.GetPixel(x, y)
+			b := fbB.GetPixel(x, y)
+			if !vec3Equal(a, b) {
+				t.Errorf("pixel (%d,%d): Triangle=%v, TriangleShaded(VertexColor)=%v", x, y, a, b)
+			}
+		}
+	}
+}
+
+// TestRasterizer_TriangleShaded_FlatColorOverridesVertexColor verifies that
+// NewFlatColor shader makes all pixels the specified constant color regardless of vertex colors.
+func TestRasterizer_TriangleShaded_FlatColorOverridesVertexColor(t *testing.T) {
+	fb := framebuffer.New(10, 10)
+	red := math.Vec3{X: 1, Y: 0, Z: 0}
+	green := math.Vec3{X: 0, Y: 1, Z: 0}
+	blue := math.Vec3{X: 0, Y: 0, Z: 1}
+	flatBlue := shader.NewFlatColor(blue)
+
+	// Vertices with red and green colors, but flat-color shader should output blue.
+	v0 := ScreenVertex{X: 1.5, Y: 1.5, Z: 0.5, Color: red}
+	v1 := ScreenVertex{X: 7.5, Y: 1.5, Z: 0.5, Color: green}
+	v2 := ScreenVertex{X: 4.5, Y: 7.5, Z: 0.5, Color: red}
+
+	TriangleShaded(v0, v1, v2, flatBlue, fb)
+
+	// Every set pixel should be blue.
+	for y := 0; y < 10; y++ {
+		for x := 0; x < 10; x++ {
+			c := fb.GetPixel(x, y)
+			if c == (math.Vec3{}) {
+				continue // unset pixel, skip
+			}
+			if !vec3Equal(c, blue) {
+				t.Errorf("pixel (%d,%d) = %v, want blue %v", x, y, c, blue)
+			}
+		}
+	}
+	if countPixelsSet(fb) == 0 {
+		t.Error("expected some pixels to be set, got 0")
+	}
+}
+
+// TestRasterizer_TriangleShaded_DepthShaderOutputsGrayscale verifies that
+// shader.Depth produces equal RGB components (grayscale) for every pixel.
+func TestRasterizer_TriangleShaded_DepthShaderOutputsGrayscale(t *testing.T) {
+	fb := framebuffer.New(10, 10)
+	white := math.Vec3{X: 1, Y: 1, Z: 1}
+
+	v0 := ScreenVertex{X: 1.5, Y: 1.5, Z: 0.4, Color: white}
+	v1 := ScreenVertex{X: 7.5, Y: 1.5, Z: 0.6, Color: white}
+	v2 := ScreenVertex{X: 4.5, Y: 7.5, Z: 0.5, Color: white}
+
+	TriangleShaded(v0, v1, v2, shader.Depth, fb)
+
+	if countPixelsSet(fb) == 0 {
+		t.Fatal("depth shader rendered 0 pixels")
+	}
+	for y := 0; y < 10; y++ {
+		for x := 0; x < 10; x++ {
+			c := fb.GetPixel(x, y)
+			if c == (math.Vec3{}) {
+				continue
+			}
+			// Grayscale: R == G == B
+			if !approxEqual(c.X, c.Y) || !approxEqual(c.Y, c.Z) {
+				t.Errorf("pixel (%d,%d) = %v is not grayscale (depth shader)", x, y, c)
+			}
+		}
+	}
+}
+
+// TestRasterizer_TriangleShaded_DegenerateTriangle verifies that degenerate
+// (zero-area) triangles set no pixels regardless of the shader.
+func TestRasterizer_TriangleShaded_DegenerateTriangle(t *testing.T) {
+	fb := framebuffer.New(10, 10)
+	red := math.Vec3{X: 1, Y: 0, Z: 0}
+
+	// Collinear vertices — zero area.
+	v0 := ScreenVertex{X: 1.5, Y: 1.5, Z: 0.5, Color: red}
+	v1 := ScreenVertex{X: 3.5, Y: 3.5, Z: 0.5, Color: red}
+	v2 := ScreenVertex{X: 5.5, Y: 5.5, Z: 0.5, Color: red}
+
+	TriangleShaded(v0, v1, v2, shader.VertexColor, fb)
+
+	if got := countPixelsSet(fb); got != 0 {
+		t.Errorf("degenerate triangle set %d pixels with shader, want 0", got)
 	}
 }

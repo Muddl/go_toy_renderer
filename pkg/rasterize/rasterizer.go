@@ -5,6 +5,7 @@ package rasterize
 import (
 	"github.com/muddl/go_toy_renderer/pkg/framebuffer"
 	math "github.com/muddl/go_toy_renderer/pkg/math"
+	"github.com/muddl/go_toy_renderer/pkg/shader"
 )
 
 // ScreenVertex represents a vertex in 2D screen space with depth and color attributes.
@@ -20,9 +21,21 @@ type ScreenVertex struct {
 // Triangle fills the pixels of fb covered by the triangle defined by v0, v1, v2.
 // Screen coordinates are in pixels with origin at top-left, +X right, +Y down.
 // Depth and color are linearly interpolated using barycentric coordinates.
+// The interpolated vertex color is written directly to the framebuffer.
 // Degenerate triangles (zero area) are silently skipped.
 // Out-of-bounds pixels are silently ignored via fb.SetPixel.
 func Triangle(v0, v1, v2 ScreenVertex, fb *framebuffer.Framebuffer) {
+	TriangleShaded(v0, v1, v2, shader.VertexColor, fb)
+}
+
+// TriangleShaded fills the pixels of fb covered by the triangle defined by v0, v1, v2,
+// applying shaderFn to compute the final pixel color from interpolated attributes.
+// Screen coordinates are in pixels with origin at top-left, +X right, +Y down.
+// Depth and color attributes are linearly interpolated using barycentric coordinates;
+// the interpolated values are passed to shaderFn, and its RGB return value is written
+// to the framebuffer. Degenerate triangles (zero area) are silently skipped.
+// Out-of-bounds pixels are silently ignored via fb.SetPixel.
+func TriangleShaded(v0, v1, v2 ScreenVertex, shaderFn shader.Func, fb *framebuffer.Framebuffer) {
 	// Compute signed area (× 2) of the triangle.
 	// Positive = CCW winding, negative = CW winding (screen space, Y-down).
 	area := edgeFunction(v0.X, v0.Y, v1.X, v1.Y, v2.X, v2.Y)
@@ -82,7 +95,7 @@ func Triangle(v0, v1, v2 ScreenVertex, fb *framebuffer.Framebuffer) {
 				Z: b0*v0.Color.Z + b1*v1.Color.Z + b2*v2.Color.Z,
 			}
 
-			fb.SetPixel(ix, iy, color, depth)
+			fb.SetPixel(ix, iy, shaderFn(shader.Attributes{Color: color, Depth: depth}), depth)
 		}
 	}
 }

@@ -134,7 +134,7 @@ This roadmap breaks MVP development into phases, each building on the previous. 
 
 ---
 
-## Phase 3: Camera System ✅ **IMPLEMENTED** (2026-02-27)
+## Phase 3: Camera System ✅ **COMPLETED** (2026-02-27)
 
 **Goal:** Flexible viewpoint control.
 
@@ -169,44 +169,51 @@ This roadmap breaks MVP development into phases, each building on the previous. 
 
 **When complete:** You can control viewpoint.
 
-**Status:** ✅ **IMPLEMENTED** (2026-02-27) — CI validation in progress
+**Status:** ✅ **COMPLETED** (2026-02-27)
 
-**Next:** Phase 4 - Framebuffer
+**Next:** Phase 4 - Framebuffer (complete)
 
 ---
 
-## Phase 4: Framebuffer (Days 8-9)
+## Phase 4: Framebuffer ✅ **COMPLETED** (2026-02-27)
 
 **Goal:** Store rendered pixels and output images.
 
-### Tasks
-1. Implement Framebuffer type
-   - Color buffer (RGB per pixel)
-   - Depth buffer (Z per pixel)
+### Tasks Completed ✅
+1. ✅ Implement Framebuffer type (`pkg/framebuffer/framebuffer.go`)
+   - Color buffer (`[]math.Vec3`, RGB float64 [0,1] per pixel)
+   - Depth buffer (`[]float64`, initialized to 1.0 far plane)
+   - Linear layout: index = `y*Width + x`
 
-2. Implement Clear method
-   - Reset to background color and depth
+2. ✅ Implement Clear method
+   - Resets all pixels to given color and depth in one pass
 
-3. Implement SetPixel with depth test
-   - Check if new pixel is closer
-   - Update color and depth if closer
+3. ✅ Implement SetPixel with depth test
+   - Strictly-less-than depth test (`depth < current`)
+   - Out-of-bounds coordinates silently ignored
 
-4. Implement GetPixel (for testing)
-   - Retrieve color at coordinates
+4. ✅ Implement GetPixel and GetDepth
+   - Return zero Vec3 / 1.0 for out-of-bounds access
 
-5. Implement image export
-   - Convert float RGB to byte RGB
-   - Save as PNG using Go image libraries
-   - Test file output
+5. ✅ Implement SavePNG
+   - Float RGB [0,1] → uint8 [0,255] with clamping via `clampToByte`
+   - Uses `image.NewNRGBA` + `png.Encode` from Go stdlib
+   - 21 tests across all operations: 94.6% coverage
 
 ### Completion Criteria
-- [ ] Can create framebuffer of any size
-- [ ] Clear works correctly
-- [ ] Depth test prevents farther pixels from overwriting closer ones
-- [ ] Can save valid PNG file
-- [ ] Framebuffer tests pass
+- [x] Can create framebuffer of any size
+- [x] Clear works correctly
+- [x] Depth test prevents farther pixels from overwriting closer ones
+- [x] Can save valid PNG file
+- [x] Framebuffer tests pass (21 tests, 94.6% coverage)
 
 **When complete:** You can store and save rendered images.
+
+**Status:** ✅ **COMPLETED** (2026-02-27)
+
+**Time taken:** ~1 day
+
+**Next:** Phase 5 - Rasterization
 
 ---
 
@@ -443,8 +450,8 @@ MVP is complete when:
 - ✅ CI/CD pipeline operational (Phase 0 - merged PR #5)
 - ✅ Math library fully implemented and tested (Phase 1 complete)
 - ✅ Can create test geometry (cube/tetrahedron) (Phase 2 complete)
-- ✅ Camera system implemented (Phase 3 — CI validation in progress)
-- [ ] Framebuffer stores and saves images (Phase 4)
+- ✅ Camera system implemented (Phase 3 — complete)
+- ✅ Framebuffer stores and saves images (Phase 4 — complete)
 - [ ] Rasterizer fills triangles correctly (Phase 5)
 - [ ] Shader calculates colors (Phase 6)
 - [ ] Render pipeline connects all components (Phase 7)
@@ -455,7 +462,7 @@ MVP is complete when:
 - [ ] Demo app works (Phase 8)
 - [ ] No critical bugs (Phase 8)
 
-**Progress: 5/14 major milestones complete (35.7%)**
+**Progress: 6/14 major milestones complete (42.9%)**
 
 **When all checked: MVP is done!**
 

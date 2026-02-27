@@ -93,18 +93,21 @@ These features are REQUIRED for MVP completion. Without these, the renderer is n
 
 ---
 
-### 5. Triangle Rasterization ⏳
+### 5. Triangle Rasterization ✅
 **What:** Convert triangles to pixels
 
 **Requirements:**
-- Take 3 screen-space vertices → produce covered pixels
-- Either scanline or barycentric method
-- Interpolate vertex colors across triangle
-- Interpolate depth values across triangle
+- ✅ `ScreenVertex` type with X, Y (screen coords), Z (depth), Color (RGB Vec3) — `pkg/rasterize/rasterizer.go`
+- ✅ `rasterize.Triangle(v0, v1, v2, fb)` using barycentric coordinates
+- ✅ Barycentric color interpolation across triangle
+- ✅ Depth interpolation for depth testing
+- ✅ Degenerate triangle guard (zero-area triangles silently skipped)
+- ✅ CW and CCW winding support (winding-order agnostic)
+- ✅ Out-of-bounds pixel safety (clamped bounding box + silent ignore via framebuffer)
 
 **Success criteria:** Rasterized triangle fills correct pixels with interpolated colors.
 
-**Status:** ⏳ **Pending** (Phase 5)
+**Status:** ✅ **Complete** (Phase 5 — 2026-02-27) — 9 tests, 100% coverage
 
 ---
 
@@ -214,15 +217,15 @@ Use this checklist to verify MVP is complete:
 - [x] Can create at least one test mesh (cube/tetrahedron) (Phase 2 ✅)
 - [x] Camera can be positioned and oriented (Phase 3 ✅)
 - [x] Framebuffer can store and export pixels (Phase 4 ✅)
-- [ ] Triangle rasterizer fills correct pixels (Phase 5)
-- [ ] Colors interpolate smoothly across triangles (Phase 5)
+- [x] Triangle rasterizer fills correct pixels (Phase 5 ✅)
+- [x] Colors interpolate smoothly across triangles (Phase 5 ✅)
 - [x] Depth test prevents Z-fighting (Phase 4 ✅)
 - [ ] Complete pipeline renders mesh to image file (Phase 7)
 - [ ] Output image visually shows 3D object with perspective (Phase 7)
 - [x] All core components have basic tests (math: 100%, geometry: ~95%+)
 - [x] All CI checks pass on main branch (Phase 0 ✅)
 
-**Progress: 8/12 items complete (67%)**
+**Progress: 10/12 items complete (83%)**
 
 ---
 

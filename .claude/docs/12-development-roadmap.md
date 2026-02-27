@@ -217,49 +217,53 @@ This roadmap breaks MVP development into phases, each building on the previous. 
 
 ---
 
-## Phase 5: Rasterization (Days 10-12)
+## Phase 5: Rasterization ✅ **COMPLETED** (2026-02-27)
 
 **Goal:** Convert triangles to pixels with interpolation.
 
-### Tasks
-1. Choose rasterization algorithm
-   - Recommended: Barycentric (simpler code)
-   - Alternative: Scanline (more classic)
+### Tasks Completed ✅
+1. ✅ Chose rasterization algorithm — Barycentric coordinates (cleaner code, winding-agnostic)
 
-2. Implement barycentric coordinate calculation
-   - Test with known points inside/outside triangle
+2. ✅ Implemented `ScreenVertex` type (`pkg/rasterize/rasterizer.go`)
+   - X, Y: screen coordinates (pixel units, center at float(ix)+0.5)
+   - Z: depth value in [0, 1]
+   - Color: RGB Vec3 in [0, 1]
 
-3. Implement triangle bounding box
-   - Find min/max X and Y coordinates
+3. ✅ Implemented barycentric coordinate calculation
+   - `edgeFunction(ax, ay, bx, by, px, py)` — 2D cross product
+   - `insideTriangle(area, w0, w1, w2)` — handles both CCW and CW winding
 
-4. Implement rasterization loop
-   - For each pixel in bounding box
-   - Check if inside triangle
-   - Calculate barycentric weights
+4. ✅ Implemented tight bounding box with framebuffer clamping
+   - int(min) ... int(max)+1, clamped to [0, Width) × [0, Height)
 
-5. Implement attribute interpolation
-   - Interpolate depth (Z)
-   - Interpolate color (RGB)
-   - Test interpolation correctness
+5. ✅ Implemented rasterization loop with pixel-center sampling
+   - px = float64(ix) + 0.5, py = float64(iy) + 0.5
 
-6. Connect to framebuffer
-   - For each pixel covered
-   - Call framebuffer.SetPixel with depth test
+6. ✅ Implemented barycentric attribute interpolation
+   - Depth: b0*v0.Z + b1*v1.Z + b2*v2.Z
+   - Color: per-channel linear interpolation
 
-7. Test rasterization
-   - Single pixel triangle
-   - Axis-aligned triangles
-   - Arbitrary triangles
-   - Verify color interpolation
+7. ✅ Connected to framebuffer via `fb.SetPixel(ix, iy, color, depth)`
+   - Depth test handled transparently by framebuffer
+
+8. ✅ 9 comprehensive tests covering all behaviors (100% coverage)
+   - Degenerate triangle, single-pixel, axis-aligned, vertex color, centroid interpolation
+   - Depth ordering, off-screen, partially off-screen, CW winding
 
 ### Completion Criteria
-- [ ] Can rasterize any triangle to pixels
-- [ ] Attribute interpolation is correct at vertices
-- [ ] Depth interpolation works
-- [ ] No crashes on degenerate triangles
-- [ ] Rasterizer tests pass
+- [x] Can rasterize any triangle to pixels
+- [x] Attribute interpolation is correct at vertices
+- [x] Depth interpolation works
+- [x] No crashes on degenerate triangles
+- [x] Rasterizer tests pass (9 tests, 100% coverage)
 
 **When complete:** You can draw triangles to framebuffer.
+
+**Status:** ✅ **COMPLETED** (2026-02-27)
+
+**Time taken:** ~1 day
+
+**Next:** Phase 6 - Shading
 
 ---
 
@@ -452,7 +456,7 @@ MVP is complete when:
 - ✅ Can create test geometry (cube/tetrahedron) (Phase 2 complete)
 - ✅ Camera system implemented (Phase 3 — complete)
 - ✅ Framebuffer stores and saves images (Phase 4 — complete)
-- [ ] Rasterizer fills triangles correctly (Phase 5)
+- [x] Rasterizer fills triangles correctly (Phase 5 ✅)
 - [ ] Shader calculates colors (Phase 6)
 - [ ] Render pipeline connects all components (Phase 7)
 - [ ] Can render colored 3D object with perspective (Phase 7)
@@ -462,7 +466,7 @@ MVP is complete when:
 - [ ] Demo app works (Phase 8)
 - [ ] No critical bugs (Phase 8)
 
-**Progress: 6/14 major milestones complete (42.9%)**
+**Progress: 7/14 major milestones complete (50%)**
 
 **When all checked: MVP is done!**
 

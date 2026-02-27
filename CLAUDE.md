@@ -6,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 This is a **toy 3D software renderer** implemented in Go - a learning project that demonstrates fundamental 3D graphics concepts without GPU acceleration. The renderer performs all calculations on the CPU, converting 3D geometry to 2D images through a complete graphics pipeline.
 
-**Current Status:** Phase 0 (CI/CD) ✅ | Phase 1 (Math) ✅ | Phase 2 (Geometry) ✅ | Phase 3 (Camera) ✅ | Phase 4 (Framebuffer) ✅ | Phase 5 (Rasterization) ✅ | Ready for Phase 6 (Shading)
+**Current Status:** Phase 0 (CI/CD) ✅ | Phase 1 (Math) ✅ | Phase 2 (Geometry) ✅ | Phase 3 (Camera) ✅ | Phase 4 (Framebuffer) ✅ | Phase 5 (Rasterization) ✅ | Phase 6 (Shading) ✅ | Ready for Phase 7 (Pipeline Integration)
 
 **Progress Summary:**
 - ✅ Phase 0 complete: CI/CD infrastructure (GitHub Actions, golangci-lint v2) merged
@@ -15,6 +15,7 @@ This is a **toy 3D software renderer** implemented in Go - a learning project th
 - ✅ Phase 3 complete: Camera with ViewMatrix (LookAt), ProjectionMatrix (Perspective), ViewProjectionMatrix
 - ✅ Phase 4 complete: Framebuffer with color/depth buffers, depth test, PNG export (21 tests, 94.6% coverage)
 - ✅ Phase 5 complete: Rasterization with barycentric triangle rasterizer (9 tests, 100% coverage)
+- ✅ Phase 6 complete: Shader package with VertexColor, NewFlatColor, Depth shaders (10 tests, 100% coverage)
 - 📋 13 comprehensive MVP documentation files established
 - 🔄 Active development using TDD and trunk-based Git workflow
 
@@ -429,7 +430,7 @@ pkg/rasterize/
   - `rasterizer_test.go` - 9 tests covering all behaviors, 100% coverage
 
 **Pending packages for MVP:**
-- `pkg/shader/` - ⏳ Shader implementations (vertex color, flat color) (Phase 6)
+- `pkg/shader/` - ✅ **Complete** - Shader package (Attributes, Func, VertexColor, NewFlatColor, Depth) (Phase 6)
 - `pkg/render/` - ⏳ Core rendering pipeline and algorithms (Phase 7)
 - `cmd/renderer/` - ⏳ Main application entry point (Phase 8)
 
@@ -503,7 +504,7 @@ See `.claude/docs/11-test-strategy.md` for detailed testing approach and TDD sec
 3. **Phase 3** (Days 6-7) - ✅ **Complete** - Camera System → [Details](./.claude/docs/05-camera-component.md)
 4. **Phase 4** (Days 8-9) - ✅ **Complete** - Framebuffer → [Details](./.claude/docs/07-framebuffer-component.md)
 5. **Phase 5** (Days 10-12) - ✅ **Complete** - Rasterization → [Details](./.claude/docs/06-rasterizer-component.md)
-6. **Phase 6** (Days 13-14) - Shading → [Details](./.claude/docs/08-shader-component.md)
+6. **Phase 6** (Days 13-14) - ✅ **Complete** - Shading → [Details](./.claude/docs/08-shader-component.md)
 7. **Phase 7** (Days 15-18) - Pipeline Integration → [Details](./.claude/docs/09-render-pipeline.md)
 8. **Phase 8** (Days 19-21) - Testing & Polish
 
@@ -600,7 +601,18 @@ See `.claude/docs/11-test-strategy.md` for detailed testing approach and TDD sec
 
 ## Recent Updates
 
-**2026-02-27 (Latest):** Phase 5 Complete - Rasterization Implemented ✅
+**2026-02-27 (Latest):** Phase 6 Complete - Shader Package Implemented ✅
+- **Implemented `pkg/shader/` package** with `Attributes` struct, `Func` type, and three shaders
+- **`VertexColor`**: pass-through shader returning interpolated vertex color unchanged
+- **`NewFlatColor(color)`**: constructor returning a `shader.Func` capturing a constant color (useful for debug/testing)
+- **`Depth`**: grayscale depth visualize shader (depth 0→black, 1→white)
+- **`shader.Func` type**: `func(Attributes) math.Vec3` — simple function type, no interface boilerplate
+- **`Attributes` struct**: holds interpolated `Color math.Vec3` and `Depth float64` per fragment
+- **10 tests, 100% statement coverage** across all shader functions
+- **Type/function naming** follows revive linter: `shader.Func` (not `shader.ShaderFunc`), `shader.VertexColor` (not `shader.VertexColorShader`)
+- **Ready for Phase 7** (Render Pipeline Integration)
+
+**2026-02-27:** Phase 5 Complete - Rasterization Implemented ✅
 - **Implemented `rasterize.Triangle()`** (`pkg/rasterize/rasterizer.go`) using barycentric coordinates
 - **ScreenVertex type** with X, Y (screen coords), Z (depth), Color (RGB Vec3)
 - **edgeFunction** and **insideTriangle** helpers — winding-order agnostic (CCW and CW support)
@@ -610,7 +622,7 @@ See `.claude/docs/11-test-strategy.md` for detailed testing approach and TDD sec
 - **9 rasterizer tests** covering: degenerate, single-pixel, axis-aligned, vertex color, centroid
   interpolation, depth ordering, off-screen, partially off-screen, CW winding
 - **Function renamed** from `RasterizeTriangle` to `Triangle` (revive linter: package name provides context)
-- **Ready for Phase 6** (Shading: vertex color pass-through shader)
+- **Ready for Phase 7** (Pipeline Integration — previously ready for Phase 6)
 
 **2026-02-27:** Phase 4 Complete - Framebuffer Implemented ✅
 - **Implemented Framebuffer type** (`pkg/framebuffer/framebuffer.go`) with Width, Height, ColorBuffer ([]Vec3), DepthBuffer ([]float64)

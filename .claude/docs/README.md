@@ -142,7 +142,7 @@ These docs are designed to be:
 - Camera system ✅
 - Framebuffer with depth test ✅ (Phase 4 — complete)
 - Triangle rasterization ✅
-- Simple shader
+- Simple shader ✅
 - Complete render pipeline
 
 ### Success Criteria
@@ -167,14 +167,15 @@ These docs are designed to be:
 **✅ Phase 3 Complete** (Camera System — `pkg/camera/`, ViewMatrix/ProjectionMatrix/ViewProjectionMatrix)
 **✅ Phase 4 Complete** (Framebuffer — `pkg/framebuffer/`, color/depth buffers, PNG export, 21 tests)
 **✅ Phase 5 Complete** (Rasterization — `pkg/rasterize/`, barycentric triangle rasterizer, 9 tests, 100% coverage)
+**✅ Phase 6 Complete** (Shading — `pkg/shader/`, `Attributes`, `Func`, `VertexColor`/`NewFlatColor`/`Depth`, 10 tests, 100% coverage)
 
-**Current Phase: Phase 6 - Shading**
+**Current Phase: Phase 7 - Render Pipeline Integration**
 
-1. Define shader interface or function type
-2. Implement vertex color pass-through shader (return interpolated color)
-3. Optional: flat color shader for debugging
-4. Test shaders with known inputs
-5. Write tests first (TDD) — see [Shader Component](08-shader-component.md)
+1. Implement vertex transformation stage (local → clip space via VP matrix, perspective divide → NDC, NDC → screen)
+2. Implement primitive assembly (group mesh indices into triangles, fetch transformed vertices)
+3. Connect rasterizer and shader (rasterize triangle, pass interpolated attrs to shader, write to framebuffer)
+4. Implement main `Render()` function in `pkg/render/`
+5. Write end-to-end tests — see [Render Pipeline](09-render-pipeline.md)
 
 **Questions or stuck?**
 - Review the relevant component doc
@@ -194,12 +195,12 @@ These docs are written for MVP scope only. As the project evolves:
 - Keep architecture doc current with major changes
 
 **Last updated:** 2026-02-27
-- Phase 5 (Rasterization) completed: `pkg/rasterize/` with `rasterize.Triangle()`, 9 tests, 100% coverage
-- Barycentric coordinate algorithm; supports CCW and CW winding, degenerate guard, bounding-box clamp
-- Rasterizer component doc updated with actual API and test coverage
-- Development roadmap: Phase 5 marked COMPLETED, progress 7/14 (50%)
-- MVP features checklist: rasterizer requirements checked, progress 10/12 (83%)
-- Ready for Phase 6 (Shading)
+- Phase 6 (Shading) completed: `pkg/shader/` with `Attributes`, `Func`, `VertexColor`, `NewFlatColor`, `Depth` — 10 tests, 100% coverage
+- `shader.Func` is a function type `func(Attributes) math.Vec3`; named `Func` (not `ShaderFunc`) per revive linter
+- Shader component doc updated with actual implemented API and completion status
+- Development roadmap: Phase 6 marked COMPLETED, progress 8/14 (57%)
+- MVP features checklist: shader requirements checked, progress 11/13 (85%)
+- Ready for Phase 7 (Render Pipeline Integration)
 
 ---
 

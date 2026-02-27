@@ -1,5 +1,34 @@
 # Shader Component
 
+## Status: ✅ COMPLETED (2026-02-27)
+
+**Package:** `pkg/shader/`
+**Tests:** 10 tests, 100% statement coverage
+
+### Implemented API
+
+```go
+// Attributes holds interpolated per-fragment data.
+type Attributes struct {
+    Color math.Vec3 // Interpolated vertex color, components in [0, 1].
+    Depth float64   // Interpolated fragment depth, in [0, 1].
+}
+
+// Func computes the final RGB color for a fragment.
+type Func func(Attributes) math.Vec3
+
+func VertexColor(attr Attributes) math.Vec3      // pass-through color shader
+func NewFlatColor(color math.Vec3) Func          // constant-color shader constructor
+func Depth(attr Attributes) math.Vec3            // grayscale depth visualisation
+```
+
+**Design decisions:**
+- Function type (not interface) — simpler, easier to test, can add interface later
+- Type named `Func` (not `ShaderFunc`): revive linter — `shader.ShaderFunc` is redundant; `shader.Func` is idiomatic (same convention as `rasterize.Triangle`)
+- `NewFlatColor` uses closure to capture color parameter (only shader needing state)
+
+---
+
 ## Purpose
 
 Calculate final pixel color based on geometry attributes and lighting (if any).

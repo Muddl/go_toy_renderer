@@ -33,3 +33,10 @@ go.work.sum
 
 # Temporary files
 nul
+
+# Build artifacts
+renderer
+renderer.exe
+
+# Rendered output images
+output.png

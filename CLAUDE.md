@@ -6,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 This is a **toy 3D software renderer** implemented in Go - a learning project that demonstrates fundamental 3D graphics concepts without GPU acceleration. The renderer performs all calculations on the CPU, converting 3D geometry to 2D images through a complete graphics pipeline.
 
-**Current Status:** Phase 0 (CI/CD) ✅ | Phase 1 (Math) ✅ | Phase 2 (Geometry) ✅ | Phase 3 (Camera) ✅ | Phase 4 (Framebuffer) ✅ | Phase 5 (Rasterization) ✅ | Phase 6 (Shading) ✅ | Ready for Phase 7 (Pipeline Integration)
+**Current Status:** Phase 0 (CI/CD) ✅ | Phase 1 (Math) ✅ | Phase 2 (Geometry) ✅ | Phase 3 (Camera) ✅ | Phase 4 (Framebuffer) ✅ | Phase 5 (Rasterization) ✅ | Phase 6 (Shading) ✅ | Phase 7 (Pipeline Integration) ✅ | Ready for Phase 8 (Testing & Polish)
 
 **Progress Summary:**
 - ✅ Phase 0 complete: CI/CD infrastructure (GitHub Actions, golangci-lint v2) merged
@@ -14,8 +14,9 @@ This is a **toy 3D software renderer** implemented in Go - a learning project th
 - ✅ Phase 2 complete: Vertex, Mesh, Tetrahedron, Cube with full test coverage
 - ✅ Phase 3 complete: Camera with ViewMatrix (LookAt), ProjectionMatrix (Perspective), ViewProjectionMatrix
 - ✅ Phase 4 complete: Framebuffer with color/depth buffers, depth test, PNG export (21 tests, 94.6% coverage)
-- ✅ Phase 5 complete: Rasterization with barycentric triangle rasterizer (9 tests, 100% coverage)
+- ✅ Phase 5 complete: Rasterization with barycentric triangle rasterizer (13 tests, 100% coverage)
 - ✅ Phase 6 complete: Shader package with VertexColor, NewFlatColor, Depth shaders (10 tests, 100% coverage)
+- ✅ Phase 7 complete: Render Pipeline Integration — Scene, Render(), transformVertex(); cmd/renderer produces output.png (12 tests, 100% coverage)
 - 📋 13 comprehensive MVP documentation files established
 - 🔄 Active development using TDD and trunk-based Git workflow
 
@@ -426,13 +427,15 @@ pkg/rasterize/
   - `framebuffer.go` - Framebuffer struct, New, Clear, SetPixel (depth test), GetPixel, GetDepth, SavePNG (118 lines)
   - `framebuffer_test.go` - 21 tests covering all operations, 94.6% coverage
 - `pkg/rasterize/` - ✅ **Complete** - Barycentric triangle rasterizer
-  - `rasterizer.go` - ScreenVertex type, Triangle() function, edgeFunction/insideTriangle helpers
-  - `rasterizer_test.go` - 9 tests covering all behaviors, 100% coverage
-
-**Pending packages for MVP:**
+  - `rasterizer.go` - ScreenVertex type, Triangle() (delegates to TriangleShaded), TriangleShaded(shaderFn), helpers
+  - `rasterizer_test.go` - 13 tests covering all behaviors, 100% coverage
 - `pkg/shader/` - ✅ **Complete** - Shader package (Attributes, Func, VertexColor, NewFlatColor, Depth) (Phase 6)
-- `pkg/render/` - ⏳ Core rendering pipeline and algorithms (Phase 7)
-- `cmd/renderer/` - ⏳ Main application entry point (Phase 8)
+  - `shader.go` - 50 lines, 10 tests, 100% coverage
+- `pkg/render/` - ✅ **Complete** - Render pipeline: Scene, Render(), transformVertex() (Phase 7)
+  - `render.go` - Scene struct, NewScene, AddMesh, Render, transformVertex
+  - `render_test.go` - 12 tests covering scene, render, transform behaviors, 100% coverage
+- `cmd/renderer/` - ✅ **Complete** - Main application entry point (Phase 7)
+  - `main.go` - renders colored cube to output.png (640×480, VertexColor shader)
 
 **Post-MVP packages:** `pkg/scene/`, `pkg/light/`, `pkg/texture/` (not needed initially)
 
@@ -498,14 +501,14 @@ See `.claude/docs/11-test-strategy.md` for detailed testing approach and TDD sec
 **Current Progress:** Phase 0 pending merge, Phase 1 complete ✅
 
 **Quick phase overview:**
-0. **Phase 0** (Day 0-1) - ⏳ **Pending** - CI/CD Infrastructure (GitHub Actions, linting, security scanning)
+0. **Phase 0** (Day 0-1) - ✅ **Complete** - CI/CD Infrastructure (GitHub Actions, linting, security scanning)
 1. **Phase 1** (Days 1-3) - ✅ **Complete** - Math Foundation → [Details](./.claude/docs/03-math-component.md)
 2. **Phase 2** (Days 4-5) - ✅ **Complete** - Geometry & Scene → [Details](./.claude/docs/04-geometry-component.md)
 3. **Phase 3** (Days 6-7) - ✅ **Complete** - Camera System → [Details](./.claude/docs/05-camera-component.md)
 4. **Phase 4** (Days 8-9) - ✅ **Complete** - Framebuffer → [Details](./.claude/docs/07-framebuffer-component.md)
 5. **Phase 5** (Days 10-12) - ✅ **Complete** - Rasterization → [Details](./.claude/docs/06-rasterizer-component.md)
 6. **Phase 6** (Days 13-14) - ✅ **Complete** - Shading → [Details](./.claude/docs/08-shader-component.md)
-7. **Phase 7** (Days 15-18) - Pipeline Integration → [Details](./.claude/docs/09-render-pipeline.md)
+7. **Phase 7** (Days 15-18) - ✅ **Complete** - Pipeline Integration → [Details](./.claude/docs/09-render-pipeline.md)
 8. **Phase 8** (Days 19-21) - Testing & Polish
 
 **Daily workflow (TDD-focused):**
@@ -601,7 +604,20 @@ See `.claude/docs/11-test-strategy.md` for detailed testing approach and TDD sec
 
 ## Recent Updates
 
-**2026-02-27 (Latest):** Phase 6 Complete - Shader Package Implemented ✅
+**2026-02-27 (Latest):** Phase 7 Complete - Render Pipeline Integration ✅
+- **`rasterize.TriangleShaded(v0,v1,v2, shaderFn, fb)`** added to `pkg/rasterize/rasterizer.go` — rasterizer now calls shader per pixel
+- **`Triangle`** refactored as thin wrapper: `TriangleShaded(v0,v1,v2, shader.VertexColor, fb)` — no code duplication, zero API breakage
+- **13 rasterizer tests** (4 new TriangleShaded tests added), 100% coverage
+- **`pkg/render/` package** created: `Scene`, `NewScene`, `AddMesh`, `Render`, `transformVertex`
+  - `Render` clears framebuffer, transforms each vertex via `cam.ViewProjectionMatrix()`, rejects w≤0 triangles, calls `rasterize.TriangleShaded`
+  - `transformVertex`: clip → perspective divide → NDC → depth `(ndcZ+1)/2` → screen (Y-flipped)
+  - **12 tests, 100% coverage**
+- **`cmd/renderer/main.go`** fully implemented: cube at origin, camera at {3,2,5}, 640×480, VertexColor shader, saves `output.png`
+- **Documentation updated** across CLAUDE.md, 09-render-pipeline.md, 10-mvp-features.md, 12-development-roadmap.md, docs/README.md
+- **Task summary** created in `.claude/tasks/`
+- **Ready for Phase 8** (Testing & Polish: golden image tests, README, benchmark)
+
+**2026-02-27:** Phase 6 Complete - Shader Package Implemented ✅
 - **Implemented `pkg/shader/` package** with `Attributes` struct, `Func` type, and three shaders
 - **`VertexColor`**: pass-through shader returning interpolated vertex color unchanged
 - **`NewFlatColor(color)`**: constructor returning a `shader.Func` capturing a constant color (useful for debug/testing)

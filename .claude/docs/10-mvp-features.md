@@ -127,20 +127,20 @@ These features are REQUIRED for MVP completion. Without these, the renderer is n
 
 ---
 
-### 7. Rendering Pipeline ⏳
+### 7. Rendering Pipeline ✅
 **What:** Orchestrate all components
 
 **Requirements:**
-- Transform vertices (local → world → view → clip → screen)
-- Process all triangles in mesh
-- Rasterize each triangle
-- Shade each pixel
-- Write to framebuffer with depth test
-- Save final image
+- ✅ Transform vertices (local → world → view → clip → screen) — `render.transformVertex()` via MVP matrix
+- ✅ Process all triangles in mesh — loop over `mesh.TriangleCount()`, index lookup via `mesh.GetTriangle()`
+- ✅ Rasterize each triangle — `rasterize.TriangleShaded()` with barycentric interpolation
+- ✅ Shade each pixel — `shader.Func` called per pixel inside rasterizer
+- ✅ Write to framebuffer with depth test — framebuffer `SetPixel` handles depth automatically
+- ✅ Save final image — `framebuffer.SavePNG()` in `cmd/renderer/main.go`
 
 **Success criteria:** Complete render of a simple mesh produces valid output image.
 
-**Status:** ⏳ **Pending** (Phase 7)
+**Status:** ✅ **Complete** (Phase 7 — 2026-02-27) — 12 tests, 100% coverage; `output.png` produced
 
 ---
 
@@ -223,12 +223,12 @@ Use this checklist to verify MVP is complete:
 - [x] Colors interpolate smoothly across triangles (Phase 5 ✅)
 - [x] Depth test prevents Z-fighting (Phase 4 ✅)
 - [x] Shader calculates final pixel color (Phase 6 ✅)
-- [ ] Complete pipeline renders mesh to image file (Phase 7)
-- [ ] Output image visually shows 3D object with perspective (Phase 7)
+- [x] Complete pipeline renders mesh to image file (Phase 7 ✅)
+- [x] Output image visually shows 3D object with perspective (Phase 7 ✅)
 - [x] All core components have basic tests (math: 100%, geometry: ~95%+)
 - [x] All CI checks pass on main branch (Phase 0 ✅)
 
-**Progress: 11/13 items complete (85%)**
+**Progress: 13/13 items complete (100%) — MVP Core Features DONE! 🎉**
 
 ---
 

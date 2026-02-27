@@ -1,5 +1,11 @@
 # Render Pipeline Component
 
+**Status:** ✅ **Complete** (Phase 7 — 2026-02-27)
+- `pkg/render/render.go` — `Scene`, `NewScene`, `AddMesh`, `Render`, `transformVertex`
+- `pkg/rasterize/rasterizer.go` — `TriangleShaded` added; `Triangle` delegates to it
+- `cmd/renderer/main.go` — full demo rendering cube to `output.png`
+- 12 render tests + 13 rasterizer tests, both at 100% coverage
+
 ## Purpose
 
 Orchestrate the entire rendering process from scene to image output.
@@ -157,35 +163,71 @@ clipSpace := mvp.TransformVector(vertex.Position)
 - Data flows correctly between stages
 - Framebuffer contains expected pixel data after render
 
-## API Example (Conceptual)
+## Actual API (Implemented)
 
 ```go
 // Create scene
 scene := render.NewScene()
-cube := geometry.CreateCube()
-cube.SetPosition(0, 0, 0)
-scene.AddMesh(cube)
+scene.AddMesh(geometry.NewCube())
 
 // Create camera
-camera := camera.New(
-    math.NewVector3(0, 0, 5),
-    math.NewVector3(0, 0, 0),
-    math.NewVector3(0, 1, 0),
+cam := camera.New(
+    math.Vec3{X: 3, Y: 2, Z: 5},
+    math.Vec3{X: 0, Y: 0, Z: 0},
+    math.Vec3{X: 0, Y: 1, Z: 0},
+    45.0,
+    640.0/480.0,
+    0.1,
+    100.0,
 )
-camera.SetPerspective(45, 800.0/600.0, 0.1, 100)
 
 // Create framebuffer
-fb := framebuffer.New(800, 600)
+fb := framebuffer.New(640, 480)
 
-// Create shader
-shader := shader.VertexColorShader
-
-// Render!
-renderer := render.NewRenderer()
-renderer.Render(scene, camera, fb, shader)
+// Render (clears fb internally, then rasterizes all meshes)
+render.Render(scene, cam, fb, shader.VertexColor)
 
 // Save output
 fb.SavePNG("output.png")
+```
+
+### Scene Type
+
+```go
+type Scene struct {
+    Meshes []*geometry.Mesh
+}
+
+func NewScene() *Scene
+func (s *Scene) AddMesh(m *geometry.Mesh)
+```
+
+### Render Function
+
+```go
+// Render clears fb, transforms all mesh vertices via cam.ViewProjectionMatrix(),
+// rejects triangles where any vertex has w ≤ 0 (behind camera), and calls
+// rasterize.TriangleShaded for each visible triangle.
+func Render(scene *Scene, cam camera.Camera, fb *framebuffer.Framebuffer, shaderFn shader.Func)
+```
+
+### Coordinate Transform (transformVertex)
+
+```
+clip = mvp.MultiplyVec4(px, py, pz, 1.0)   // clip space
+if cw <= 0: reject (behind camera plane)
+ndcX = cx/cw, ndcY = cy/cw, ndcZ = cz/cw   // NDC [-1,1]
+depth = (ndcZ + 1) / 2                       // [0,1]: 0=near, 1=far
+screenX = (ndcX + 1) / 2 * width            // pixels, origin top-left
+screenY = (1 - ndcY) / 2 * height           // Y flipped (NDC +Y up, screen +Y down)
+```
+
+### TriangleShaded (rasterize package)
+
+```go
+// Rasterizes triangle with per-pixel shader support.
+// Triangle delegates to TriangleShaded(v0, v1, v2, shader.VertexColor, fb).
+func TriangleShaded(v0, v1, v2 ScreenVertex, shaderFn shader.Func, fb *framebuffer.Framebuffer)
 ```
 
 ## Common Gotchas

@@ -143,7 +143,7 @@ These docs are designed to be:
 - Framebuffer with depth test ✅ (Phase 4 — complete)
 - Triangle rasterization ✅
 - Simple shader ✅
-- Complete render pipeline
+- Complete render pipeline ✅ (Phase 7 — complete)
 
 ### Success Criteria
 ✓ Renders 3D object to image file
@@ -166,16 +166,16 @@ These docs are designed to be:
 **✅ Phase 2 Complete** (Geometry & Scene — merged PR #5)
 **✅ Phase 3 Complete** (Camera System — `pkg/camera/`, ViewMatrix/ProjectionMatrix/ViewProjectionMatrix)
 **✅ Phase 4 Complete** (Framebuffer — `pkg/framebuffer/`, color/depth buffers, PNG export, 21 tests)
-**✅ Phase 5 Complete** (Rasterization — `pkg/rasterize/`, barycentric triangle rasterizer, 9 tests, 100% coverage)
+**✅ Phase 5 Complete** (Rasterization — `pkg/rasterize/`, barycentric triangle rasterizer, 13 tests, 100% coverage)
 **✅ Phase 6 Complete** (Shading — `pkg/shader/`, `Attributes`, `Func`, `VertexColor`/`NewFlatColor`/`Depth`, 10 tests, 100% coverage)
+**✅ Phase 7 Complete** (Pipeline Integration — `pkg/render/`, `Scene`/`Render`/`transformVertex`, 12 tests, 100% coverage; `cmd/renderer/main.go` renders `output.png`)
 
-**Current Phase: Phase 7 - Render Pipeline Integration**
+**Current Phase: Phase 8 - Testing & Polish**
 
-1. Implement vertex transformation stage (local → clip space via VP matrix, perspective divide → NDC, NDC → screen)
-2. Implement primitive assembly (group mesh indices into triangles, fetch transformed vertices)
-3. Connect rasterizer and shader (rasterize triangle, pass interpolated attrs to shader, write to framebuffer)
-4. Implement main `Render()` function in `pkg/render/`
-5. Write end-to-end tests — see [Render Pipeline](09-render-pipeline.md)
+1. Write golden image integration tests (compare rendered output against reference images)
+2. Improve overall test coverage (aim for >80%)
+3. Update README with usage instructions and example output
+4. Performance benchmark critical rendering paths
 
 **Questions or stuck?**
 - Review the relevant component doc
@@ -195,12 +195,12 @@ These docs are written for MVP scope only. As the project evolves:
 - Keep architecture doc current with major changes
 
 **Last updated:** 2026-02-27
-- Phase 6 (Shading) completed: `pkg/shader/` with `Attributes`, `Func`, `VertexColor`, `NewFlatColor`, `Depth` — 10 tests, 100% coverage
-- `shader.Func` is a function type `func(Attributes) math.Vec3`; named `Func` (not `ShaderFunc`) per revive linter
-- Shader component doc updated with actual implemented API and completion status
-- Development roadmap: Phase 6 marked COMPLETED, progress 8/14 (57%)
-- MVP features checklist: shader requirements checked, progress 11/13 (85%)
-- Ready for Phase 7 (Render Pipeline Integration)
+- Phase 7 (Pipeline Integration) completed: `pkg/render/` with `Scene`, `NewScene`, `AddMesh`, `Render`, `transformVertex` — 12 tests, 100% coverage
+- `rasterize.TriangleShaded` added; `Triangle` refactored as thin wrapper calling `TriangleShaded(shader.VertexColor)` — 13 rasterizer tests total, 100% coverage
+- `cmd/renderer/main.go` fully implemented — renders colored cube to `output.png` (640×480)
+- Development roadmap: Phase 7 marked COMPLETED, progress 11/14 (79%)
+- MVP features checklist: all 13 core items complete (100%)
+- Ready for Phase 8 (Testing & Polish)
 
 ---
 

@@ -228,7 +228,12 @@ Use this checklist to verify MVP is complete:
 - [x] All core components have basic tests (math: 100%, geometry: ~95%+)
 - [x] All CI checks pass on main branch (Phase 0 ✅)
 
-**Progress: 13/13 items complete (100%) — MVP Core Features DONE! 🎉**
+- [x] Golden image regression test for visual correctness (Phase 8 ✅)
+- [x] Integration tests across all shaders and camera positions (Phase 8 ✅)
+- [x] Performance benchmarks documenting baseline throughput (Phase 8 ✅)
+- [x] README with usage instructions, API example, performance table (Phase 8 ✅)
+
+**Progress: 13/13 core items + Phase 8 polish complete — MVP DONE! 🎉**
 
 ---
 

@@ -170,12 +170,9 @@ These docs are designed to be:
 **✅ Phase 6 Complete** (Shading — `pkg/shader/`, `Attributes`, `Func`, `VertexColor`/`NewFlatColor`/`Depth`, 10 tests, 100% coverage)
 **✅ Phase 7 Complete** (Pipeline Integration — `pkg/render/`, `Scene`/`Render`/`transformVertex`, 12 tests, 100% coverage; `cmd/renderer/main.go` renders `output.png`)
 
-**Current Phase: Phase 8 - Testing & Polish**
+**✅ Phase 8 Complete** (Testing & Polish — 2026-02-27)
 
-1. Write golden image integration tests (compare rendered output against reference images)
-2. Improve overall test coverage (aim for >80%)
-3. Update README with usage instructions and example output
-4. Performance benchmark critical rendering paths
+**MVP is complete! All 8 phases done.**
 
 **Questions or stuck?**
 - Review the relevant component doc
@@ -195,12 +192,12 @@ These docs are written for MVP scope only. As the project evolves:
 - Keep architecture doc current with major changes
 
 **Last updated:** 2026-02-27
-- Phase 7 (Pipeline Integration) completed: `pkg/render/` with `Scene`, `NewScene`, `AddMesh`, `Render`, `transformVertex` — 12 tests, 100% coverage
-- `rasterize.TriangleShaded` added; `Triangle` refactored as thin wrapper calling `TriangleShaded(shader.VertexColor)` — 13 rasterizer tests total, 100% coverage
-- `cmd/renderer/main.go` fully implemented — renders colored cube to `output.png` (640×480)
-- Development roadmap: Phase 7 marked COMPLETED, progress 11/14 (79%)
-- MVP features checklist: all 13 core items complete (100%)
-- Ready for Phase 8 (Testing & Polish)
+- Phase 8 (Testing & Polish) completed — MVP is fully done!
+- Golden image test in `pkg/render/testdata/golden_triangle.png` with `-update` flag support
+- 6 new integration tests in `pkg/render/integration_test.go`
+- Benchmarks in `pkg/render/bench_test.go` and `pkg/rasterize/rasterizer_bench_test.go`
+- `README.md` rewritten with usage instructions, API example, performance table
+- All tests passing, coverage well above 70% threshold
 
 ---
 

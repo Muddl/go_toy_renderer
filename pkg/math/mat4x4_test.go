@@ -336,3 +336,40 @@ func TestMat4x4_NewRotationZ_RotatesAroundZAxis(t *testing.T) {
 		t.Errorf("RotationZ(90°) of X-axis point = %v, want %v", result, expected)
 	}
 }
+
+// TestMat4x4_MultiplyVec4_WithIdentity tests that identity passes all components through.
+func TestMat4x4_MultiplyVec4_WithIdentity_ReturnsOriginal(t *testing.T) {
+	identity := NewIdentity()
+
+	rx, ry, rz, rw := identity.MultiplyVec4(1.0, 2.0, 3.0, 1.0)
+
+	if math.Abs(rx-1.0) > epsilon || math.Abs(ry-2.0) > epsilon ||
+		math.Abs(rz-3.0) > epsilon || math.Abs(rw-1.0) > epsilon {
+		t.Errorf("MultiplyVec4 with identity = (%f,%f,%f,%f), want (1,2,3,1)", rx, ry, rz, rw)
+	}
+}
+
+// TestMat4x4_MultiplyVec4_TranslationMatrix tests that translation affects position with w=1.
+func TestMat4x4_MultiplyVec4_TranslationMatrix_TranslatesPosition(t *testing.T) {
+	translation := NewTranslation(5.0, 3.0, -2.0)
+
+	rx, ry, rz, rw := translation.MultiplyVec4(1.0, 1.0, 1.0, 1.0)
+
+	if math.Abs(rx-6.0) > epsilon || math.Abs(ry-4.0) > epsilon ||
+		math.Abs(rz-(-1.0)) > epsilon || math.Abs(rw-1.0) > epsilon {
+		t.Errorf("MultiplyVec4 with translation = (%f,%f,%f,%f), want (6,4,-1,1)", rx, ry, rz, rw)
+	}
+}
+
+// TestMat4x4_MultiplyVec4_TranslationMatrix_DoesNotTranslateDirection tests w=0 direction vector.
+func TestMat4x4_MultiplyVec4_TranslationMatrix_DoesNotTranslateDirection(t *testing.T) {
+	// With w=0 (direction vector), translation should have no effect
+	translation := NewTranslation(5.0, 3.0, -2.0)
+
+	rx, ry, rz, rw := translation.MultiplyVec4(1.0, 0.0, 0.0, 0.0)
+
+	if math.Abs(rx-1.0) > epsilon || math.Abs(ry-0.0) > epsilon ||
+		math.Abs(rz-0.0) > epsilon || math.Abs(rw-0.0) > epsilon {
+		t.Errorf("MultiplyVec4 direction with translation = (%f,%f,%f,%f), want (1,0,0,0)", rx, ry, rz, rw)
+	}
+}

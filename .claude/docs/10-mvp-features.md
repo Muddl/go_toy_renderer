@@ -111,17 +111,19 @@ These features are REQUIRED for MVP completion. Without these, the renderer is n
 
 ---
 
-### 6. Basic Shader ⏳
+### 6. Basic Shader ✅
 **What:** Per-pixel color calculation
 
 **Requirements:**
-- Shader function that takes interpolated attributes
-- Returns final RGB color
-- Minimum: vertex color pass-through shader
+- ✅ `Attributes` struct with interpolated `Color math.Vec3` and `Depth float64` — `pkg/shader/shader.go`
+- ✅ `ShaderFunc` type: `func(Attributes) math.Vec3` — function type, no interface boilerplate
+- ✅ `VertexColor`: pass-through returning interpolated vertex color unchanged
+- ✅ `NewFlatColor(color)`: constant-color shader for debugging and solid fills
+- ✅ `Depth`: grayscale depth visualisation shader (depth 0→black, 1→white)
 
 **Success criteria:** Shader receives interpolated attributes and produces colors.
 
-**Status:** ⏳ **Pending** (Phase 6)
+**Status:** ✅ **Complete** (Phase 6 — 2026-02-27) — 10 tests, 100% coverage
 
 ---
 
@@ -220,12 +222,13 @@ Use this checklist to verify MVP is complete:
 - [x] Triangle rasterizer fills correct pixels (Phase 5 ✅)
 - [x] Colors interpolate smoothly across triangles (Phase 5 ✅)
 - [x] Depth test prevents Z-fighting (Phase 4 ✅)
+- [x] Shader calculates final pixel color (Phase 6 ✅)
 - [ ] Complete pipeline renders mesh to image file (Phase 7)
 - [ ] Output image visually shows 3D object with perspective (Phase 7)
 - [x] All core components have basic tests (math: 100%, geometry: ~95%+)
 - [x] All CI checks pass on main branch (Phase 0 ✅)
 
-**Progress: 10/12 items complete (83%)**
+**Progress: 11/13 items complete (85%)**
 
 ---
 

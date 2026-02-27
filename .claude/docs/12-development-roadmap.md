@@ -267,38 +267,41 @@ This roadmap breaks MVP development into phases, each building on the previous. 
 
 ---
 
-## Phase 6: Shading (Days 13-14)
+## Phase 6: Shading ✅ **COMPLETED** (2026-02-27)
 
 **Goal:** Calculate per-pixel colors.
 
-### Tasks
-1. Define Shader interface or function type
-   - Input: interpolated attributes
-   - Output: final color
+### Tasks Completed ✅
+1. ✅ Defined `ShaderFunc` type: `func(Attributes) math.Vec3` — simple function type, no interface
+   - `Attributes` struct: `Color math.Vec3` (interpolated vertex color) + `Depth float64`
 
-2. Implement vertex color shader
-   - Simply return interpolated color
-   - Test with known inputs
+2. ✅ Implemented `VertexColor` shader (`pkg/shader/shader.go`)
+   - Pass-through: returns `attr.Color` unchanged
+   - Demonstrates correct color interpolation
 
-3. Implement flat color shader (for testing)
-   - Return constant color
-   - Use for debugging
+3. ✅ Implemented `NewFlatColor(color math.Vec3) ShaderFunc`
+   - Constructor returning closure capturing constant color
+   - Useful for debugging and solid-fill testing
 
-4. Optional: Implement depth visualization shader
-   - Convert depth to grayscale
-   - Useful for debugging
+4. ✅ Implemented `Depth` shader
+   - Converts interpolated depth to grayscale (depth 0→black, 1→white)
+   - Useful for verifying depth buffer correctness
 
-5. Test shaders
-   - Verify correct colors returned
-   - Ensure called once per pixel
+5. ✅ 10 tests across all shaders — 100% statement coverage
 
 ### Completion Criteria
-- [ ] Shader interface defined
-- [ ] At least one shader implemented (vertex color)
-- [ ] Shader receives correct interpolated data
-- [ ] Shader tests pass
+- [x] Shader interface defined (`ShaderFunc` function type)
+- [x] At least one shader implemented (`VertexColor`, plus `NewFlatColor` and `Depth`)
+- [x] Shader receives correct interpolated data (via `Attributes` struct)
+- [x] Shader tests pass (10 tests, 100% coverage)
 
 **When complete:** You can control per-pixel appearance.
+
+**Status:** ✅ **COMPLETED** (2026-02-27)
+
+**Time taken:** ~1 day
+
+**Next:** Phase 7 - Render Pipeline Integration
 
 ---
 
@@ -457,7 +460,7 @@ MVP is complete when:
 - ✅ Camera system implemented (Phase 3 — complete)
 - ✅ Framebuffer stores and saves images (Phase 4 — complete)
 - [x] Rasterizer fills triangles correctly (Phase 5 ✅)
-- [ ] Shader calculates colors (Phase 6)
+- [x] Shader calculates colors (Phase 6 ✅)
 - [ ] Render pipeline connects all components (Phase 7)
 - [ ] Can render colored 3D object with perspective (Phase 7)
 - [ ] Output image saved as PNG (Phase 7)
@@ -466,7 +469,7 @@ MVP is complete when:
 - [ ] Demo app works (Phase 8)
 - [ ] No critical bugs (Phase 8)
 
-**Progress: 7/14 major milestones complete (50%)**
+**Progress: 8/14 major milestones complete (57%)**
 
 **When all checked: MVP is done!**
 

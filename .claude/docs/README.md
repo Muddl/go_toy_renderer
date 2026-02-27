@@ -140,7 +140,7 @@ These docs are designed to be:
 - 3D math (vectors, matrices) ✅
 - Basic geometry (cube/tetrahedron) ✅
 - Camera system ✅
-- Framebuffer with depth test ⏳ (Phase 4 — next)
+- Framebuffer with depth test ✅ (Phase 4 — complete)
 - Triangle rasterization
 - Simple shader
 - Complete render pipeline
@@ -165,16 +165,17 @@ These docs are designed to be:
 **✅ Phase 1 Complete** (Math Foundation)
 **✅ Phase 2 Complete** (Geometry & Scene — merged PR #5)
 **✅ Phase 3 Complete** (Camera System — `pkg/camera/`, ViewMatrix/ProjectionMatrix/ViewProjectionMatrix)
+**✅ Phase 4 Complete** (Framebuffer — `pkg/framebuffer/`, color/depth buffers, PNG export, 21 tests)
 
-**Current Phase: Phase 4 - Framebuffer**
+**Current Phase: Phase 5 - Rasterization**
 
-1. Create feature branch: `git checkout -b feature/framebuffer`
-2. Create `pkg/framebuffer/framebuffer.go` with `Framebuffer` struct
-3. Implement color buffer (RGB per pixel) and depth buffer (float64 per pixel)
-4. Implement `Clear(color, depth)`, `SetPixel(x, y, z, color)` with depth test
-5. Implement `SavePNG(path)` using Go stdlib `image/png`
-6. Write tests first (TDD) for all framebuffer operations
-7. See [Framebuffer Component](07-framebuffer-component.md) and [Development Roadmap](12-development-roadmap.md) for details
+1. Create `pkg/rasterize/rasterizer.go` with triangle rasterizer
+2. Implement barycentric coordinate calculation
+3. Implement triangle bounding box
+4. Implement rasterization loop with pixel coverage test
+5. Implement attribute (color, depth) interpolation
+6. Connect to framebuffer via `SetPixel`
+7. Write tests first (TDD) — see [Rasterizer Component](06-rasterizer-component.md)
 
 **Questions or stuck?**
 - Review the relevant component doc
@@ -193,15 +194,13 @@ These docs are written for MVP scope only. As the project evolves:
 - Update roadmap with actual vs. estimated timeline
 - Keep architecture doc current with major changes
 
-**Last updated:** 2025-10-10
-- Phase 1 (Math Foundation) completed and documented (✅ 100% coverage)
-- Added comprehensive CI/CD Infrastructure documentation (doc 13)
-- Consolidated CI/CD docs from .github/ into .claude/docs/
-- Added Phase 0 (CI/CD Infrastructure) to roadmap
-- Math component doc updated with implementation status
-- Development roadmap updated with Phase 1 completion
-- MVP features checklist updated with Phase 1 progress
-- Added CI/CD requirements to MVP features
+**Last updated:** 2026-02-27
+- Phase 4 (Framebuffer) completed: `pkg/framebuffer/` with 21 tests, 94.6% coverage
+- go.mod updated: go 1.25.2 → go 1.24 / toolchain go1.24.7 (matches available toolchain)
+- Framebuffer component doc updated with implementation status and API
+- Development roadmap: Phase 4 marked COMPLETED, Phase 3 corrected to COMPLETED
+- MVP features checklist: framebuffer requirements checked, progress 67%
+- Ready for Phase 5 (Rasterization)
 
 ---
 

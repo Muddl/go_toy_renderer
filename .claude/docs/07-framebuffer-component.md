@@ -1,5 +1,9 @@
 # Framebuffer Component
 
+**Status:** ✅ **COMPLETE** (Phase 4 — 2026-02-27)
+**Package:** `pkg/framebuffer/`
+**Coverage:** 94.6% (21 tests)
+
 ## Purpose
 
 Store pixel colors and depth values, handle depth testing, and export to image files.
@@ -139,6 +143,20 @@ Matches image formats and simplifies export.
 - Custom color
 
 **For MVP:** Configurable background color.
+
+## Implemented API
+
+```go
+// Constructor
+func New(width, height int) *Framebuffer
+
+// Operations
+func (fb *Framebuffer) Clear(color math.Vec3, depth float64)
+func (fb *Framebuffer) SetPixel(x, y int, color math.Vec3, depth float64)
+func (fb *Framebuffer) GetPixel(x, y int) math.Vec3
+func (fb *Framebuffer) GetDepth(x, y int) float64
+func (fb *Framebuffer) SavePNG(filename string) error
+```
 
 ## API Example (Conceptual)
 

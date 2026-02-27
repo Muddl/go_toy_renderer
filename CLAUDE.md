@@ -6,13 +6,14 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 This is a **toy 3D software renderer** implemented in Go - a learning project that demonstrates fundamental 3D graphics concepts without GPU acceleration. The renderer performs all calculations on the CPU, converting 3D geometry to 2D images through a complete graphics pipeline.
 
-**Current Status:** Phase 0 (CI/CD) ✅ | Phase 1 (Math) ✅ | Phase 2 (Geometry) ✅ | Phase 3 (Camera) ✅ | Ready for Phase 4 (Framebuffer)
+**Current Status:** Phase 0 (CI/CD) ✅ | Phase 1 (Math) ✅ | Phase 2 (Geometry) ✅ | Phase 3 (Camera) ✅ | Phase 4 (Framebuffer) ✅ | Ready for Phase 5 (Rasterization)
 
 **Progress Summary:**
 - ✅ Phase 0 complete: CI/CD infrastructure (GitHub Actions, golangci-lint v2) merged
 - ✅ Phase 1 complete: Vec3 and Mat4x4 with 100% test coverage
 - ✅ Phase 2 complete: Vertex, Mesh, Tetrahedron, Cube with full test coverage
 - ✅ Phase 3 complete: Camera with ViewMatrix (LookAt), ProjectionMatrix (Perspective), ViewProjectionMatrix
+- ✅ Phase 4 complete: Framebuffer with color/depth buffers, depth test, PNG export (21 tests, 94.6% coverage)
 - 📋 13 comprehensive MVP documentation files established
 - 🔄 Active development using TDD and trunk-based Git workflow
 
@@ -110,9 +111,21 @@ The project uses GitHub Actions for automated CI/CD. The pipeline automatically 
 - View workflow runs at: `https://github.com/muddl/go_toy_renderer/actions`
 - CI badges displayed in README.md
 
-**Local pre-commit checks** (run before pushing):
+**Pre-commit hook** (runs automatically on every `git commit`):
+
+The repository ships a pre-commit hook at `.githooks/pre-commit` that runs
+`go fmt`, `go vet`, and `golangci-lint` before each commit. Activate it once
+per clone:
+
 ```bash
-# Run all checks locally (mimics CI)
+git config core.hooksPath .githooks
+```
+
+The hook runs: `go fmt ./...` → `go vet ./...` → `golangci-lint run`. If any
+step fails the commit is aborted. Fix the reported issues and re-commit.
+
+**Manual pre-push checks** (mimics full CI):
+```bash
 go fmt ./...
 go vet ./...
 golangci-lint run
@@ -122,6 +135,9 @@ govulncheck ./...
 
 ### Git Workflow
 ```bash
+# One-time setup after cloning: activate the pre-commit hook
+git config core.hooksPath .githooks
+
 # Create a new feature branch
 git checkout -b feature/descriptive-name
 
@@ -404,9 +420,11 @@ pkg/rasterize/
 - `pkg/camera/` - ✅ **Complete** - Camera with view and projection matrix generation
   - `camera.go` - Camera struct, ViewMatrix (LookAt), ProjectionMatrix (Perspective), ViewProjectionMatrix (55 lines)
   - `camera_test.go` - 11 tests covering all camera operations and edge cases
+- `pkg/framebuffer/` - ✅ **Complete** - Framebuffer with depth testing and PNG export
+  - `framebuffer.go` - Framebuffer struct, New, Clear, SetPixel (depth test), GetPixel, GetDepth, SavePNG (118 lines)
+  - `framebuffer_test.go` - 21 tests covering all operations, 94.6% coverage
 
 **Pending packages for MVP:**
-- `pkg/framebuffer/` - ⏳ Framebuffer with depth testing and image output (Phase 4 — next)
 - `pkg/rasterize/` - ⏳ Triangle rasterization with attribute interpolation (Phase 5)
 - `pkg/shader/` - ⏳ Shader implementations (vertex color, flat color) (Phase 6)
 - `pkg/render/` - ⏳ Core rendering pipeline and algorithms (Phase 7)
@@ -478,10 +496,10 @@ See `.claude/docs/11-test-strategy.md` for detailed testing approach and TDD sec
 **Quick phase overview:**
 0. **Phase 0** (Day 0-1) - ⏳ **Pending** - CI/CD Infrastructure (GitHub Actions, linting, security scanning)
 1. **Phase 1** (Days 1-3) - ✅ **Complete** - Math Foundation → [Details](./.claude/docs/03-math-component.md)
-2. **Phase 2** (Days 4-5) - ⏳ **Next** - Geometry & Scene → [Details](./.claude/docs/04-geometry-component.md)
-3. **Phase 3** (Days 6-7) - Camera System → [Details](./.claude/docs/05-camera-component.md)
-4. **Phase 4** (Days 8-9) - Framebuffer → [Details](./.claude/docs/07-framebuffer-component.md)
-5. **Phase 5** (Days 10-12) - Rasterization → [Details](./.claude/docs/06-rasterizer-component.md)
+2. **Phase 2** (Days 4-5) - ✅ **Complete** - Geometry & Scene → [Details](./.claude/docs/04-geometry-component.md)
+3. **Phase 3** (Days 6-7) - ✅ **Complete** - Camera System → [Details](./.claude/docs/05-camera-component.md)
+4. **Phase 4** (Days 8-9) - ✅ **Complete** - Framebuffer → [Details](./.claude/docs/07-framebuffer-component.md)
+5. **Phase 5** (Days 10-12) - ⏳ **Next** - Rasterization → [Details](./.claude/docs/06-rasterizer-component.md)
 6. **Phase 6** (Days 13-14) - Shading → [Details](./.claude/docs/08-shader-component.md)
 7. **Phase 7** (Days 15-18) - Pipeline Integration → [Details](./.claude/docs/09-render-pipeline.md)
 8. **Phase 8** (Days 19-21) - Testing & Polish
@@ -579,7 +597,19 @@ See `.claude/docs/11-test-strategy.md` for detailed testing approach and TDD sec
 
 ## Recent Updates
 
-**2026-02-27 (Latest):** Phase 3 Complete - Camera System Implemented ✅
+**2026-02-27 (Latest):** Phase 4 Complete - Framebuffer Implemented ✅
+- **Implemented Framebuffer type** (`pkg/framebuffer/framebuffer.go`) with Width, Height, ColorBuffer ([]Vec3), DepthBuffer ([]float64)
+- **New(width, height)** allocates linear buffers; depth initialized to 1.0 (far plane)
+- **Clear(color, depth)** resets all pixels in single pass
+- **SetPixel(x, y, color, depth)** with strict depth test (`depth < current`); out-of-bounds silently ignored
+- **GetPixel / GetDepth** with safe out-of-bounds returns (zero Vec3 / 1.0)
+- **SavePNG(filename)** converts float RGB [0,1] → uint8 [0,255] with clamping via Go stdlib `image/png`
+- **21 framebuffer tests** covering all operations: 94.6% package coverage
+- **go.mod updated** from `go 1.25.2` → `go 1.24` / `toolchain go1.24.7` (matches available toolchain)
+- **Documentation updated** across CLAUDE.md, roadmap, features checklist, README to reflect Phase 4 complete
+- **Ready for Phase 5** (Rasterization: barycentric triangles, attribute interpolation)
+
+**2026-02-27:** Phase 3 Complete - Camera System Implemented ✅
 - **Implemented Camera type** (`pkg/camera/camera.go`) with Position, Target, Up, FOV, Aspect, Near, Far
 - **ViewMatrix()** using LookAt algorithm: right-handed, camera looks down -Z
 - **ProjectionMatrix()** using OpenGL-style perspective: near→NDC z=-1, far→NDC z=+1

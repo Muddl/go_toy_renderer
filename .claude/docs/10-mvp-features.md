@@ -72,23 +72,24 @@ These features are REQUIRED for MVP completion. Without these, the renderer is n
 
 **Success criteria:** Camera transformations produce correct screen-space coordinates.
 
-**Status:** ✅ **Implemented** (2026-02-27) — CI validation in progress
+**Status:** ✅ **Complete** (2026-02-27)
 
 ---
 
-### 4. Framebuffer ⏳
+### 4. Framebuffer ✅
 **What:** Pixel storage with depth testing
 
 **Requirements:**
-- 2D color buffer (RGB per pixel)
-- 2D depth buffer (Z per pixel)
-- SetPixel with depth test (closer wins)
-- Clear to background color
-- Export to PNG or BMP file
+- ✅ 2D color buffer (RGB per pixel) — `ColorBuffer []math.Vec3`
+- ✅ 2D depth buffer (Z per pixel) — `DepthBuffer []float64`
+- ✅ SetPixel with depth test (closer wins) — strict `depth < current`
+- ✅ Clear to background color — `Clear(color, depth)`
+- ✅ Export to PNG file — `SavePNG(filename)` via stdlib `image/png`
+- ✅ GetPixel and GetDepth for testing and debugging
 
 **Success criteria:** Can write pixels and save valid image file.
 
-**Status:** ⏳ **Pending** (Phase 4)
+**Status:** ✅ **Complete** (Phase 4 — 2026-02-27) — 21 tests, 94.6% coverage
 
 ---
 
@@ -212,16 +213,16 @@ Use this checklist to verify MVP is complete:
 - [x] Math library has all required operations (Phase 1 basic ops ✅, camera ops in Phase 3)
 - [x] Can create at least one test mesh (cube/tetrahedron) (Phase 2 ✅)
 - [x] Camera can be positioned and oriented (Phase 3 ✅)
-- [ ] Framebuffer can store and export pixels (Phase 4)
+- [x] Framebuffer can store and export pixels (Phase 4 ✅)
 - [ ] Triangle rasterizer fills correct pixels (Phase 5)
 - [ ] Colors interpolate smoothly across triangles (Phase 5)
-- [ ] Depth test prevents Z-fighting (Phase 4)
+- [x] Depth test prevents Z-fighting (Phase 4 ✅)
 - [ ] Complete pipeline renders mesh to image file (Phase 7)
 - [ ] Output image visually shows 3D object with perspective (Phase 7)
 - [x] All core components have basic tests (math: 100%, geometry: ~95%+)
 - [x] All CI checks pass on main branch (Phase 0 ✅)
 
-**Progress: 6/12 items complete (50%)**
+**Progress: 8/12 items complete (67%)**
 
 ---
 

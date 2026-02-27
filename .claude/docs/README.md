@@ -141,7 +141,7 @@ These docs are designed to be:
 - Basic geometry (cube/tetrahedron) ✅
 - Camera system ✅
 - Framebuffer with depth test ✅ (Phase 4 — complete)
-- Triangle rasterization
+- Triangle rasterization ✅
 - Simple shader
 - Complete render pipeline
 
@@ -166,16 +166,15 @@ These docs are designed to be:
 **✅ Phase 2 Complete** (Geometry & Scene — merged PR #5)
 **✅ Phase 3 Complete** (Camera System — `pkg/camera/`, ViewMatrix/ProjectionMatrix/ViewProjectionMatrix)
 **✅ Phase 4 Complete** (Framebuffer — `pkg/framebuffer/`, color/depth buffers, PNG export, 21 tests)
+**✅ Phase 5 Complete** (Rasterization — `pkg/rasterize/`, barycentric triangle rasterizer, 9 tests, 100% coverage)
 
-**Current Phase: Phase 5 - Rasterization**
+**Current Phase: Phase 6 - Shading**
 
-1. Create `pkg/rasterize/rasterizer.go` with triangle rasterizer
-2. Implement barycentric coordinate calculation
-3. Implement triangle bounding box
-4. Implement rasterization loop with pixel coverage test
-5. Implement attribute (color, depth) interpolation
-6. Connect to framebuffer via `SetPixel`
-7. Write tests first (TDD) — see [Rasterizer Component](06-rasterizer-component.md)
+1. Define shader interface or function type
+2. Implement vertex color pass-through shader (return interpolated color)
+3. Optional: flat color shader for debugging
+4. Test shaders with known inputs
+5. Write tests first (TDD) — see [Shader Component](08-shader-component.md)
 
 **Questions or stuck?**
 - Review the relevant component doc
@@ -195,12 +194,12 @@ These docs are written for MVP scope only. As the project evolves:
 - Keep architecture doc current with major changes
 
 **Last updated:** 2026-02-27
-- Phase 4 (Framebuffer) completed: `pkg/framebuffer/` with 21 tests, 94.6% coverage
-- go.mod updated: go 1.25.2 → go 1.24 / toolchain go1.24.7 (matches available toolchain)
-- Framebuffer component doc updated with implementation status and API
-- Development roadmap: Phase 4 marked COMPLETED, Phase 3 corrected to COMPLETED
-- MVP features checklist: framebuffer requirements checked, progress 67%
-- Ready for Phase 5 (Rasterization)
+- Phase 5 (Rasterization) completed: `pkg/rasterize/` with `rasterize.Triangle()`, 9 tests, 100% coverage
+- Barycentric coordinate algorithm; supports CCW and CW winding, degenerate guard, bounding-box clamp
+- Rasterizer component doc updated with actual API and test coverage
+- Development roadmap: Phase 5 marked COMPLETED, progress 7/14 (50%)
+- MVP features checklist: rasterizer requirements checked, progress 10/12 (83%)
+- Ready for Phase 6 (Shading)
 
 ---
 

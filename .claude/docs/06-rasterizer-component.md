@@ -1,5 +1,7 @@
 # Rasterizer Component
 
+**Status:** ✅ **Complete** (Phase 5 — 2026-02-27) — `pkg/rasterize/`, 9 tests, 100% coverage
+
 ## Purpose
 
 Convert screen-space triangles into pixels (fragments) with interpolated attributes.
@@ -103,24 +105,35 @@ Convert screen-space triangles into pixels (fragments) with interpolated attribu
 - Color interpolation is correct at triangle center
 - Depth interpolation maintains ordering
 
-## API Example (Conceptual)
+## Implemented API
 
 ```go
-// Rasterize single triangle
+// Package: pkg/rasterize
+
+// ScreenVertex represents a vertex in 2D screen space with depth and color attributes.
+// X and Y are pixel coordinates; pixel (ix, iy) has its center at (float64(ix)+0.5, float64(iy)+0.5).
+// Z is the depth value for depth testing (0=closest, 1=farthest).
+// Color holds RGB components, each in [0, 1].
 type ScreenVertex struct {
-    X, Y    float64  // screen coordinates
-    Z       float64  // depth (for interpolation)
-    Color   Vector3  // RGB color
+    X, Y  float64
+    Z     float64
+    Color math.Vec3
 }
 
-func RasterizeTriangle(v0, v1, v2 ScreenVertex, framebuffer *Framebuffer) {
-    // Find bounding box
-    // For each pixel in bounding box:
-    //   - Check if inside triangle (barycentric test)
-    //   - Interpolate depth and color
-    //   - Write to framebuffer (with depth test)
-}
+// Triangle fills the pixels of fb covered by the triangle defined by v0, v1, v2.
+// Depth and color are linearly interpolated using barycentric coordinates.
+// Degenerate triangles (zero area) are silently skipped.
+// Supports both CCW and CW vertex winding order.
+func Triangle(v0, v1, v2 ScreenVertex, fb *framebuffer.Framebuffer)
 ```
+
+**Algorithm:** Barycentric coordinates (cleaner code, winding-agnostic, natural attribute interpolation)
+
+**Test coverage:** 9 tests, 100% coverage
+- Degenerate triangle, single-pixel coverage, axis-aligned triangle
+- Color at vertex (barycentric weight = 1), color at centroid (= average)
+- Depth interpolation with depth test, off-screen and partially off-screen
+- CW and CCW winding produce identical coverage
 
 ## Performance Considerations
 

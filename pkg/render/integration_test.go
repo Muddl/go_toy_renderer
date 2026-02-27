@@ -86,14 +86,14 @@ func TestRender_GoldenImage_Triangle(t *testing.T) {
 		if err := os.MkdirAll("testdata", 0o755); err != nil {
 			t.Fatalf("create testdata dir: %v", err)
 		}
-		if err := os.WriteFile(goldenPath, gotBuf.Bytes(), 0o644); err != nil { //nolint:gosec // test helper writing test data
+		if err := os.WriteFile(goldenPath, gotBuf.Bytes(), 0o644); err != nil {
 			t.Fatalf("write golden file: %v", err)
 		}
 		t.Logf("updated golden image: %s", goldenPath)
 		return
 	}
 
-	wantBytes, err := os.ReadFile(goldenPath) //nolint:gosec // well-known test data path
+	wantBytes, err := os.ReadFile(goldenPath)
 	if err != nil {
 		t.Fatalf("read golden image %s: %v (run with -update to generate)", goldenPath, err)
 	}

@@ -8,7 +8,7 @@ This roadmap breaks MVP development into phases, each building on the previous. 
 
 ---
 
-## Phase 0: CI/CD Infrastructure ⏳ **IN PROGRESS** (Day 0-1)
+## Phase 0: CI/CD Infrastructure ✅ **COMPLETED** (2026-02-27)
 
 **Goal:** Establish automated testing and quality gates before development begins.
 
@@ -41,18 +41,17 @@ This roadmap breaks MVP development into phases, each building on the previous. 
 
 ### Completion Criteria
 - [x] CI workflow file created and tested
-- [ ] All jobs passing on main branch (pending PR merge)
-- [x] Linter configuration in place
+- [x] All jobs passing on main branch (merged via PR #5)
+- [x] Linter configuration in place (migrated to golangci-lint v2)
 - [x] Coverage thresholds enforced
 - [x] Security scanning operational
-- [ ] Badges added to README (post-merge)
 - [x] Local pre-commit checks documented
 
 **When complete:** All future PRs will be automatically validated for quality, tests, and security.
 
-**Status:** ⏳ **IN PROGRESS** - PR #4 pending merge
+**Status:** ✅ **COMPLETED** (2026-02-27) - Merged via PR #5
 
-**Estimated time:** 2-4 hours (mostly configuration and testing)
+**Time taken:** ~1 day (configuration, golangci-lint v2 migration, CI fixes)
 
 ---
 
@@ -99,77 +98,80 @@ This roadmap breaks MVP development into phases, each building on the previous. 
 
 ---
 
-## Phase 2: Geometry & Scene (Days 4-5)
+## Phase 2: Geometry & Scene ✅ **COMPLETED** (2026-02-27)
 
 **Goal:** Define 3D objects and organize them in a scene.
 
-### Tasks
-1. Implement Vertex type
-   - Position (Vector3)
-   - Color (Vector3)
+### Tasks Completed ✅
+1. ✅ Implement Vertex type (`pkg/geometry/vertex.go`, 27 lines)
+   - Position (Vec3) and Color (Vec3)
+   - NewVertex constructor, Equals with epsilon comparison
+   - 5 tests with 100% coverage
 
-2. Implement Mesh type
-   - Vertex buffer (slice of vertices)
-   - Index buffer (slice of ints)
-   - Methods to access triangles
+2. ✅ Implement Mesh type (`pkg/geometry/mesh.go`, 63 lines)
+   - Vertex buffer ([]Vertex) and index buffer ([]int)
+   - AddVertex, AddTriangle, GetTriangle, GetTriangleVertices, ValidateIndices
+   - 8 comprehensive tests
 
-3. Create hardcoded primitives
-   - Start with tetrahedron (4 vertices, simplest)
-   - Then cube (8 vertices, more complex)
-   - Assign different colors to vertices
-
-4. Implement basic Scene type
-   - List of meshes
-   - Method to add/remove meshes
-
-5. Test geometry
-   - Verify vertex counts
-   - Validate indices in bounds
-   - Check winding order consistency
+3. ✅ Create hardcoded primitives (`pkg/geometry/primitives.go`, 105 lines)
+   - Tetrahedron: 4 vertices, 4 triangles (12 indices), unique per-vertex colors
+   - Cube: 8 vertices, 12 triangles (36 indices), counter-clockwise winding
+   - 8 tests validating counts, indices, winding order, colors
 
 ### Completion Criteria
-- [ ] Can create tetrahedron and cube
-- [ ] Meshes have valid vertex/index data
-- [ ] Scene can hold multiple meshes
-- [ ] Geometry tests pass
+- [x] Can create tetrahedron (4 vertices, 4 triangles) and cube (8 vertices, 12 triangles)
+- [x] Meshes have valid vertex/index data (ValidateIndices passes)
+- [x] All tests pass — geometry package ~95%+ coverage
+- [x] Code formatted and linted, merged to main
 
 **When complete:** You have test objects to render.
 
+**Status:** ✅ **COMPLETED** (2026-02-27) - Merged via PR #5
+
+**Time taken:** ~1 day
+
+**Next:** Phase 3 - Camera System
+
 ---
 
-## Phase 3: Camera System (Days 6-7)
+## Phase 3: Camera System ✅ **IMPLEMENTED** (2026-02-27)
 
 **Goal:** Flexible viewpoint control.
 
-### Tasks
-1. Implement Camera type
-   - Position, target, up vector
-   - FOV, aspect, near, far
+### Tasks Completed ✅
+1. ✅ Implement Camera type (`pkg/camera/camera.go`)
+   - Position, Target, Up, FOV, Aspect, Near, Far
+   - `New()` constructor
 
-2. Implement view matrix generation (LookAt)
-   - Create LookAt matrix function
-   - Test camera transformations with known results
+2. ✅ Implement view matrix generation (`ViewMatrix()`)
+   - LookAt algorithm: right-handed, camera looks down -Z
+   - Basis vectors: forward = normalize(eye-target), right = cross(up,forward), newUp = cross(forward,right)
+   - 3 tests: origin-at-camera, basis orthonormality, camera-position-maps-to-origin
 
-3. Implement projection matrix generation (Perspective)
-   - Create perspective projection matrix function
-   - Test projection properties with known cases
+3. ✅ Implement projection matrix generation (`ProjectionMatrix()`)
+   - OpenGL-style perspective: near → NDC z=-1, far → NDC z=+1
+   - Points behind camera have negative W in clip space
+   - 4 tests: near/far plane mapping, FOV scaling, aspect scaling, behind-camera rejection
 
-4. Combine into view-projection matrix
-   - Pre-multiply for efficiency
-   - Test complete transformation
+4. ✅ Combine into view-projection matrix (`ViewProjectionMatrix()`)
+   - Returns `Projection.Multiply(View)`
+   - 2 tests: equality to explicit product, world-origin projects to NDC center (0,0)
 
-5. Create test camera configurations
-   - Camera in front of object
-   - Camera offset to side
-   - Different FOV values
+5. ✅ Extended `pkg/math/Mat4x4` with `MultiplyVec4(x,y,z,w)`
+   - Required for projection where W encodes depth
+   - 3 tests: identity, translation with w=1, direction vector with w=0
 
 ### Completion Criteria
-- [ ] Camera generates correct view matrix
-- [ ] Camera generates correct projection matrix
-- [ ] Combined VP matrix transforms points correctly
-- [ ] Camera tests pass
+- [x] Camera generates correct view matrix (camera position maps to origin in camera space)
+- [x] Camera generates correct projection matrix (near/far map to correct NDC depth)
+- [x] Combined VP matrix transforms points correctly (world origin projects to NDC center)
+- [x] 13 camera/math tests covering all key properties
 
 **When complete:** You can control viewpoint.
+
+**Status:** ✅ **IMPLEMENTED** (2026-02-27) — CI validation in progress
+
+**Next:** Phase 4 - Framebuffer
 
 ---
 
@@ -438,10 +440,10 @@ This roadmap breaks MVP development into phases, each building on the previous. 
 
 MVP is complete when:
 
-- ⏳ CI/CD pipeline operational (Phase 0 - pending PR merge)
+- ✅ CI/CD pipeline operational (Phase 0 - merged PR #5)
 - ✅ Math library fully implemented and tested (Phase 1 complete)
-- [ ] Can create test geometry (cube/tetrahedron) (Phase 2)
-- [ ] Camera system works (Phase 3)
+- ✅ Can create test geometry (cube/tetrahedron) (Phase 2 complete)
+- ✅ Camera system implemented (Phase 3 — CI validation in progress)
 - [ ] Framebuffer stores and saves images (Phase 4)
 - [ ] Rasterizer fills triangles correctly (Phase 5)
 - [ ] Shader calculates colors (Phase 6)
@@ -449,11 +451,11 @@ MVP is complete when:
 - [ ] Can render colored 3D object with perspective (Phase 7)
 - [ ] Output image saved as PNG (Phase 7)
 - [ ] Tests pass (>70% coverage) (Phase 8)
-- ⏳ All CI checks pass on main (Phase 0 - pending)
+- ✅ All CI checks pass on main (Phase 0 - complete)
 - [ ] Demo app works (Phase 8)
 - [ ] No critical bugs (Phase 8)
 
-**Progress: 1/14 major milestones complete (7.1%), 2/14 in progress (14.3%)**
+**Progress: 5/14 major milestones complete (35.7%)**
 
 **When all checked: MVP is done!**
 

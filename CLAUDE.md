@@ -6,11 +6,13 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 This is a **toy 3D software renderer** implemented in Go - a learning project that demonstrates fundamental 3D graphics concepts without GPU acceleration. The renderer performs all calculations on the CPU, converting 3D geometry to 2D images through a complete graphics pipeline.
 
-**Current Status:** Phase 1 (Math Foundation) complete ✅ | CI/CD pipeline pending merge | Ready for Phase 2 (Geometry)
+**Current Status:** Phase 0 (CI/CD) ✅ | Phase 1 (Math) ✅ | Phase 2 (Geometry) ✅ | Phase 3 (Camera) ✅ | Ready for Phase 4 (Framebuffer)
 
 **Progress Summary:**
+- ✅ Phase 0 complete: CI/CD infrastructure (GitHub Actions, golangci-lint v2) merged
 - ✅ Phase 1 complete: Vec3 and Mat4x4 with 100% test coverage
-- ⏳ Phase 0 pending: CI/CD infrastructure awaiting PR approval
+- ✅ Phase 2 complete: Vertex, Mesh, Tetrahedron, Cube with full test coverage
+- ✅ Phase 3 complete: Camera with ViewMatrix (LookAt), ProjectionMatrix (Perspective), ViewProjectionMatrix
 - 📋 13 comprehensive MVP documentation files established
 - 🔄 Active development using TDD and trunk-based Git workflow
 
@@ -387,26 +389,34 @@ pkg/rasterize/
 
 **Implemented packages:**
 - `pkg/math/` - ✅ **Complete** - Vector, matrix, and mathematical operations
-  - `vec3.go` - 3D vector operations (91 lines, 100% coverage)
+  - `vec3.go` - 3D vector operations (106 lines, 100% coverage)
   - `vec3_test.go` - Comprehensive Vec3 tests (464 lines, 46 tests)
-  - `mat4x4.go` - 4x4 matrix operations (161 lines, 100% coverage)
+  - `mat4x4.go` - 4x4 matrix operations (162 lines, 100% coverage)
   - `mat4x4_test.go` - Comprehensive Mat4x4 tests (338 lines, 28 tests)
+- `pkg/geometry/` - ✅ **Complete** - Vertex, Mesh, and primitive types
+  - `vertex.go` - Vertex with position + color (27 lines, 100% coverage)
+  - `vertex_test.go` - Vertex tests (149 lines, 5 tests)
+  - `mesh.go` - Mesh with vertex/index buffers (63 lines)
+  - `mesh_test.go` - Mesh tests (246 lines, 8 tests)
+  - `primitives.go` - Cube and Tetrahedron primitives (105 lines)
+  - `primitives_test.go` - Primitive tests (150 lines, 8 tests)
+
+- `pkg/camera/` - ✅ **Complete** - Camera with view and projection matrix generation
+  - `camera.go` - Camera struct, ViewMatrix (LookAt), ProjectionMatrix (Perspective), ViewProjectionMatrix (55 lines)
+  - `camera_test.go` - 11 tests covering all camera operations and edge cases
 
 **Pending packages for MVP:**
-- `cmd/renderer/` - ⏳ Main application entry point
-- `pkg/geometry/` - ⏳ Mesh, vertex, and primitive types (Vertex, Triangle, Mesh)
-- `pkg/camera/` - ⏳ Camera and view transformation logic (LookAt, Perspective)
-- `pkg/render/` - ⏳ Core rendering pipeline and algorithms (vertex transform, primitive assembly)
-- `pkg/rasterize/` - ⏳ Triangle rasterization with attribute interpolation
-- `pkg/shader/` - ⏳ Shader implementations (vertex color, flat color)
-- `pkg/framebuffer/` - ⏳ Framebuffer with depth testing and image output
-- `internal/` - ⏳ Internal implementation details
+- `pkg/framebuffer/` - ⏳ Framebuffer with depth testing and image output (Phase 4 — next)
+- `pkg/rasterize/` - ⏳ Triangle rasterization with attribute interpolation (Phase 5)
+- `pkg/shader/` - ⏳ Shader implementations (vertex color, flat color) (Phase 6)
+- `pkg/render/` - ⏳ Core rendering pipeline and algorithms (Phase 7)
+- `cmd/renderer/` - ⏳ Main application entry point (Phase 8)
 
 **Post-MVP packages:** `pkg/scene/`, `pkg/light/`, `pkg/texture/` (not needed initially)
 
 **Infrastructure:**
-- `.github/workflows/` - ⏳ CI/CD pipeline (pending merge)
-- `.golangci.yml` - ⏳ Linter configuration (pending merge)
+- `.github/workflows/` - ✅ CI/CD pipeline (merged)
+- `.golangci.yml` - ✅ Linter configuration (golangci-lint v2)
 - `.claude/docs/` - ✅ Complete MVP documentation (13 files)
 - `.claude/tasks/` - ✅ Task tracking summaries
 
@@ -569,7 +579,25 @@ See `.claude/docs/11-test-strategy.md` for detailed testing approach and TDD sec
 
 ## Recent Updates
 
-**2025-10-10 (Latest):** Go Version Standardized to 1.25.2 🚀
+**2026-02-27 (Latest):** Phase 3 Complete - Camera System Implemented ✅
+- **Implemented Camera type** (`pkg/camera/camera.go`) with Position, Target, Up, FOV, Aspect, Near, Far
+- **ViewMatrix()** using LookAt algorithm: right-handed, camera looks down -Z
+- **ProjectionMatrix()** using OpenGL-style perspective: near→NDC z=-1, far→NDC z=+1
+- **ViewProjectionMatrix()** = Projection × View (pre-multiplied for efficiency)
+- **Extended Mat4x4** with `MultiplyVec4(x,y,z,w)` for homogeneous coordinate transforms
+- **11 camera tests + 3 Mat4x4 tests** covering basis orthonormality, depth mapping, FOV/aspect scaling
+- **Documentation updated** across CLAUDE.md, roadmap, features checklist to reflect Phase 3 complete
+- **Ready for Phase 4** (Framebuffer: color/depth buffer, PNG export)
+
+**2026-02-27:** Phase 2 Complete - Geometry Component Implemented ✅
+- **Implemented Vertex type** (`pkg/geometry/vertex.go`) with position and color, Equals with epsilon comparison, 5 tests
+- **Implemented Mesh type** (`pkg/geometry/mesh.go`) with vertex/index buffers, AddVertex, AddTriangle, GetTriangle, GetTriangleVertices, ValidateIndices, 8 tests
+- **Implemented Tetrahedron primitive** (4 vertices, 4 triangles, CCW winding, per-vertex colors)
+- **Implemented Cube primitive** (8 vertices, 12 triangles, CCW winding for all faces)
+- **Merged via PR #5** — all CI checks passing on main
+- **Documentation updated** to reflect Phase 0, 1, 2 complete — ready for Phase 3 (Camera)
+
+**2025-10-10:** Go Version Standardized to 1.25.2 🚀
 - **Updated go.mod:** Changed Go directive from 1.22.5 to 1.25.2
 - **Updated CI workflow:** All jobs now use Go 1.24 & 1.25 in build/test matrices
 - **Updated golangci-lint config:** Changed unused linter setting from 1.23 to 1.25

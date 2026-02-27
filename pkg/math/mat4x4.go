@@ -66,6 +66,19 @@ func (m Mat4x4) Multiply(other Mat4x4) Mat4x4 {
 	return result
 }
 
+// MultiplyVec4 multiplies the matrix by a 4-component homogeneous vector (x, y, z, w).
+// Returns all four components without performing perspective divide.
+// Use w=1 for points, w=0 for direction vectors.
+// Required for projection transformations where the W component encodes depth.
+func (m Mat4x4) MultiplyVec4(x, y, z, w float64) (float64, float64, float64, float64) {
+	rx := m.Get(0, 0)*x + m.Get(0, 1)*y + m.Get(0, 2)*z + m.Get(0, 3)*w
+	ry := m.Get(1, 0)*x + m.Get(1, 1)*y + m.Get(1, 2)*z + m.Get(1, 3)*w
+	rz := m.Get(2, 0)*x + m.Get(2, 1)*y + m.Get(2, 2)*z + m.Get(2, 3)*w
+	rw := m.Get(3, 0)*x + m.Get(3, 1)*y + m.Get(3, 2)*z + m.Get(3, 3)*w
+
+	return rx, ry, rz, rw
+}
+
 // MultiplyVec3 multiplies the matrix by a 3D vector, treating it as a homogeneous coordinate (w=1).
 // Returns the transformed vector (x, y, z components only).
 // Used for transforming positions in 3D space.

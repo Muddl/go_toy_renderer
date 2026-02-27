@@ -111,9 +111,21 @@ The project uses GitHub Actions for automated CI/CD. The pipeline automatically 
 - View workflow runs at: `https://github.com/muddl/go_toy_renderer/actions`
 - CI badges displayed in README.md
 
-**Local pre-commit checks** (run before pushing):
+**Pre-commit hook** (runs automatically on every `git commit`):
+
+The repository ships a pre-commit hook at `.githooks/pre-commit` that runs
+`go fmt`, `go vet`, and `golangci-lint` before each commit. Activate it once
+per clone:
+
 ```bash
-# Run all checks locally (mimics CI)
+git config core.hooksPath .githooks
+```
+
+The hook runs: `go fmt ./...` → `go vet ./...` → `golangci-lint run`. If any
+step fails the commit is aborted. Fix the reported issues and re-commit.
+
+**Manual pre-push checks** (mimics full CI):
+```bash
 go fmt ./...
 go vet ./...
 golangci-lint run
@@ -123,6 +135,9 @@ govulncheck ./...
 
 ### Git Workflow
 ```bash
+# One-time setup after cloning: activate the pre-commit hook
+git config core.hooksPath .githooks
+
 # Create a new feature branch
 git checkout -b feature/descriptive-name
 

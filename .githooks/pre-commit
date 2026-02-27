@@ -1,0 +1,15 @@
+#!/bin/sh
+# Pre-commit hook: runs formatting, static analysis, and linting.
+# Install once with: git config core.hooksPath .githooks
+set -e
+
+echo "Pre-commit: go fmt..."
+go fmt ./...
+
+echo "Pre-commit: go vet..."
+go vet ./...
+
+echo "Pre-commit: golangci-lint..."
+golangci-lint run
+
+echo "Pre-commit checks passed."

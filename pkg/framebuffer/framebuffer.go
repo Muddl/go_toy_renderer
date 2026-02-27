@@ -3,6 +3,7 @@
 package framebuffer
 
 import (
+	"fmt"
 	"image"
 	"image/color"
 	"image/png"
@@ -77,7 +78,7 @@ func (fb *Framebuffer) GetDepth(x, y int) float64 {
 
 // SavePNG writes the framebuffer as a PNG image to the given file path.
 // Float RGB values in [0,1] are converted to 8-bit (0-255) with clamping.
-func (fb *Framebuffer) SavePNG(filename string) error {
+func (fb *Framebuffer) SavePNG(filename string) (retErr error) {
 	img := image.NewNRGBA(image.Rect(0, 0, fb.Width, fb.Height))
 	for y := 0; y < fb.Height; y++ {
 		for x := 0; x < fb.Width; x++ {
@@ -91,13 +92,20 @@ func (fb *Framebuffer) SavePNG(filename string) error {
 		}
 	}
 
-	f, err := os.Create(filename)
+	f, err := os.Create(filename) //nolint:gosec // filename is intentionally caller-provided for image output
 	if err != nil {
-		return err
+		return fmt.Errorf("create PNG file: %w", err)
 	}
-	defer f.Close()
+	defer func() {
+		if closeErr := f.Close(); closeErr != nil && retErr == nil {
+			retErr = closeErr
+		}
+	}()
 
-	return png.Encode(f, img)
+	if encErr := png.Encode(f, img); encErr != nil {
+		return fmt.Errorf("encode PNG: %w", encErr)
+	}
+	return nil
 }
 
 // inBounds reports whether (x, y) is within the framebuffer dimensions.

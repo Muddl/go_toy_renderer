@@ -4,32 +4,40 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-This is a **toy 3D software renderer** implemented in Go - a learning project that demonstrates fundamental 3D graphics concepts without GPU acceleration. The renderer performs all calculations on the CPU, converting 3D geometry to 2D images through a complete graphics pipeline.
+This is a **toy 3D renderer** implemented in Go — a learning project that demonstrates fundamental 3D graphics concepts. The MVP (Phases 0–8) is a complete CPU software renderer. The project is now advancing toward **cross-platform GPU acceleration** (Phases 9–16) with real-time windowed rendering and HLSL shaders compiled to WGSL via the WebGPU (wgpu-native) backend.
 
-**Current Status:** Phase 0 (CI/CD) ✅ | Phase 1 (Math) ✅ | Phase 2 (Geometry) ✅ | Phase 3 (Camera) ✅ | Phase 4 (Framebuffer) ✅ | Phase 5 (Rasterization) ✅ | Phase 6 (Shading) ✅ | Phase 7 (Pipeline Integration) ✅ | Phase 8 (Testing & Polish) ✅ | **MVP COMPLETE**
+**Current Status:**
+- ✅ **MVP Complete** (Phases 0–8) — CPU software renderer, colored cube to 640×480 PNG
+- 📋 **GPU Roadmap active** (Phases 9–16) — WebGPU, real-time window, HLSL shaders
 
-**Progress Summary:**
-- ✅ Phase 0 complete: CI/CD infrastructure (GitHub Actions, golangci-lint v2) merged
-- ✅ Phase 1 complete: Vec3 and Mat4x4 with 100% test coverage
-- ✅ Phase 2 complete: Vertex, Mesh, Tetrahedron, Cube with full test coverage
-- ✅ Phase 3 complete: Camera with ViewMatrix (LookAt), ProjectionMatrix (Perspective), ViewProjectionMatrix
-- ✅ Phase 4 complete: Framebuffer with color/depth buffers, depth test, PNG export (21 tests, 94.6% coverage)
-- ✅ Phase 5 complete: Rasterization with barycentric triangle rasterizer (13 tests, 100% coverage)
-- ✅ Phase 6 complete: Shader package with VertexColor, NewFlatColor, Depth shaders (10 tests, 100% coverage)
-- ✅ Phase 7 complete: Render Pipeline Integration — Scene, Render(), transformVertex(); cmd/renderer produces output.png (12 tests, 100% coverage)
-- ✅ Phase 8 complete: Testing & Polish — golden image test, 7 integration tests, benchmarks, full README
-- 📋 13 comprehensive MVP documentation files established + task summaries
-- MVP achieved: colored 3D cube rendered to 640×480 PNG with perspective projection and depth ordering
+**MVP Progress (all complete):**
+- ✅ Phase 0: CI/CD infrastructure (GitHub Actions, golangci-lint v2)
+- ✅ Phase 1: Vec3 and Mat4x4 with 100% test coverage
+- ✅ Phase 2: Vertex, Mesh, Tetrahedron, Cube with full test coverage
+- ✅ Phase 3: Camera — ViewMatrix (LookAt), ProjectionMatrix (Perspective), ViewProjectionMatrix
+- ✅ Phase 4: Framebuffer — color/depth buffers, depth test, PNG export (21 tests, 94.6% coverage)
+- ✅ Phase 5: Rasterization — barycentric triangle rasterizer (13 tests, 100% coverage)
+- ✅ Phase 6: Shader package — VertexColor, NewFlatColor, Depth shaders (10 tests, 100% coverage)
+- ✅ Phase 7: Render Pipeline Integration — Scene, Render(), transformVertex(); cmd/renderer produces output.png (12 tests, 100% coverage)
+- ✅ Phase 8: Testing & Polish — golden image test, 7 integration tests, benchmarks, full README
+
+**GPU Roadmap (planned):**
+- 📋 Phase 9: Window & Real-time Display (GLFW, event loop, CPU blit, 60 fps)
+- 📋 Phase 10: GPU Backend Abstraction (`Renderer` interface, CPU + GPU backends)
+- 📋 Phase 11: WebGPU Integration (wgpu-native — D3D12/Metal/Vulkan)
+- 📋 Phase 12: GPU Geometry & Draw Pipeline (vertex/index buffers in VRAM, hardware rasterization)
+- 📋 Phase 13: HLSL Shader Pipeline (HLSL → WGSL via naga/DXC, uniform buffers)
+- 📋 Phase 14: Uniform Buffers & Per-Mesh Transforms (model matrix, multi-mesh scenes)
+- 📋 Phase 15: Lighting, Normals & Physical Shading (Phong/PBR in HLSL)
+- 📋 Phase 16: Advanced Features & Polish (textures, OBJ loading, post-processing)
 
 **Learning Goals:**
-- Understand 3D graphics pipeline from first principles
+- Understand 3D graphics pipeline from first principles (CPU → GPU)
 - Implement core rendering algorithms (transformation, rasterization, shading)
-- Master coordinate space transformations
-- Build testable, modular graphics code
+- Master coordinate space transformations and GPU shader programming
+- Build testable, modular graphics code with cross-platform GPU support
 
-**MVP Target:** Render a simple 3D object (cube/tetrahedron) with perspective projection and save as PNG image.
-
-**📚 For detailed vision and success criteria:** See [MVP Vision & Scope](./.claude/docs/01-mvp-vision.md)
+**📚 For detailed vision and roadmap:** See [Architecture Overview](./.claude/docs/02-architecture-overview.md) and [Development Roadmap](./.claude/docs/12-development-roadmap.md)
 
 ## Development Commands
 
@@ -80,8 +88,7 @@ go run ./cmd/renderer [args]
 # Format code
 go fmt ./...
 
-# Run linter (requires golangci-lint v1.61.0)
-# Note: Project uses golangci-lint v1.x config format
+# Run linter (requires golangci-lint v2)
 # Install: https://golangci-lint.run/usage/install/
 golangci-lint run
 
@@ -93,7 +100,25 @@ go install golang.org/x/vuln/cmd/govulncheck@latest
 govulncheck ./...
 ```
 
-**Important:** This project uses **golangci-lint v1.61.0**. The configuration file (`.golangci.yml`) is in v1 format. If you have v2.x installed locally, you may see configuration format errors. The CI pipeline uses v1.61.0 which will work correctly.
+**Important:** This project uses **golangci-lint v2**. The configuration file (`.golangci.yml`) was migrated from v1 format during Phase 0. Install golangci-lint v2.x from the link above.
+
+### GPU Development (Phase 9+)
+```bash
+# Build real-time renderer (Phase 9+)
+go build -o renderer-rt ./cmd/renderer-rt
+
+# Run real-time renderer with backend selection
+go run ./cmd/renderer-rt --backend gpu    # GPU (default when available)
+go run ./cmd/renderer-rt --backend cpu    # CPU software renderer in window
+go run ./cmd/renderer-rt --backend auto   # GPU with CPU fallback
+
+# Compile HLSL shaders to WGSL (Phase 13+)
+# Requires naga-cli: cargo install naga-cli
+go generate ./assets/shaders/
+
+# Run GPU-specific tests
+go test ./pkg/gpu/... -v
+```
 
 ### Continuous Integration
 
@@ -438,24 +463,30 @@ pkg/rasterize/
 - `cmd/renderer/` - ✅ **Complete** - Main application entry point (Phase 7)
   - `main.go` - renders colored cube to output.png (640×480, VertexColor shader)
 
-**Post-MVP packages:** `pkg/scene/`, `pkg/light/`, `pkg/texture/` (not needed initially)
+**GPU-phase packages (planned):**
+- `pkg/renderer/` - 📋 Phase 10 — `Renderer` interface + factory (CPU/GPU backends)
+- `pkg/gpu/` - 📋 Phase 11–13 — WebGPU device, swapchain, buffers, shader pipeline
+- `pkg/scene/` - 📋 Phase 14 — `Transform` component, per-mesh model matrix
+- `pkg/loader/` - 📋 Phase 16 — OBJ file loading
+- `cmd/renderer-rt/` - 📋 Phase 9 — real-time windowed renderer
 
 **Infrastructure:**
 - `.github/workflows/` - ✅ CI/CD pipeline (merged)
 - `.golangci.yml` - ✅ Linter configuration (golangci-lint v2)
-- `.claude/docs/` - ✅ Complete MVP documentation (13 files)
+- `.claude/docs/` - ✅ Complete documentation (16 files: 13 MVP + 3 GPU)
 - `.claude/tasks/` - ✅ Task tracking summaries
 
 ### Performance Considerations
 
-**For MVP:** Focus on correctness and clarity first, not performance.
+**CPU baseline (measured, Phase 8):**
+- Full 640×480 cube render: ~1.2 ms/frame (single-threaded)
+- Vertex MVP transform: ~58 ns/vertex
 
-**Post-MVP optimizations:**
-- Use efficient data structures for geometric operations (preallocate slices where possible)
-- Consider using `sync.Pool` for frequently allocated objects
-- Profile with `go test -bench` and `pprof` for performance-critical rendering code
-- Use SIMD-friendly data layouts (struct of arrays vs array of structs)
-- Consider concurrency for parallel rendering (scanlines, tiles, or ray batches)
+**GPU targets (Phase 9–16):**
+- Real-time display: 60 fps at 1080p (16.67 ms budget)
+- GPU rasterization replaces CPU barycentric loop entirely
+- Profile GPU passes with `wgpu.QuerySet` timestamps (Phase 16)
+- CPU renderer retained as fallback and reference for correctness testing
 
 ### Testing Strategy
 
@@ -497,20 +528,32 @@ See `.claude/docs/11-test-strategy.md` for detailed testing approach and TDD sec
 
 ### Phase-Based Implementation
 
-**📚 Complete 9-phase roadmap:** See [Development Roadmap](./.claude/docs/12-development-roadmap.md)
+**📚 Complete 16-phase roadmap:** See [Development Roadmap](./.claude/docs/12-development-roadmap.md)
 
-**Current Progress:** Phase 0 pending merge, Phase 1 complete ✅
+**Current Progress:** Phases 0–8 complete (MVP done); Phase 9 is next.
 
 **Quick phase overview:**
-0. **Phase 0** (Day 0-1) - ✅ **Complete** - CI/CD Infrastructure (GitHub Actions, linting, security scanning)
-1. **Phase 1** (Days 1-3) - ✅ **Complete** - Math Foundation → [Details](./.claude/docs/03-math-component.md)
-2. **Phase 2** (Days 4-5) - ✅ **Complete** - Geometry & Scene → [Details](./.claude/docs/04-geometry-component.md)
-3. **Phase 3** (Days 6-7) - ✅ **Complete** - Camera System → [Details](./.claude/docs/05-camera-component.md)
-4. **Phase 4** (Days 8-9) - ✅ **Complete** - Framebuffer → [Details](./.claude/docs/07-framebuffer-component.md)
-5. **Phase 5** (Days 10-12) - ✅ **Complete** - Rasterization → [Details](./.claude/docs/06-rasterizer-component.md)
-6. **Phase 6** (Days 13-14) - ✅ **Complete** - Shading → [Details](./.claude/docs/08-shader-component.md)
-7. **Phase 7** (Days 15-18) - ✅ **Complete** - Pipeline Integration → [Details](./.claude/docs/09-render-pipeline.md)
-8. **Phase 8** (Days 19-21) - Testing & Polish
+
+*MVP (CPU renderer — complete):*
+0. **Phase 0** - ✅ **Complete** - CI/CD Infrastructure (GitHub Actions, linting, security scanning)
+1. **Phase 1** - ✅ **Complete** - Math Foundation → [Details](./.claude/docs/03-math-component.md)
+2. **Phase 2** - ✅ **Complete** - Geometry & Scene → [Details](./.claude/docs/04-geometry-component.md)
+3. **Phase 3** - ✅ **Complete** - Camera System → [Details](./.claude/docs/05-camera-component.md)
+4. **Phase 4** - ✅ **Complete** - Framebuffer → [Details](./.claude/docs/07-framebuffer-component.md)
+5. **Phase 5** - ✅ **Complete** - Rasterization → [Details](./.claude/docs/06-rasterizer-component.md)
+6. **Phase 6** - ✅ **Complete** - Shading → [Details](./.claude/docs/08-shader-component.md)
+7. **Phase 7** - ✅ **Complete** - Pipeline Integration → [Details](./.claude/docs/09-render-pipeline.md)
+8. **Phase 8** - ✅ **Complete** - Testing & Polish (golden image, benchmarks, README)
+
+*GPU roadmap (planned):*
+9. **Phase 9** - 📋 Window & Real-time Display (`cmd/renderer-rt`, GLFW, 60 fps)
+10. **Phase 10** - 📋 GPU Backend Abstraction (`Renderer` interface, CPU/GPU factories)
+11. **Phase 11** - 📋 WebGPU Integration (wgpu-native, swap chain, hello triangle)
+12. **Phase 12** - 📋 GPU Geometry & Draw Pipeline (vertex/index buffers, hardware rasterization)
+13. **Phase 13** - 📋 HLSL Shader Pipeline (HLSL → WGSL via naga, uniform buffers)
+14. **Phase 14** - 📋 Uniform Buffers & Per-Mesh Transforms (model matrix, multi-mesh)
+15. **Phase 15** - 📋 Lighting, Normals & Physical Shading (Phong/PBR in HLSL)
+16. **Phase 16** - 📋 Advanced Features & Polish (textures, OBJ loading, post-processing)
 
 **Daily workflow (TDD-focused):**
 - Start: Pull latest `main`, create feature branch, identify first behavior to test
@@ -605,7 +648,15 @@ See `.claude/docs/11-test-strategy.md` for detailed testing approach and TDD sec
 
 ## Recent Updates
 
-**2026-02-27 (Latest):** Phase 8 Complete - Testing & Polish ✅ — **MVP DONE**
+**2026-02-27 (Latest):** GPU Roadmap & Documentation Refresh — **Post-MVP Direction Set**
+- **North Star established:** Cross-platform GPU acceleration via WebGPU (wgpu-native) + HLSL shaders compiled to WGSL
+- **Phases 9–16 designed** in `.claude/docs/12-development-roadmap.md` — detailed tasks, criteria, estimates (~31–42 days total)
+- **Architecture doc updated** (`02-architecture-overview.md`) — GPU pipeline diagram, backend table (D3D12/Metal/Vulkan), package layout for Phase 9+ packages
+- **New GPU component docs** created: `14-gpu-backend.md`, `15-hlsl-shader-pipeline.md`, `16-realtime-display.md`
+- **Documentation accuracy pass:** depth buffer convention fixed (0=near, 1=far), viewport transform marked complete, golangci-lint version updated to v2, "Out of Scope" section replaced with GPU roadmap feature list
+- **CLAUDE.md and README.md** updated to reflect GPU direction
+
+**2026-02-27:** Phase 8 Complete - Testing & Polish ✅ — **MVP DONE**
 - **Golden image test** `TestRender_GoldenImage_Triangle` in `pkg/render/integration_test.go` — renders deterministic RGB triangle, compares byte-exact against `pkg/render/testdata/golden_triangle.png`; `-update` flag regenerates reference
 - **7 integration tests** added covering all 3 shaders, multiple camera positions, multiple meshes, depth shader grayscale verification
 - **Benchmarks** in `pkg/render/bench_test.go` and `pkg/rasterize/rasterizer_bench_test.go` — full pipeline ~1.2 ms/frame at 640×480; vertex transform ~58 ns; edge function ~0.38 ns

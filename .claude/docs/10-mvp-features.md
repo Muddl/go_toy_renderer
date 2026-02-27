@@ -35,7 +35,7 @@ These features are REQUIRED for MVP completion. Without these, the renderer is n
 - ✅ LookAt matrix for camera — `Mat4x4` via `camera.ViewMatrix()`
 - ✅ Perspective projection matrix — `Mat4x4` via `camera.ProjectionMatrix()`
 - ✅ `MultiplyVec4(x,y,z,w)` for homogeneous transforms — `pkg/math/mat4x4.go`
-- ⏳ Viewport transformation (Phase 5 - Rasterizer, converts NDC → screen pixels)
+- ✅ Viewport transformation — NDC → screen pixels in `render.transformVertex()` (Phase 7)
 
 **Status:** ✅ Phase 1 complete (2025-10-10), Phase 3 camera matrices implemented (2026-02-27).
 
@@ -175,38 +175,54 @@ These features improve the renderer but are NOT required for initial MVP.
 
 ---
 
-## Explicitly Out of Scope (Post-MVP)
+## GPU Roadmap Features (Post-MVP)
 
-These features are valuable but too complex for initial MVP:
+These features are planned for the GPU acceleration phases (9–16):
 
-### ❌ Textures
-- Requires UV coordinates
-- Texture loading and sampling
-- Filtering (bilinear, trilinear)
+### 🔜 Phase 9 — Real-time Window Display
+- Windowed output at 60 fps (replacing PNG)
+- Basic camera controls (WASD + mouse)
+- Frame time display
 
-### ❌ Advanced Lighting
-- Multiple lights
-- Specular highlights
-- Shadows
+### 🔜 Phase 10–11 — GPU Backend & WebGPU
+- `Renderer` interface (CPU + GPU backends interchangeable)
+- wgpu-native integration (D3D12 / Metal / Vulkan)
+- Swap chain + hardware depth buffer
 
-### ❌ Transparency
-- Alpha blending
-- Render order sorting
+### 🔜 Phase 12–13 — GPU Geometry & HLSL Shaders
+- GPU vertex/index buffers (meshes in VRAM)
+- Hardware rasterization (replaces CPU barycentric loop)
+- HLSL shaders compiled to WGSL via naga/DXC
+- Uniform buffer for MVP matrix
 
-### ❌ Post-Processing
-- Bloom, tone mapping
-- Anti-aliasing (MSAA, FXAA)
+### 🔜 Phase 14–15 — Transforms & Lighting
+- Per-mesh model matrices
+- Vertex normals + Phong lighting in HLSL
+- Directional light, ambient, specular highlights
 
-### ❌ Optimization
-- Multi-threading
-- SIMD vectorization
-- Tile-based rendering
+### 🔜 Phase 16 — Advanced Features
+- Texture mapping (PNG/JPG → GPU sampler)
+- OBJ file loading
+- Post-processing: tone mapping, FXAA, bloom
+- Performance profiling (GPU timestamps)
 
-### ❌ Advanced Features
-- Normal mapping
-- Animation/skinning
-- Particle systems
-- Scene graph hierarchy
+## Explicitly Out of Scope (Not Planned)
+
+These features are not planned for any current phase:
+
+### ❌ Transparency / Alpha Blending
+- Requires render-order sorting (painter's algorithm or OIT)
+
+### ❌ Animation / Skinning
+- Skeletal animation with bone matrices
+- Blend shapes / morph targets
+
+### ❌ Particle Systems
+- Compute shader particle simulation
+
+### ❌ Ray Tracing
+- Hardware RT (DXR / VK_KHR_ray_tracing)
+- Path tracing or photon mapping
 
 ---
 

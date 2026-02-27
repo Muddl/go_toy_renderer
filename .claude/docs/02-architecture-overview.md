@@ -94,9 +94,9 @@ result = matrix * vector
 
 ### 5. Depth Buffering
 
-**Reverse Z-buffer** (1.0 = near, 0.0 = far) optional but recommended
+**Standard Z-buffer:** 0.0 = near plane, 1.0 = far plane
 
-**Why:** Better floating-point precision distribution (can start with standard 0=near, 1=far)
+**Why:** Matches OpenGL convention and the implemented `(ndcZ + 1) / 2` depth mapping. Depth buffer initialised to 1.0 (far) and closer pixels overwrite with the `depth < current` test.
 
 ## Data Flow Between Components
 
@@ -144,12 +144,111 @@ While keeping MVP simple, design should allow for:
 3. **Parallel rendering** - Framebuffer regions can be rendered independently
 4. **Additional attributes** - Vertex structure can expand (normals, UVs, etc.)
 
+## GPU Architecture (Phases 9–16)
+
+The CPU software renderer is the learning foundation. The GPU roadmap layers a hardware-accelerated backend on top of it without replacing the existing code.
+
+### Backend Abstraction
+
+```
+┌─────────────────────────────┐
+│         Renderer Interface   │  pkg/renderer/renderer.go
+│  Render(scene, cam) error   │
+└──────────┬──────────────────┘
+           │
+    ┌──────┴──────┐
+    │             │
+┌───▼───┐   ┌────▼────┐
+│  CPU  │   │   GPU   │
+│Renderer│  │Renderer │
+└───────┘   └─────────┘
+pkg/render  pkg/gpu
+(existing)  (new)
+```
+
+### GPU Pipeline (WebGPU / wgpu-native)
+
+```
+┌──────────────┐
+│  Scene Setup  │  geometry.Mesh → GPUScene (vertex/index buffers in VRAM)
+└──────┬───────┘
+       │
+┌──────▼───────┐
+│ Vertex Shader│  HLSL → WGSL; runs on GPU; applies MVP matrix from uniform buffer
+│  (HLSL/WGSL) │
+└──────┬───────┘
+       │
+┌──────▼───────┐
+│ HW Rasterizer│  GPU hardware; barycentric interpolation handled automatically
+│  (WebGPU)    │
+└──────┬───────┘
+       │
+┌──────▼───────┐
+│ Fragment     │  HLSL → WGSL; per-pixel shading (color, lighting, texture)
+│ Shader       │
+└──────┬───────┘
+       │
+┌──────▼───────┐
+│ HW Depth Test│  GPU depth buffer; 32-bit float precision
+└──────┬───────┘
+       │
+┌──────▼───────┐
+│ Swap Chain   │  GPU back buffer; presented to window via D3D12/Metal/Vulkan
+└──────────────┘
+```
+
+### Shader Authoring Flow
+
+```
+HLSL source (.hlsl)
+       │
+  go generate
+       │
+    DXC/naga
+       │
+WGSL output (.wgsl)   ← committed to repo
+       │
+  wgpu runtime
+       │
+  GPU execution
+```
+
+### Cross-Platform Backend Selection
+
+| Platform | wgpu-native Backend | Notes |
+|----------|-------------------|-------|
+| Windows  | D3D12             | Preferred, then Vulkan |
+| macOS    | Metal             | Only option |
+| Linux    | Vulkan            | Preferred, then OpenGL |
+| Web      | WebGPU (browser)  | Future — WASM target |
+
+### Package Layout (Post-GPU)
+
+```
+pkg/
+├── math/           # Vec3, Mat4x4 (unchanged)
+├── geometry/       # Mesh, Vertex (+ Normal, UV in Phase 15/16)
+├── camera/         # Camera, view/projection matrices (unchanged)
+├── render/         # CPU pipeline (preserved as reference)
+├── rasterize/      # CPU rasterizer (preserved)
+├── shader/         # CPU shader functions (preserved)
+├── framebuffer/    # CPU framebuffer (preserved)
+├── renderer/       # NEW: Renderer interface + factory
+├── gpu/            # NEW: WebGPU device, swapchain, pipeline, buffers
+├── scene/          # NEW: Transform component, GPUScene
+└── loader/         # NEW (Phase 16): OBJ file loading
+
+cmd/
+├── renderer/       # PNG output (unchanged)
+└── renderer-rt/    # NEW: Real-time windowed renderer
+```
+
 ## What's NOT in Architecture (For Now)
 
-- Scene graph hierarchy
-- Material system
-- Texture sampling
-- Shadow mapping
-- Post-processing effects
-- Animation/skinning
-- Resource management beyond basic mesh loading
+- Scene graph hierarchy (deferred to Phase 14+ with Transform component)
+- Material system (deferred to Phase 16)
+- Texture sampling (deferred to Phase 16)
+- Shadow mapping (deferred to Phase 16 stretch goal)
+- Post-processing effects (deferred to Phase 16)
+- Animation/skinning (not planned)
+- Resource management beyond basic mesh loading (deferred to Phase 16)

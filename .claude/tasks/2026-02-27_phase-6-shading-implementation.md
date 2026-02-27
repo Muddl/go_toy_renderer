@@ -28,7 +28,7 @@ Wrote 10 tests covering all three shaders before implementation:
 - `TestVertexColor_IgnoresDepth` — depth attribute does not affect output
 - `TestNewFlatColor_ReturnsConstantColor` — closure returns captured color
 - `TestNewFlatColor_IgnoresAttributes` — output is identical regardless of input attrs
-- `TestNewFlatColor_ReturnsShaderFunc` — result is assignable to `ShaderFunc` type
+- `TestNewFlatColor_ReturnsFuncType` — result is assignable to `shader.Func` type
 - `TestDepth_MidDepth` — depth=0.5 → Vec3{0.5, 0.5, 0.5}
 - `TestDepth_ZeroDepth` — depth=0.0 → Vec3{0.0, 0.0, 0.0}
 - `TestDepth_FullDepth` — depth=1.0 → Vec3{1.0, 1.0, 1.0}
@@ -46,11 +46,11 @@ type Attributes struct {
     Depth float64
 }
 
-type ShaderFunc func(Attributes) math.Vec3
+type Func func(Attributes) math.Vec3
 
-func VertexColor(attr Attributes) math.Vec3      { return attr.Color }
-func NewFlatColor(color math.Vec3) ShaderFunc    { return func(_ Attributes) math.Vec3 { return color } }
-func Depth(attr Attributes) math.Vec3            { g := attr.Depth; return math.Vec3{X:g, Y:g, Z:g} }
+func VertexColor(attr Attributes) math.Vec3  { return attr.Color }
+func NewFlatColor(color math.Vec3) Func      { return func(_ Attributes) math.Vec3 { return color } }
+func Depth(attr Attributes) math.Vec3        { g := attr.Depth; return math.Vec3{X:g, Y:g, Z:g} }
 ```
 
 All 10 tests passed. 100% statement coverage. No regressions across full test suite.
@@ -65,7 +65,7 @@ Updated all Phase completion documentation per CLAUDE.md requirements.
 
 ### Function type over interface
 
-**Decision:** `ShaderFunc func(Attributes) math.Vec3` (function type, not interface)
+**Decision:** `shader.Func func(Attributes) math.Vec3` (function type, not interface)
 
 **Rationale:**
 - Simpler to implement, test, and use
@@ -84,7 +84,7 @@ Updated all Phase completion documentation per CLAUDE.md requirements.
 
 ### NewFlatColor as constructor
 
-**Decision:** `NewFlatColor(color math.Vec3) ShaderFunc` (not a fixed `FlatColorShader` constant)
+**Decision:** `NewFlatColor(color math.Vec3) shader.Func` (not a fixed `FlatColorShader` constant)
 
 **Rationale:**
 - The flat shader must capture a configurable color parameter

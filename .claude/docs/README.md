@@ -167,7 +167,7 @@ These docs are designed to be:
 **✅ Phase 3 Complete** (Camera System — `pkg/camera/`, ViewMatrix/ProjectionMatrix/ViewProjectionMatrix)
 **✅ Phase 4 Complete** (Framebuffer — `pkg/framebuffer/`, color/depth buffers, PNG export, 21 tests)
 **✅ Phase 5 Complete** (Rasterization — `pkg/rasterize/`, barycentric triangle rasterizer, 9 tests, 100% coverage)
-**✅ Phase 6 Complete** (Shading — `pkg/shader/`, `Attributes`, `ShaderFunc`, `VertexColor`/`NewFlatColor`/`Depth`, 10 tests, 100% coverage)
+**✅ Phase 6 Complete** (Shading — `pkg/shader/`, `Attributes`, `Func`, `VertexColor`/`NewFlatColor`/`Depth`, 10 tests, 100% coverage)
 
 **Current Phase: Phase 7 - Render Pipeline Integration**
 
@@ -195,8 +195,8 @@ These docs are written for MVP scope only. As the project evolves:
 - Keep architecture doc current with major changes
 
 **Last updated:** 2026-02-27
-- Phase 6 (Shading) completed: `pkg/shader/` with `Attributes`, `ShaderFunc`, `VertexColor`, `NewFlatColor`, `Depth` — 10 tests, 100% coverage
-- `ShaderFunc` is a function type `func(Attributes) math.Vec3`; no interface boilerplate
+- Phase 6 (Shading) completed: `pkg/shader/` with `Attributes`, `Func`, `VertexColor`, `NewFlatColor`, `Depth` — 10 tests, 100% coverage
+- `shader.Func` is a function type `func(Attributes) math.Vec3`; named `Func` (not `ShaderFunc`) per revive linter
 - Shader component doc updated with actual implemented API and completion status
 - Development roadmap: Phase 6 marked COMPLETED, progress 8/14 (57%)
 - MVP features checklist: shader requirements checked, progress 11/13 (85%)

@@ -14,17 +14,17 @@ type Attributes struct {
     Depth float64   // Interpolated fragment depth, in [0, 1].
 }
 
-// ShaderFunc computes the final RGB color for a fragment.
-type ShaderFunc func(Attributes) math.Vec3
+// Func computes the final RGB color for a fragment.
+type Func func(Attributes) math.Vec3
 
-func VertexColor(attr Attributes) math.Vec3          // pass-through color shader
-func NewFlatColor(color math.Vec3) ShaderFunc         // constant-color shader constructor
-func Depth(attr Attributes) math.Vec3                 // grayscale depth visualisation
+func VertexColor(attr Attributes) math.Vec3      // pass-through color shader
+func NewFlatColor(color math.Vec3) Func          // constant-color shader constructor
+func Depth(attr Attributes) math.Vec3            // grayscale depth visualisation
 ```
 
 **Design decisions:**
 - Function type (not interface) — simpler, easier to test, can add interface later
-- No redundant "Shader" suffix per revive linter convention (same as `rasterize.Triangle`)
+- Type named `Func` (not `ShaderFunc`): revive linter — `shader.ShaderFunc` is redundant; `shader.Func` is idiomatic (same convention as `rasterize.Triangle`)
 - `NewFlatColor` uses closure to capture color parameter (only shader needing state)
 
 ---

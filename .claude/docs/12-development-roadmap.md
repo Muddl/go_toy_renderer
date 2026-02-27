@@ -272,8 +272,9 @@ This roadmap breaks MVP development into phases, each building on the previous. 
 **Goal:** Calculate per-pixel colors.
 
 ### Tasks Completed ✅
-1. ✅ Defined `ShaderFunc` type: `func(Attributes) math.Vec3` — simple function type, no interface
+1. ✅ Defined `Func` type (`shader.Func`): `func(Attributes) math.Vec3` — simple function type, no interface
    - `Attributes` struct: `Color math.Vec3` (interpolated vertex color) + `Depth float64`
+   - Named `Func` (not `ShaderFunc`): revive linter flags `shader.ShaderFunc` as redundant
 
 2. ✅ Implemented `VertexColor` shader (`pkg/shader/shader.go`)
    - Pass-through: returns `attr.Color` unchanged

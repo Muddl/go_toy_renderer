@@ -74,13 +74,13 @@ func TestNewFlatColor_IgnoresAttributes(t *testing.T) {
 	}
 }
 
-func TestNewFlatColor_ReturnsShaderFunc(t *testing.T) {
+func TestNewFlatColor_ReturnsFuncType(t *testing.T) {
 	color := math.Vec3{X: 0.5, Y: 0.5, Z: 0.5}
-	var f ShaderFunc = NewFlatColor(color)
+	f := NewFlatColor(color)
 	attr := Attributes{}
 	got := f(attr)
 	if !vec3Equal(got, color) {
-		t.Errorf("NewFlatColor() result as ShaderFunc = %v, want %v", got, color)
+		t.Errorf("NewFlatColor() result as Func = %v, want %v", got, color)
 	}
 }
 

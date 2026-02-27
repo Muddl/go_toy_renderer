@@ -430,7 +430,7 @@ pkg/rasterize/
   - `rasterizer_test.go` - 9 tests covering all behaviors, 100% coverage
 
 **Pending packages for MVP:**
-- `pkg/shader/` - ✅ **Complete** - Shader package (Attributes, ShaderFunc, VertexColor, NewFlatColor, Depth) (Phase 6)
+- `pkg/shader/` - ✅ **Complete** - Shader package (Attributes, Func, VertexColor, NewFlatColor, Depth) (Phase 6)
 - `pkg/render/` - ⏳ Core rendering pipeline and algorithms (Phase 7)
 - `cmd/renderer/` - ⏳ Main application entry point (Phase 8)
 
@@ -602,14 +602,14 @@ See `.claude/docs/11-test-strategy.md` for detailed testing approach and TDD sec
 ## Recent Updates
 
 **2026-02-27 (Latest):** Phase 6 Complete - Shader Package Implemented ✅
-- **Implemented `pkg/shader/` package** with `Attributes` struct, `ShaderFunc` type, and three shaders
+- **Implemented `pkg/shader/` package** with `Attributes` struct, `Func` type, and three shaders
 - **`VertexColor`**: pass-through shader returning interpolated vertex color unchanged
-- **`NewFlatColor(color)`**: constructor returning a `ShaderFunc` capturing a constant color (useful for debug/testing)
-- **`Depth`**: grayscale depth visualisation shader (depth 0→black, 1→white)
-- **`ShaderFunc` type**: `func(Attributes) math.Vec3` — simple function type, no interface boilerplate
+- **`NewFlatColor(color)`**: constructor returning a `shader.Func` capturing a constant color (useful for debug/testing)
+- **`Depth`**: grayscale depth visualize shader (depth 0→black, 1→white)
+- **`shader.Func` type**: `func(Attributes) math.Vec3` — simple function type, no interface boilerplate
 - **`Attributes` struct**: holds interpolated `Color math.Vec3` and `Depth float64` per fragment
 - **10 tests, 100% statement coverage** across all shader functions
-- **Function naming** follows revive linter pattern: `shader.VertexColor`, not `shader.VertexColorShader`
+- **Type/function naming** follows revive linter: `shader.Func` (not `shader.ShaderFunc`), `shader.VertexColor` (not `shader.VertexColorShader`)
 - **Ready for Phase 7** (Render Pipeline Integration)
 
 **2026-02-27:** Phase 5 Complete - Rasterization Implemented ✅

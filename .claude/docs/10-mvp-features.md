@@ -116,7 +116,7 @@ These features are REQUIRED for MVP completion. Without these, the renderer is n
 
 **Requirements:**
 - ✅ `Attributes` struct with interpolated `Color math.Vec3` and `Depth float64` — `pkg/shader/shader.go`
-- ✅ `ShaderFunc` type: `func(Attributes) math.Vec3` — function type, no interface boilerplate
+- ✅ `Func` type (`shader.Func`): `func(Attributes) math.Vec3` — function type, no interface boilerplate
 - ✅ `VertexColor`: pass-through returning interpolated vertex color unchanged
 - ✅ `NewFlatColor(color)`: constant-color shader for debugging and solid fills
 - ✅ `Depth`: grayscale depth visualisation shader (depth 0→black, 1→white)

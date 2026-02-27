@@ -6,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 This is a **toy 3D software renderer** implemented in Go - a learning project that demonstrates fundamental 3D graphics concepts without GPU acceleration. The renderer performs all calculations on the CPU, converting 3D geometry to 2D images through a complete graphics pipeline.
 
-**Current Status:** Phase 0 (CI/CD) ✅ | Phase 1 (Math) ✅ | Phase 2 (Geometry) ✅ | Phase 3 (Camera) ✅ | Phase 4 (Framebuffer) ✅ | Phase 5 (Rasterization) ✅ | Phase 6 (Shading) ✅ | Phase 7 (Pipeline Integration) ✅ | Ready for Phase 8 (Testing & Polish)
+**Current Status:** Phase 0 (CI/CD) ✅ | Phase 1 (Math) ✅ | Phase 2 (Geometry) ✅ | Phase 3 (Camera) ✅ | Phase 4 (Framebuffer) ✅ | Phase 5 (Rasterization) ✅ | Phase 6 (Shading) ✅ | Phase 7 (Pipeline Integration) ✅ | Phase 8 (Testing & Polish) ✅ | **MVP COMPLETE**
 
 **Progress Summary:**
 - ✅ Phase 0 complete: CI/CD infrastructure (GitHub Actions, golangci-lint v2) merged
@@ -17,8 +17,9 @@ This is a **toy 3D software renderer** implemented in Go - a learning project th
 - ✅ Phase 5 complete: Rasterization with barycentric triangle rasterizer (13 tests, 100% coverage)
 - ✅ Phase 6 complete: Shader package with VertexColor, NewFlatColor, Depth shaders (10 tests, 100% coverage)
 - ✅ Phase 7 complete: Render Pipeline Integration — Scene, Render(), transformVertex(); cmd/renderer produces output.png (12 tests, 100% coverage)
-- 📋 13 comprehensive MVP documentation files established
-- 🔄 Active development using TDD and trunk-based Git workflow
+- ✅ Phase 8 complete: Testing & Polish — golden image test, 7 integration tests, benchmarks, full README
+- 📋 13 comprehensive MVP documentation files established + task summaries
+- MVP achieved: colored 3D cube rendered to 640×480 PNG with perspective projection and depth ordering
 
 **Learning Goals:**
 - Understand 3D graphics pipeline from first principles
@@ -604,7 +605,15 @@ See `.claude/docs/11-test-strategy.md` for detailed testing approach and TDD sec
 
 ## Recent Updates
 
-**2026-02-27 (Latest):** Phase 7 Complete - Render Pipeline Integration ✅
+**2026-02-27 (Latest):** Phase 8 Complete - Testing & Polish ✅ — **MVP DONE**
+- **Golden image test** `TestRender_GoldenImage_Triangle` in `pkg/render/integration_test.go` — renders deterministic RGB triangle, compares byte-exact against `pkg/render/testdata/golden_triangle.png`; `-update` flag regenerates reference
+- **7 integration tests** added covering all 3 shaders, multiple camera positions, multiple meshes, depth shader grayscale verification
+- **Benchmarks** in `pkg/render/bench_test.go` and `pkg/rasterize/rasterizer_bench_test.go` — full pipeline ~1.2 ms/frame at 640×480; vertex transform ~58 ns; edge function ~0.38 ns
+- **README.md** fully written: quick start, API example, shader table, build/test/benchmark commands, performance table, coordinate system notes
+- **All documentation updated**: roadmap Phase 8 COMPLETED (14/14 milestones), features checklist updated, docs hub updated
+- **Task summary** created in `.claude/tasks/2026-02-27_phase-8-testing-polish.md`
+
+**2026-02-27:** Phase 7 Complete - Render Pipeline Integration ✅
 - **`rasterize.TriangleShaded(v0,v1,v2, shaderFn, fb)`** added to `pkg/rasterize/rasterizer.go` — rasterizer now calls shader per pixel
 - **`Triangle`** refactored as thin wrapper: `TriangleShaded(v0,v1,v2, shader.VertexColor, fb)` — no code duplication, zero API breakage
 - **13 rasterizer tests** (4 new TriangleShaded tests added), 100% coverage

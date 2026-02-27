@@ -139,8 +139,8 @@ These docs are designed to be:
 ### Must-Have Features (MVP)
 - 3D math (vectors, matrices) ✅
 - Basic geometry (cube/tetrahedron) ✅
-- Camera system ⏳ (Phase 3 — next)
-- Framebuffer with depth test
+- Camera system ✅
+- Framebuffer with depth test ⏳ (Phase 4 — next)
 - Triangle rasterization
 - Simple shader
 - Complete render pipeline
@@ -164,16 +164,17 @@ These docs are designed to be:
 **✅ Phase 0 Complete** (CI/CD Infrastructure — merged PR #5)
 **✅ Phase 1 Complete** (Math Foundation)
 **✅ Phase 2 Complete** (Geometry & Scene — merged PR #5)
+**✅ Phase 3 Complete** (Camera System — `pkg/camera/`, ViewMatrix/ProjectionMatrix/ViewProjectionMatrix)
 
-**Current Phase: Phase 3 - Camera System**
+**Current Phase: Phase 4 - Framebuffer**
 
-1. Create feature branch: `git checkout -b feature/camera-system`
-2. Create `pkg/camera/camera.go` with Camera struct
-3. Implement `ViewMatrix()` using LookAt algorithm (right-handed, camera looks down -Z)
-4. Implement `ProjectionMatrix()` using perspective projection (OpenGL-style NDC)
-5. Implement `ViewProjection()` returning Projection × View
-6. Write tests first (TDD) for all camera operations
-7. See [Camera Component](05-camera-component.md) and [Development Roadmap](12-development-roadmap.md) for details
+1. Create feature branch: `git checkout -b feature/framebuffer`
+2. Create `pkg/framebuffer/framebuffer.go` with `Framebuffer` struct
+3. Implement color buffer (RGB per pixel) and depth buffer (float64 per pixel)
+4. Implement `Clear(color, depth)`, `SetPixel(x, y, z, color)` with depth test
+5. Implement `SavePNG(path)` using Go stdlib `image/png`
+6. Write tests first (TDD) for all framebuffer operations
+7. See [Framebuffer Component](07-framebuffer-component.md) and [Development Roadmap](12-development-roadmap.md) for details
 
 **Questions or stuck?**
 - Review the relevant component doc

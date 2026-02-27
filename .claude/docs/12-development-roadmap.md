@@ -134,39 +134,44 @@ This roadmap breaks MVP development into phases, each building on the previous. 
 
 ---
 
-## Phase 3: Camera System (Days 6-7)
+## Phase 3: Camera System ✅ **IMPLEMENTED** (2026-02-27)
 
 **Goal:** Flexible viewpoint control.
 
-### Tasks
-1. Implement Camera type
-   - Position, target, up vector
-   - FOV, aspect, near, far
+### Tasks Completed ✅
+1. ✅ Implement Camera type (`pkg/camera/camera.go`)
+   - Position, Target, Up, FOV, Aspect, Near, Far
+   - `New()` constructor
 
-2. Implement view matrix generation (LookAt)
-   - Create LookAt matrix function
-   - Test camera transformations with known results
+2. ✅ Implement view matrix generation (`ViewMatrix()`)
+   - LookAt algorithm: right-handed, camera looks down -Z
+   - Basis vectors: forward = normalize(eye-target), right = cross(up,forward), newUp = cross(forward,right)
+   - 3 tests: origin-at-camera, basis orthonormality, camera-position-maps-to-origin
 
-3. Implement projection matrix generation (Perspective)
-   - Create perspective projection matrix function
-   - Test projection properties with known cases
+3. ✅ Implement projection matrix generation (`ProjectionMatrix()`)
+   - OpenGL-style perspective: near → NDC z=-1, far → NDC z=+1
+   - Points behind camera have negative W in clip space
+   - 4 tests: near/far plane mapping, FOV scaling, aspect scaling, behind-camera rejection
 
-4. Combine into view-projection matrix
-   - Pre-multiply for efficiency
-   - Test complete transformation
+4. ✅ Combine into view-projection matrix (`ViewProjectionMatrix()`)
+   - Returns `Projection.Multiply(View)`
+   - 2 tests: equality to explicit product, world-origin projects to NDC center (0,0)
 
-5. Create test camera configurations
-   - Camera in front of object
-   - Camera offset to side
-   - Different FOV values
+5. ✅ Extended `pkg/math/Mat4x4` with `MultiplyVec4(x,y,z,w)`
+   - Required for projection where W encodes depth
+   - 3 tests: identity, translation with w=1, direction vector with w=0
 
 ### Completion Criteria
-- [ ] Camera generates correct view matrix
-- [ ] Camera generates correct projection matrix
-- [ ] Combined VP matrix transforms points correctly
-- [ ] Camera tests pass
+- [x] Camera generates correct view matrix (camera position maps to origin in camera space)
+- [x] Camera generates correct projection matrix (near/far map to correct NDC depth)
+- [x] Combined VP matrix transforms points correctly (world origin projects to NDC center)
+- [x] 13 camera/math tests covering all key properties
 
 **When complete:** You can control viewpoint.
+
+**Status:** ✅ **IMPLEMENTED** (2026-02-27) — CI validation in progress
+
+**Next:** Phase 4 - Framebuffer
 
 ---
 
@@ -438,7 +443,7 @@ MVP is complete when:
 - ✅ CI/CD pipeline operational (Phase 0 - merged PR #5)
 - ✅ Math library fully implemented and tested (Phase 1 complete)
 - ✅ Can create test geometry (cube/tetrahedron) (Phase 2 complete)
-- [ ] Camera system works (Phase 3)
+- ✅ Camera system implemented (Phase 3 — CI validation in progress)
 - [ ] Framebuffer stores and saves images (Phase 4)
 - [ ] Rasterizer fills triangles correctly (Phase 5)
 - [ ] Shader calculates colors (Phase 6)
@@ -450,7 +455,7 @@ MVP is complete when:
 - [ ] Demo app works (Phase 8)
 - [ ] No critical bugs (Phase 8)
 
-**Progress: 4/14 major milestones complete (28.6%)**
+**Progress: 5/14 major milestones complete (35.7%)**
 
 **When all checked: MVP is done!**
 

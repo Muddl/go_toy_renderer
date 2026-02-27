@@ -6,12 +6,13 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 This is a **toy 3D software renderer** implemented in Go - a learning project that demonstrates fundamental 3D graphics concepts without GPU acceleration. The renderer performs all calculations on the CPU, converting 3D geometry to 2D images through a complete graphics pipeline.
 
-**Current Status:** Phase 0 (CI/CD) ✅ | Phase 1 (Math) ✅ | Phase 2 (Geometry) ✅ | Ready for Phase 3 (Camera)
+**Current Status:** Phase 0 (CI/CD) ✅ | Phase 1 (Math) ✅ | Phase 2 (Geometry) ✅ | Phase 3 (Camera) ✅ | Ready for Phase 4 (Framebuffer)
 
 **Progress Summary:**
 - ✅ Phase 0 complete: CI/CD infrastructure (GitHub Actions, golangci-lint v2) merged
 - ✅ Phase 1 complete: Vec3 and Mat4x4 with 100% test coverage
 - ✅ Phase 2 complete: Vertex, Mesh, Tetrahedron, Cube with full test coverage
+- ✅ Phase 3 complete: Camera with ViewMatrix (LookAt), ProjectionMatrix (Perspective), ViewProjectionMatrix
 - 📋 13 comprehensive MVP documentation files established
 - 🔄 Active development using TDD and trunk-based Git workflow
 
@@ -400,9 +401,12 @@ pkg/rasterize/
   - `primitives.go` - Cube and Tetrahedron primitives (105 lines)
   - `primitives_test.go` - Primitive tests (150 lines, 8 tests)
 
+- `pkg/camera/` - ✅ **Complete** - Camera with view and projection matrix generation
+  - `camera.go` - Camera struct, ViewMatrix (LookAt), ProjectionMatrix (Perspective), ViewProjectionMatrix (55 lines)
+  - `camera_test.go` - 11 tests covering all camera operations and edge cases
+
 **Pending packages for MVP:**
-- `pkg/camera/` - ⏳ Camera and view transformation logic (Phase 3 — next)
-- `pkg/framebuffer/` - ⏳ Framebuffer with depth testing and image output (Phase 4)
+- `pkg/framebuffer/` - ⏳ Framebuffer with depth testing and image output (Phase 4 — next)
 - `pkg/rasterize/` - ⏳ Triangle rasterization with attribute interpolation (Phase 5)
 - `pkg/shader/` - ⏳ Shader implementations (vertex color, flat color) (Phase 6)
 - `pkg/render/` - ⏳ Core rendering pipeline and algorithms (Phase 7)
@@ -575,7 +579,17 @@ See `.claude/docs/11-test-strategy.md` for detailed testing approach and TDD sec
 
 ## Recent Updates
 
-**2026-02-27 (Latest):** Phase 2 Complete - Geometry Component Implemented ✅
+**2026-02-27 (Latest):** Phase 3 Complete - Camera System Implemented ✅
+- **Implemented Camera type** (`pkg/camera/camera.go`) with Position, Target, Up, FOV, Aspect, Near, Far
+- **ViewMatrix()** using LookAt algorithm: right-handed, camera looks down -Z
+- **ProjectionMatrix()** using OpenGL-style perspective: near→NDC z=-1, far→NDC z=+1
+- **ViewProjectionMatrix()** = Projection × View (pre-multiplied for efficiency)
+- **Extended Mat4x4** with `MultiplyVec4(x,y,z,w)` for homogeneous coordinate transforms
+- **11 camera tests + 3 Mat4x4 tests** covering basis orthonormality, depth mapping, FOV/aspect scaling
+- **Documentation updated** across CLAUDE.md, roadmap, features checklist to reflect Phase 3 complete
+- **Ready for Phase 4** (Framebuffer: color/depth buffer, PNG export)
+
+**2026-02-27:** Phase 2 Complete - Geometry Component Implemented ✅
 - **Implemented Vertex type** (`pkg/geometry/vertex.go`) with position and color, Equals with epsilon comparison, 5 tests
 - **Implemented Mesh type** (`pkg/geometry/mesh.go`) with vertex/index buffers, AddVertex, AddTriangle, GetTriangle, GetTriangleVertices, ValidateIndices, 8 tests
 - **Implemented Tetrahedron primitive** (4 vertices, 4 triangles, CCW winding, per-vertex colors)

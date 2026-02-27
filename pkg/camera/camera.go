@@ -49,7 +49,7 @@ func New(position, target, up math.Vec3, fov, aspect, near, far float64) Camera 
 // Formula: rotation_transpose * translation(-eye)
 // right   = normalize(cross(up, forward))
 // newUp   = cross(forward, right)
-// forward = normalize(eye - target)  [points from target toward camera, i.e. +Z in camera space]
+// forward = normalize(eye - target)  [points from target toward camera, i.e. +Z in camera space].
 func (c Camera) ViewMatrix() math.Mat4x4 {
 	// Compute right-handed camera basis vectors
 	forward := c.Position.Subtract(c.Target).Normalize() // +Z in camera space
@@ -81,7 +81,7 @@ func (c Camera) ViewMatrix() math.Mat4x4 {
 // Near plane maps to NDC z = -1; far plane maps to NDC z = +1.
 //
 // Formula uses vertical FOV (converted to radians internally).
-// f = 1 / tan(fov / 2), rangeInv = 1 / (near - far)
+// f = 1 / tan(fov / 2), rangeInv = 1 / (near - far).
 func (c Camera) ProjectionMatrix() math.Mat4x4 {
 	fovRad := c.FOV * stdmath.Pi / 180.0
 	f := 1.0 / stdmath.Tan(fovRad/2.0)

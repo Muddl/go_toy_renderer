@@ -32,15 +32,16 @@ These features are REQUIRED for MVP completion. Without these, the renderer is n
 - ✅ Vec3 add, subtract, scale, dot, cross, normalize, distance (46 tests, 100% coverage)
 - ✅ Mat4x4 multiply, identity, zero, transpose, element access (100% coverage)
 - ✅ Transform creation: translation, rotation (X/Y/Z), scale (all tested)
-- ⏳ LookAt matrix for camera (Phase 3 - Camera System)
-- ⏳ Perspective projection matrix (Phase 3 - Camera System)
-- ⏳ Viewport transformation (Phase 3 - Camera System)
+- ✅ LookAt matrix for camera — `Mat4x4` via `camera.ViewMatrix()`
+- ✅ Perspective projection matrix — `Mat4x4` via `camera.ProjectionMatrix()`
+- ✅ `MultiplyVec4(x,y,z,w)` for homogeneous transforms — `pkg/math/mat4x4.go`
+- ⏳ Viewport transformation (Phase 5 - Rasterizer, converts NDC → screen pixels)
 
-**Status:** ✅ Phase 1 complete (2025-10-10). Camera matrices deferred to Phase 3.
+**Status:** ✅ Phase 1 complete (2025-10-10), Phase 3 camera matrices implemented (2026-02-27).
 
 **Success criteria:**
 - ✅ All basic math operations pass unit tests with known results
-- ⏳ Camera transformation matrices (Phase 3)
+- ✅ Camera transformation matrices implemented and tested
 
 ---
 
@@ -59,19 +60,19 @@ These features are REQUIRED for MVP completion. Without these, the renderer is n
 
 ---
 
-### 3. Camera System ⏳
+### 3. Camera System ✅
 **What:** Viewpoint control
 
 **Requirements:**
-- Camera with position, target, up vector
-- FOV, aspect ratio, near/far planes
-- Generate view matrix
-- Generate projection matrix
-- Combine into view-projection matrix
+- ✅ Camera with position, target, up vector — `pkg/camera/camera.go`
+- ✅ FOV, aspect ratio, near/far planes — `Camera` struct fields
+- ✅ Generate view matrix — `ViewMatrix()` using LookAt algorithm
+- ✅ Generate projection matrix — `ProjectionMatrix()` OpenGL-style perspective
+- ✅ Combine into view-projection matrix — `ViewProjectionMatrix()` = Projection × View
 
 **Success criteria:** Camera transformations produce correct screen-space coordinates.
 
-**Status:** ⏳ **Pending** (Phase 3)
+**Status:** ✅ **Implemented** (2026-02-27) — CI validation in progress
 
 ---
 
@@ -210,7 +211,7 @@ Use this checklist to verify MVP is complete:
 - [x] CI/CD pipeline operational with all quality gates (Phase 0 ✅)
 - [x] Math library has all required operations (Phase 1 basic ops ✅, camera ops in Phase 3)
 - [x] Can create at least one test mesh (cube/tetrahedron) (Phase 2 ✅)
-- [ ] Camera can be positioned and oriented (Phase 3)
+- [x] Camera can be positioned and oriented (Phase 3 ✅)
 - [ ] Framebuffer can store and export pixels (Phase 4)
 - [ ] Triangle rasterizer fills correct pixels (Phase 5)
 - [ ] Colors interpolate smoothly across triangles (Phase 5)
@@ -220,7 +221,7 @@ Use this checklist to verify MVP is complete:
 - [x] All core components have basic tests (math: 100%, geometry: ~95%+)
 - [x] All CI checks pass on main branch (Phase 0 ✅)
 
-**Progress: 5/12 items complete (42%)**
+**Progress: 6/12 items complete (50%)**
 
 ---
 

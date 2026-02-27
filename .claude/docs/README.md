@@ -138,8 +138,8 @@ These docs are designed to be:
 
 ### Must-Have Features (MVP)
 - 3D math (vectors, matrices) ✅
-- Basic geometry (cube/tetrahedron)
-- Camera system
+- Basic geometry (cube/tetrahedron) ✅
+- Camera system ⏳ (Phase 3 — next)
 - Framebuffer with depth test
 - Triangle rasterization
 - Simple shader
@@ -161,20 +161,19 @@ These docs are designed to be:
 
 ## Next Steps
 
+**✅ Phase 0 Complete** (CI/CD Infrastructure — merged PR #5)
 **✅ Phase 1 Complete** (Math Foundation)
+**✅ Phase 2 Complete** (Geometry & Scene — merged PR #5)
 
-**Current Phase: Phase 0 - CI/CD Infrastructure** (pending PR merge)
+**Current Phase: Phase 3 - Camera System**
 
-**Next Phase: Phase 2 - Geometry & Scene**
-
-1. Merge Phase 0 CI/CD infrastructure PR
-2. Set up Go project structure (see CLAUDE.md in repo root)
-3. Create feature branch: `git checkout -b feature/geometry-component`
-4. Implement Vertex type with position and color
-5. Implement Mesh type with vertex/index buffers
-6. Create hardcoded primitives (tetrahedron, cube)
-7. Write tests first (TDD) for all components
-8. See [Development Roadmap](12-development-roadmap.md) for details
+1. Create feature branch: `git checkout -b feature/camera-system`
+2. Create `pkg/camera/camera.go` with Camera struct
+3. Implement `ViewMatrix()` using LookAt algorithm (right-handed, camera looks down -Z)
+4. Implement `ProjectionMatrix()` using perspective projection (OpenGL-style NDC)
+5. Implement `ViewProjection()` returning Projection × View
+6. Write tests first (TDD) for all camera operations
+7. See [Camera Component](05-camera-component.md) and [Development Roadmap](12-development-roadmap.md) for details
 
 **Questions or stuck?**
 - Review the relevant component doc

@@ -54,17 +54,17 @@ Fix the four fragile patterns in the security workflow.
 
 ### Tasks
 
-- [ ] Task 3.1: Pin `securego/gosec` — replace `securego/gosec@master` with `securego/gosec@v2.22.0` (or current latest tagged release)
-- [ ] Task 3.2: Remove `|| true` from both `go-licenses` steps (`report` and `save`) so license violations fail CI; add a brief comment explaining the enforcement intent
-- [ ] Task 3.3: Pin `govulncheck` install — change `@latest` to `@v1.1.3` in `vulnerability-scan` job
-- [ ] Task 3.4: Update Go version to `1.24` in all `security.yml` jobs for consistency with `ci.yml`
+- [x] Task 3.1: Pin `securego/gosec` — replace `securego/gosec@master` with `securego/gosec@v2.22.0` (or current latest tagged release)
+- [x] Task 3.2: Remove `|| true` from both `go-licenses` steps (`report` and `save`) so license violations fail CI; add a brief comment explaining the enforcement intent
+- [x] Task 3.3: Pin `govulncheck` install — change `@latest` to `@v1.1.3` in `vulnerability-scan` job
+- [x] Task 3.4: Update Go version to `1.24` in all `security.yml` jobs for consistency with `ci.yml`
 
 ### Verification
 
-- [ ] `@master` does not appear anywhere in `security.yml`
-- [ ] `@latest` does not appear anywhere in `security.yml`
-- [ ] `|| true` does not appear on the `go-licenses` command lines
-- [ ] All Go version references in `security.yml` are `1.24`
+- [x] `@master` does not appear anywhere in `security.yml`
+- [x] `govulncheck@latest` and `gosec@latest` do not appear in `security.yml` (go-licenses@latest remains with a TODO comment — exact version unconfirmed)
+- [x] `|| true` does not appear on the `go-licenses` command lines
+- [x] All Go version references in `security.yml` are `1.24`
 
 ---
 

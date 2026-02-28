@@ -10,19 +10,19 @@ Navigation hub for project context.
 - [Workflow](./workflow.md)
 - [Architecture Reference](./architecture.md)
 - [Migration Audit](./migration-audit.md)
+- [CI Fragility Reference](./ci-fragility.md)
 - [Tracks](./tracks.md)
 
 ## Active Tracks
 
-| Track ID | Title | Status |
-| -------- | ----- | ------ |
-| [win64-renderer-rt_20260228](./tracks/win64-renderer-rt_20260228/index.md) | Windows x64 Build for renderer-rt | Complete ✅ |
+_No active tracks._
 
 ## Completed Tracks
 
 | Track ID | Title | Status |
 | -------- | ----- | ------ |
 | [docs-conductor-migration_20260227](./tracks/docs-conductor-migration_20260227/index.md) | Migrate .claude/ Context into Conductor Artifacts | Complete ✅ |
+| [ci-hardening_20260228](./tracks/ci-hardening_20260228/index.md) | CI Pipeline Hardening | Complete ✅ |
 
 ## Getting Started
 

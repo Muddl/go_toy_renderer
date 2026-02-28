@@ -20,7 +20,7 @@
 | [ ] | [phase-14-uniforms_20260227](./tracks/phase-14-uniforms_20260227/index.md) | Phase 14: Uniform Buffers & Per-Mesh Transforms | 2026-02-27 | 2026-02-27 |
 | [ ] | [phase-15-lighting_20260227](./tracks/phase-15-lighting_20260227/index.md) | Phase 15: Lighting, Normals & Physical Shading | 2026-02-27 | 2026-02-27 |
 | [ ] | [phase-16-advanced_20260227](./tracks/phase-16-advanced_20260227/index.md) | Phase 16: Advanced Features & Polish | 2026-02-27 | 2026-02-27 |
-
+| [x] | [ci-hardening_20260228](./tracks/ci-hardening_20260228/index.md) | CI Pipeline Hardening | 2026-02-28 | 2026-02-28 |
 | [x] | [win64-renderer-rt_20260228](./tracks/win64-renderer-rt_20260228/index.md) | Windows x64 Build for renderer-rt | 2026-02-28 | 2026-02-28 |
 
 <!-- Tracks registered by /conductor:new-track -->

@@ -1,0 +1,21 @@
+{
+  "id": "ci-hardening_20260228",
+  "title": "CI Pipeline Hardening",
+  "type": "chore",
+  "status": "complete",
+  "created": "2026-02-28T00:00:00Z",
+  "updated": "2026-02-28T00:00:00Z",
+  "phases": {
+    "total": 4,
+    "completed": 4
+  },
+  "tasks": {
+    "total": 16,
+    "completed": 16
+  },
+  "commits": [
+    "5daf326: docs: add CI fragility reference and ci-hardening track",
+    "584f11e: chore: harden ci.yml — pin versions, split Windows race step",
+    "5348d81: chore: harden security.yml — pin tools, enforce license check"
+  ]
+}

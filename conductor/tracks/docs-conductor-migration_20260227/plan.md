@@ -59,20 +59,20 @@ Consolidate the 7 component spec docs (03–09) and architecture overview into a
 
 ### Tasks
 
-- [ ] Task 3.1: Write `conductor/architecture.md` with sections:
+- [x] Task 3.1: Write `conductor/architecture.md` with sections:
   - Pipeline overview (ASCII diagram from `02`)
   - Package dependency rules (one-direction flow)
   - Coordinate system & matrix conventions
   - Per-component API summary table (pkg, key types/funcs, test coverage) for all 8 MVP packages
   - Performance baselines (from Phase 8 benchmarks)
   - GPU architecture additions (Phase 9+ package layout from `02` and `14`)
-- [ ] Task 3.2: Link `conductor/architecture.md` from `conductor/index.md`.
+- [x] Task 3.2: Link `conductor/architecture.md` from `conductor/index.md`.
 
 ### Verification
 
-- [ ] All 8 MVP packages have an entry in the API summary table.
-- [ ] Pipeline diagram matches current implementation.
-- [ ] GPU package layout section matches `14-gpu-backend.md`.
+- [x] All 8 MVP packages have an entry in the API summary table.
+- [x] Pipeline diagram matches current implementation.
+- [x] GPU package layout section matches `14-gpu-backend.md`.
 
 ---
 

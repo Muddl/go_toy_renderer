@@ -8,6 +8,8 @@ Navigation hub for project context.
 - [Product Guidelines](./product-guidelines.md)
 - [Tech Stack](./tech-stack.md)
 - [Workflow](./workflow.md)
+- [Architecture Reference](./architecture.md)
+- [Migration Audit](./migration-audit.md)
 - [Tracks](./tracks.md)
 
 ## Active Tracks

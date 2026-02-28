@@ -14,7 +14,9 @@ Navigation hub for project context.
 
 ## Active Tracks
 
-_No active tracks. Run `/conductor:implement phase-9-window_20260227` to start Phase 9._
+| Track ID | Title | Status |
+| -------- | ----- | ------ |
+| [win64-renderer-rt_20260228](./tracks/win64-renderer-rt_20260228/index.md) | Windows x64 Build for renderer-rt | Complete ✅ |
 
 ## Completed Tracks
 

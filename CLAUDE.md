@@ -53,6 +53,25 @@ govulncheck ./...
 go generate ./assets/shaders/
 ```
 
+## Windows Build Prerequisites (renderer-rt)
+
+`cmd/renderer-rt` uses CGO (GLFW + OpenGL) for the windowed mode. On Windows,
+the C toolchain determines the output binary's architecture — a 32-bit compiler
+produces a 32-bit PE that fails with **error 193** on x64 systems.
+
+**Required:** 64-bit MinGW-w64 GCC. Install via MSYS2:
+```bash
+pacman -S mingw-w64-x86_64-gcc
+# Add to PATH: C:\msys64\mingw64\bin
+```
+
+Always set `GOARCH=amd64` explicitly when building for Windows x64:
+```bash
+GOARCH=amd64 go build -o renderer-rt.exe ./cmd/renderer-rt
+```
+
+CI enforces this automatically for `windows-latest` builds.
+
 ## Common Gotchas
 
 **Math:**
@@ -84,7 +103,9 @@ go generate ./assets/shaders/
 
 ## Recent Updates
 
-**2026-02-27 (Latest):** Conductor migration complete — all `.claude/docs/` and `.claude/tasks/` content migrated into `conductor/` artifacts. 9 archived tracks (Phases 0–8) + 8 pending GPU tracks (Phases 9–16) created. CLAUDE.md trimmed to pointer document.
+**2026-02-28 (Latest):** Bug fix — Windows x64 `renderer-rt` build pinned to `GOARCH=amd64` in CI; PowerShell PE-header check added. Local build requires 64-bit MinGW-w64 (see Windows Build Prerequisites above).
+
+**2026-02-27:** Conductor migration complete — all `.claude/docs/` and `.claude/tasks/` content migrated into `conductor/` artifacts. 9 archived tracks (Phases 0–8) + 8 pending GPU tracks (Phases 9–16) created. CLAUDE.md trimmed to pointer document.
 
 **2026-02-27:** GPU Roadmap set — WebGPU (wgpu-native) + HLSL→WGSL via naga-cli across Phases 9–16. New docs: `14-gpu-backend.md`, `15-hlsl-shader-pipeline.md`, `16-realtime-display.md`. Architecture and CLAUDE.md updated.
 

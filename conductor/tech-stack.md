@@ -74,6 +74,7 @@ pkg/math           → (stdlib only)
 | `ci-success` | ~5 s | Aggregate pass/fail for branch protection |
 
 **Build matrix:** Linux × macOS × Windows, Go 1.24 × Go 1.25
+**Windows `renderer-rt` build:** `GOARCH=amd64` pinned explicitly; PowerShell PE-header check (machine type `0x8664`) verifies the artifact is 64-bit. `macos-latest` excluded from the pin (ARM64 runner).
 **Coverage enforcement:** Overall ≥70%; math package ≥90%
 **Total runtime:** ~5–8 minutes
 

@@ -1,9 +1,9 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="cpu_renderer" type="GoApplicationRunConfiguration" factoryName="Go Application">
+  <configuration default="false" name="renderer_rt" type="GoApplicationRunConfiguration" factoryName="Go Application">
     <module name="go_toy_renderer" />
     <working_directory value="$PROJECT_DIR$" />
     <kind value="PACKAGE" />
-    <package value="github.com/muddl/go_toy_renderer/cmd/renderer" />
+    <package value="github.com/muddl/go_toy_renderer/cmd/renderer-rt" />
     <directory value="$PROJECT_DIR$/cmd/renderer" />
     <filePath value="$PROJECT_DIR$" />
     <output_directory value="$PROJECT_DIR$/build" />

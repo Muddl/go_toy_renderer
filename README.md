@@ -201,6 +201,14 @@ go fmt ./...
 > **Note:** The `renderer-rt` binary links GLFW (CGo). Use `-tags=headless` in CI
 > or any environment without a display. Full GLFW builds work on Windows (MinGW),
 > macOS (Xcode), and Linux (with `libgl1-mesa-dev xorg-dev` installed).
+>
+> **Windows x64 requirement:** CGo links against the system C compiler. A 32-bit
+> MinGW produces a 32-bit PE that fails with *error 193* on x64 systems.
+> Install **64-bit MinGW-w64** (e.g. via MSYS2: `pacman -S mingw-w64-x86_64-gcc`)
+> and set `GOARCH=amd64` when building:
+> ```bash
+> GOARCH=amd64 go build -o renderer-rt.exe ./cmd/renderer-rt
+> ```
 
 ---
 

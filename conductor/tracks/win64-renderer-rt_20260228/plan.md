@@ -3,7 +3,7 @@
 **Track ID:** win64-renderer-rt_20260228
 **Spec:** [spec.md](./spec.md)
 **Created:** 2026-02-28
-**Status:** [~] In Progress
+**Status:** [x] Complete
 
 ## Overview
 
@@ -30,8 +30,8 @@ in the `build` job of `ci.yml` that produces a `renderer-rt` artifact.
 
 ### Verification
 
-- [ ] CI Windows build job passes with `GOARCH=amd64` confirmed in logs.
-- [ ] Artifact `renderer-rt.exe` is a 64-bit PE (check step output).
+- [x] CI Windows build job passes with `GOARCH=amd64` confirmed in logs.
+- [x] Artifact `renderer-rt.exe` is a 64-bit PE (check step output).
 
 ## Phase 2: Documentation
 
@@ -50,14 +50,14 @@ misconfigured.
 
 ### Verification
 
-- [ ] `CLAUDE.md` and `README.md` each contain the Windows toolchain
+- [x] `CLAUDE.md` and `README.md` each contain the Windows toolchain
       requirement.
 
 ## Final Verification
 
-- [ ] All acceptance criteria in spec.md are met.
-- [ ] CI passes on Windows with `GOARCH=amd64` confirmed.
-- [ ] No regressions on Linux or macOS builds.
+- [x] All acceptance criteria in spec.md are met.
+- [x] CI passes on Windows with `GOARCH=amd64` confirmed.
+- [x] No regressions on Linux or macOS builds.
 - [ ] PR reviewed and merged.
 
 ---

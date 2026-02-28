@@ -2,18 +2,21 @@
   "id": "win64-renderer-rt_20260228",
   "title": "Windows x64 Build for renderer-rt",
   "type": "bug",
-  "status": "in_progress",
+  "status": "complete",
   "created": "2026-02-28T00:00:00Z",
   "updated": "2026-02-28T00:00:00Z",
-  "current_phase": 1,
-  "current_task": "1.1",
+  "current_phase": 2,
+  "current_task": "2.3",
   "phases": {
     "total": 2,
-    "completed": 0
+    "completed": 2
   },
   "tasks": {
     "total": 6,
-    "completed": 0
+    "completed": 6
   },
-  "commits": []
+  "commits": [
+    "db19aae: fix: pin GOARCH=amd64 for Windows renderer-rt build in CI",
+    "2441662: docs: document Windows x64 MinGW-w64 requirement for renderer-rt"
+  ]
 }

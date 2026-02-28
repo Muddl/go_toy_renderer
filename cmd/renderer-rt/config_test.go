@@ -42,3 +42,25 @@ func TestParseConfig_UnknownFlag(t *testing.T) {
 		t.Error("expected error for unknown flag, got nil")
 	}
 }
+
+func TestValidateBackend_ValidBackends(t *testing.T) {
+	for _, b := range []string{"cpu", "auto"} {
+		if err := validateBackend(b); err != nil {
+			t.Errorf("validateBackend(%q) = %v, want nil", b, err)
+		}
+	}
+}
+
+func TestValidateBackend_GPU_NotImplemented(t *testing.T) {
+	err := validateBackend("gpu")
+	if err == nil {
+		t.Fatal("expected error for gpu backend, got nil")
+	}
+}
+
+func TestValidateBackend_Unknown(t *testing.T) {
+	err := validateBackend("vulkan")
+	if err == nil {
+		t.Fatal("expected error for unknown backend, got nil")
+	}
+}

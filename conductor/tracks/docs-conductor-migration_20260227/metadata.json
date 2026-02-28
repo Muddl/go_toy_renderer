@@ -1,0 +1,18 @@
+{
+  "id": "docs-conductor-migration_20260227",
+  "title": "Migrate .claude/ Context into Conductor Artifacts",
+  "type": "chore",
+  "status": "in_progress",
+  "created": "2026-02-27T00:00:00Z",
+  "updated": "2026-02-27T00:00:00Z",
+  "current_phase": 1,
+  "current_task": "2.1",
+  "phases": {
+    "total": 6,
+    "completed": 1
+  },
+  "tasks": {
+    "total": 30,
+    "completed": 8
+  }
+}

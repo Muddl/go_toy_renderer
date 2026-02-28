@@ -12,7 +12,9 @@ Navigation hub for project context.
 
 ## Active Tracks
 
-<!-- Auto-populated by /conductor:new-track -->
+| Track ID | Title | Status |
+| -------- | ----- | ------ |
+| [docs-conductor-migration_20260227](./tracks/docs-conductor-migration_20260227/index.md) | Migrate .claude/ Context into Conductor Artifacts | Pending |
 
 ## Getting Started
 

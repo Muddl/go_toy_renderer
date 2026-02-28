@@ -3,7 +3,8 @@
     "allow": [
       "WebSearch",
       "Bash(mkdir:*)",
-      "Bash(go test:*)"
+      "Bash(go test:*)",
+      "Bash(git:*)"
     ],
     "deny": [],
     "ask": []

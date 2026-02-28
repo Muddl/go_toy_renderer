@@ -40,12 +40,12 @@ misconfigured.
 
 ### Tasks
 
-- [ ] Task 2.1: Add a "Windows build prerequisites" section to `CLAUDE.md`
+- [x] Task 2.1: Add a "Windows build prerequisites" section to `CLAUDE.md`
       (or the existing Common Gotchas section) specifying 64-bit MinGW-w64 and
       `GOARCH=amd64` for CGO builds.
-- [ ] Task 2.2: Add the same note to `README.md` under the build/run
+- [x] Task 2.2: Add the same note to `README.md` under the build/run
       instructions.
-- [ ] Task 2.3: Update `conductor/architecture.md` CI table to note the
+- [x] Task 2.3: Update `conductor/architecture.md` CI table to note the
       explicit `GOARCH=amd64` pin for Windows.
 
 ### Verification

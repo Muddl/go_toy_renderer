@@ -392,3 +392,4 @@ See `conductor/product-guidelines.md` for the full annotated list.
 | GPU | GLFW must run on OS main thread (`runtime.LockOSThread`) |
 | GPU | Surface created before device on macOS Metal |
 | GPU | Depth texture recreated on every window resize |
+| Windows build | CGo links against C compiler; 32-bit MinGW → 32-bit PE → error 193 on x64. Use 64-bit MinGW-w64 and set `GOARCH=amd64`. CI pins this automatically. |

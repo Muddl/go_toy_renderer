@@ -1,7 +1,6 @@
 package main
 
 import (
-	"errors"
 	"flag"
 	"fmt"
 )
@@ -31,17 +30,4 @@ func parseConfig(args []string) (Config, error) {
 		Height:  *height,
 		Backend: *backend,
 	}, nil
-}
-
-// validateBackend returns an error if the backend is unsupported in the current phase.
-// "cpu" and "auto" proceed; "gpu" is not yet implemented until Phase 10.
-func validateBackend(backend string) error {
-	switch backend {
-	case "cpu", "auto":
-		return nil
-	case "gpu":
-		return errors.New("--backend gpu is not yet implemented (available in Phase 10+)")
-	default:
-		return fmt.Errorf("unknown backend %q: must be one of cpu, auto, gpu", backend)
-	}
 }

@@ -1,6 +1,6 @@
 //go:build !headless
 
-package main
+package renderer
 
 import (
 	"fmt"
@@ -11,8 +11,7 @@ import (
 	"github.com/go-gl/glfw/v3.3/glfw"
 	"github.com/muddl/go_toy_renderer/pkg/camera"
 	"github.com/muddl/go_toy_renderer/pkg/framebuffer"
-	"github.com/muddl/go_toy_renderer/pkg/geometry"
-	"github.com/muddl/go_toy_renderer/pkg/math"
+	pkgmath "github.com/muddl/go_toy_renderer/pkg/math"
 	"github.com/muddl/go_toy_renderer/pkg/render"
 	"github.com/muddl/go_toy_renderer/pkg/shader"
 )
@@ -53,13 +52,25 @@ void main() {
 }
 ` + "\x00"
 
-// run initialises a GLFW window and enters the CPU-blit render loop.
-// It returns when the window is closed or ESC is pressed.
-func run(cfg Config) error {
+// CPUBackend renders each frame on the CPU and blits the result via OpenGL.
+type CPUBackend struct {
+	width, height int
+	window        *glfw.Window
+	prog          uint32
+	vao           uint32
+	tex           uint32
+	fb            *framebuffer.Framebuffer
+	cam           camera.Camera
+}
+
+// Init opens a GLFW window, initialises OpenGL, and prepares the CPU framebuffer.
+func (c *CPUBackend) Init(width, height int) error {
+	c.width = width
+	c.height = height
+
 	if err := glfw.Init(); err != nil {
 		return fmt.Errorf("glfw init: %w", err)
 	}
-	defer glfw.Terminate()
 
 	glfw.WindowHint(glfw.Resizable, glfw.False)
 	glfw.WindowHint(glfw.ContextVersionMajor, 4)
@@ -67,77 +78,97 @@ func run(cfg Config) error {
 	glfw.WindowHint(glfw.OpenGLProfile, glfw.OpenGLCoreProfile)
 	glfw.WindowHint(glfw.OpenGLForwardCompatible, glfw.True)
 
-	window, err := glfw.CreateWindow(cfg.Width, cfg.Height, "go_toy_renderer", nil, nil)
+	win, err := glfw.CreateWindow(width, height, "go_toy_renderer", nil, nil)
 	if err != nil {
+		glfw.Terminate()
 		return fmt.Errorf("create window: %w", err)
 	}
-	window.MakeContextCurrent()
+	c.window = win
+	win.MakeContextCurrent()
 
-	window.SetKeyCallback(func(w *glfw.Window, key glfw.Key, _ int, action glfw.Action, _ glfw.ModifierKey) {
+	win.SetKeyCallback(func(w *glfw.Window, key glfw.Key, _ int, action glfw.Action, _ glfw.ModifierKey) {
 		if key == glfw.KeyEscape && action == glfw.Press {
 			w.SetShouldClose(true)
 		}
 	})
 
 	if err = gl.Init(); err != nil {
+		glfw.Terminate()
 		return fmt.Errorf("opengl init: %w", err)
 	}
 
 	prog, err := buildShaderProgram(vertSrc, fragSrc)
 	if err != nil {
+		glfw.Terminate()
 		return err
 	}
-	defer gl.DeleteProgram(prog)
+	c.prog = prog
 
-	// VAO required by OpenGL 4.1 core profile (no default VAO).
 	var vao uint32
 	gl.GenVertexArrays(1, &vao)
-	defer gl.DeleteVertexArrays(1, &vao)
+	c.vao = vao
 
-	tex := createTexture(cfg.Width, cfg.Height)
-	defer gl.DeleteTextures(1, &tex)
-
-	fb := framebuffer.New(cfg.Width, cfg.Height)
-	scene := render.NewScene()
-	scene.AddMesh(geometry.NewCube())
-	cam := camera.New(
-		math.Vec3{X: 3, Y: 2, Z: 5},
-		math.Vec3{},
-		math.Vec3{X: 0, Y: 1},
+	c.tex = createTexture(width, height)
+	c.fb = framebuffer.New(width, height)
+	c.cam = camera.New(
+		pkgmath.Vec3{X: 3, Y: 2, Z: 5},
+		pkgmath.Vec3{},
+		pkgmath.Vec3{X: 0, Y: 1},
 		45.0,
-		float64(cfg.Width)/float64(cfg.Height),
+		float64(width)/float64(height),
 		0.1,
 		100.0,
 	)
 
-	gl.UseProgram(prog)
-	gl.Uniform1i(gl.GetUniformLocation(prog, gl.Str("uTex\x00")), 0)
+	gl.UseProgram(c.prog)
+	gl.Uniform1i(gl.GetUniformLocation(c.prog, gl.Str("uTex\x00")), 0)
 
-	for !window.ShouldClose() {
-		frameStart := time.Now()
+	return nil
+}
 
-		fb.Clear(math.Vec3{}, 1.0)
-		render.Render(scene, cam, fb, shader.VertexColor)
+// RenderFrame renders one frame of scene and presents it in the window.
+// Returns ErrWindowClosed when the window has been dismissed.
+func (c *CPUBackend) RenderFrame(scene *render.Scene) error {
+	if c.window.ShouldClose() {
+		return ErrWindowClosed
+	}
 
-		pixels := framebufferToRGBA(fb)
-		uploadTexture(tex, cfg.Width, cfg.Height, pixels)
+	frameStart := time.Now()
 
-		gl.Clear(gl.COLOR_BUFFER_BIT)
-		gl.BindVertexArray(vao)
-		gl.DrawArrays(gl.TRIANGLE_STRIP, 0, 4)
+	render.Render(scene, c.cam, c.fb, shader.VertexColor)
 
-		window.SwapBuffers()
-		glfw.PollEvents()
+	pixels := framebufferToRGBA(c.fb)
+	uploadTexture(c.tex, c.width, c.height, pixels)
 
-		if elapsed := time.Since(frameStart); elapsed < frameDur {
-			time.Sleep(frameDur - elapsed)
-		}
+	gl.Clear(gl.COLOR_BUFFER_BIT)
+	gl.BindVertexArray(c.vao)
+	gl.DrawArrays(gl.TRIANGLE_STRIP, 0, 4)
+
+	c.window.SwapBuffers()
+	glfw.PollEvents()
+
+	if elapsed := time.Since(frameStart); elapsed < frameDur {
+		time.Sleep(frameDur - elapsed)
 	}
 
 	return nil
 }
 
-// createTexture allocates an RGBA OpenGL texture sized width×height.
+// Shutdown releases OpenGL resources and terminates GLFW.
+func (c *CPUBackend) Shutdown() {
+	if c.tex != 0 {
+		gl.DeleteTextures(1, &c.tex)
+	}
+	if c.vao != 0 {
+		gl.DeleteVertexArrays(1, &c.vao)
+	}
+	if c.prog != 0 {
+		gl.DeleteProgram(c.prog)
+	}
+	glfw.Terminate()
+}
+
+// createTexture allocates an RGBA OpenGL texture sized width x height.
 func createTexture(width, height int) uint32 {
 	var tex uint32
 	gl.GenTextures(1, &tex)
@@ -160,14 +191,14 @@ func uploadTexture(tex uint32, width, height int, pixels []byte) {
 }
 
 // buildShaderProgram compiles vertex and fragment GLSL sources and links them.
-func buildShaderProgram(vertSrc, fragSrc string) (uint32, error) {
-	vert, err := compileShader(vertSrc, gl.VERTEX_SHADER)
+func buildShaderProgram(vSrc, fSrc string) (uint32, error) {
+	vert, err := compileShader(vSrc, gl.VERTEX_SHADER)
 	if err != nil {
 		return 0, fmt.Errorf("vertex shader: %w", err)
 	}
 	defer gl.DeleteShader(vert)
 
-	frag, err := compileShader(fragSrc, gl.FRAGMENT_SHADER)
+	frag, err := compileShader(fSrc, gl.FRAGMENT_SHADER)
 	if err != nil {
 		return 0, fmt.Errorf("fragment shader: %w", err)
 	}
@@ -183,10 +214,10 @@ func buildShaderProgram(vertSrc, fragSrc string) (uint32, error) {
 	if status == gl.FALSE {
 		var logLen int32
 		gl.GetProgramiv(prog, gl.INFO_LOG_LENGTH, &logLen)
-		log := strings.Repeat("\x00", int(logLen+1))
-		gl.GetProgramInfoLog(prog, logLen, nil, gl.Str(log))
+		logBuf := strings.Repeat("\x00", int(logLen+1))
+		gl.GetProgramInfoLog(prog, logLen, nil, gl.Str(logBuf))
 		gl.DeleteProgram(prog)
-		return 0, fmt.Errorf("link program: %s", log)
+		return 0, fmt.Errorf("link program: %s", logBuf)
 	}
 	return prog, nil
 }
@@ -204,10 +235,10 @@ func compileShader(src string, shaderType uint32) (uint32, error) {
 	if status == gl.FALSE {
 		var logLen int32
 		gl.GetShaderiv(s, gl.INFO_LOG_LENGTH, &logLen)
-		log := strings.Repeat("\x00", int(logLen+1))
-		gl.GetShaderInfoLog(s, logLen, nil, gl.Str(log))
+		logBuf := strings.Repeat("\x00", int(logLen+1))
+		gl.GetShaderInfoLog(s, logLen, nil, gl.Str(logBuf))
 		gl.DeleteShader(s)
-		return 0, fmt.Errorf("compile: %s", log)
+		return 0, fmt.Errorf("compile: %s", logBuf)
 	}
 	return s, nil
 }

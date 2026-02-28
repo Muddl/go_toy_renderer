@@ -10,11 +10,14 @@ Navigation hub for project context.
 - [Workflow](./workflow.md)
 - [Architecture Reference](./architecture.md)
 - [Migration Audit](./migration-audit.md)
+- [CI Fragility Reference](./ci-fragility.md)
 - [Tracks](./tracks.md)
 
 ## Active Tracks
 
-_No active tracks. Run `/conductor:implement phase-9-window_20260227` to start Phase 9._
+| Track ID | Title | Status |
+| -------- | ----- | ------ |
+| [ci-hardening_20260228](./tracks/ci-hardening_20260228/index.md) | CI Pipeline Hardening | Pending |
 
 ## Completed Tracks
 

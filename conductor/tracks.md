@@ -21,4 +21,6 @@
 | [ ] | [phase-15-lighting_20260227](./tracks/phase-15-lighting_20260227/index.md) | Phase 15: Lighting, Normals & Physical Shading | 2026-02-27 | 2026-02-27 |
 | [ ] | [phase-16-advanced_20260227](./tracks/phase-16-advanced_20260227/index.md) | Phase 16: Advanced Features & Polish | 2026-02-27 | 2026-02-27 |
 
+| [~] | [ci-hardening_20260228](./tracks/ci-hardening_20260228/index.md) | CI Pipeline Hardening | 2026-02-28 | 2026-02-28 |
+
 <!-- Tracks registered by /conductor:new-track -->

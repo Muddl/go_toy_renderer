@@ -13,7 +13,7 @@
 | [x] | [phase-7-pipeline_20260227](./tracks/phase-7-pipeline_20260227/index.md) | Phase 7: Render Pipeline Integration | 2026-02-27 | 2026-02-27 |
 | [x] | [phase-8-polish_20260227](./tracks/phase-8-polish_20260227/index.md) | Phase 8: Testing & Polish (MVP Complete) | 2026-02-27 | 2026-02-27 |
 | [x] | [phase-9-window_20260227](./tracks/phase-9-window_20260227/index.md) | Phase 9: Window & Real-time Display | 2026-02-27 | 2026-02-28 |
-| [ ] | [phase-10-gpu-abstraction_20260227](./tracks/phase-10-gpu-abstraction_20260227/index.md) | Phase 10: GPU Backend Abstraction | 2026-02-27 | 2026-02-27 |
+| [~] | [phase-10-gpu-abstraction_20260227](./tracks/phase-10-gpu-abstraction_20260227/index.md) | Phase 10: GPU Backend Abstraction | 2026-02-27 | 2026-02-28 |
 | [ ] | [phase-11-webgpu_20260227](./tracks/phase-11-webgpu_20260227/index.md) | Phase 11: WebGPU Integration | 2026-02-27 | 2026-02-27 |
 | [ ] | [phase-12-gpu-geometry_20260227](./tracks/phase-12-gpu-geometry_20260227/index.md) | Phase 12: GPU Geometry & Draw Pipeline | 2026-02-27 | 2026-02-27 |
 | [ ] | [phase-13-hlsl_20260227](./tracks/phase-13-hlsl_20260227/index.md) | Phase 13: HLSL Shader Pipeline | 2026-02-27 | 2026-02-27 |

@@ -82,23 +82,23 @@ Create minimal Conductor tracks for Phases 0–8 with status `archived`. These a
 
 ### Tasks
 
-- [ ] Task 4.1: Create `conductor/tracks/phase-0-cicd_20260227/` — spec summarising CI/CD goals; plan listing completed tasks; metadata `status: archived`.
-- [ ] Task 4.2: Create `conductor/tracks/phase-1-math_20260227/` — link to `.claude/tasks/2025-10-10_math-foundation-implementation.md`.
-- [ ] Task 4.3: Create `conductor/tracks/phase-2-geometry_20260227/`.
-- [ ] Task 4.4: Create `conductor/tracks/phase-3-camera_20260227/`.
-- [ ] Task 4.5: Create `conductor/tracks/phase-4-framebuffer_20260227/` — link to `.claude/tasks/2026-02-27_framebuffer-implementation.md`.
-- [ ] Task 4.6: Create `conductor/tracks/phase-5-rasterizer_20260227/` — link to `.claude/tasks/2026-02-27_rasterizer-implementation.md`.
-- [ ] Task 4.7: Create `conductor/tracks/phase-6-shading_20260227/` — link to `.claude/tasks/2026-02-27_phase-6-shading-implementation.md`.
-- [ ] Task 4.8: Create `conductor/tracks/phase-7-pipeline_20260227/` — link to `.claude/tasks/2026-02-27_phase-7-pipeline-integration.md`.
-- [ ] Task 4.9: Create `conductor/tracks/phase-8-polish_20260227/` — link to `.claude/tasks/2026-02-27_phase-8-testing-polish.md`.
-- [ ] Task 4.10: Register all 9 archived tracks in `conductor/tracks.md`.
+- [x] Task 4.1: Create `conductor/tracks/phase-0-cicd_20260227/` — spec summarising CI/CD goals; plan listing completed tasks; metadata `status: archived`.
+- [x] Task 4.2: Create `conductor/tracks/phase-1-math_20260227/` — link to `.claude/tasks/2025-10-10_math-foundation-implementation.md`.
+- [x] Task 4.3: Create `conductor/tracks/phase-2-geometry_20260227/`.
+- [x] Task 4.4: Create `conductor/tracks/phase-3-camera_20260227/`.
+- [x] Task 4.5: Create `conductor/tracks/phase-4-framebuffer_20260227/` — link to `.claude/tasks/2026-02-27_framebuffer-implementation.md`.
+- [x] Task 4.6: Create `conductor/tracks/phase-5-rasterizer_20260227/` — link to `.claude/tasks/2026-02-27_rasterizer-implementation.md`.
+- [x] Task 4.7: Create `conductor/tracks/phase-6-shading_20260227/` — link to `.claude/tasks/2026-02-27_phase-6-shading-implementation.md`.
+- [x] Task 4.8: Create `conductor/tracks/phase-7-pipeline_20260227/` — link to `.claude/tasks/2026-02-27_phase-7-pipeline-integration.md`.
+- [x] Task 4.9: Create `conductor/tracks/phase-8-polish_20260227/` — link to `.claude/tasks/2026-02-27_phase-8-testing-polish.md`.
+- [x] Task 4.10: Register all 9 archived tracks in `conductor/tracks.md`.
 
 ### Verification
 
-- [ ] 9 archived track directories exist.
-- [ ] Each has `spec.md`, `plan.md`, `metadata.json`, `index.md`.
-- [ ] All 9 registered in `conductor/tracks.md` with status `archived`.
-- [ ] Each links to its `.claude/tasks/` source where one exists.
+- [x] 9 archived track directories exist.
+- [x] Each has `spec.md`, `plan.md`, `metadata.json`, `index.md`.
+- [x] All 9 registered in `conductor/tracks.md` with status `archived`.
+- [x] Each links to its `.claude/tasks/` source where one exists.
 
 ---
 

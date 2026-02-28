@@ -1,0 +1,16 @@
+{
+  "id": "phase-4-framebuffer_20260227",
+  "title": "Phase 4: Framebuffer",
+  "type": "feature",
+  "status": "archived",
+  "created": "2026-02-27T00:00:00Z",
+  "updated": "2026-02-27T00:00:00Z",
+  "phases": {
+    "total": 1,
+    "completed": 1
+  },
+  "tasks": {
+    "total": 5,
+    "completed": 5
+  }
+}

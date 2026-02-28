@@ -1,0 +1,16 @@
+{
+  "id": "phase-8-polish_20260227",
+  "title": "Phase 8: Testing & Polish",
+  "type": "chore",
+  "status": "archived",
+  "created": "2026-02-27T00:00:00Z",
+  "updated": "2026-02-27T00:00:00Z",
+  "phases": {
+    "total": 1,
+    "completed": 1
+  },
+  "tasks": {
+    "total": 6,
+    "completed": 6
+  }
+}

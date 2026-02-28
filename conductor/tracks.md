@@ -2,6 +2,15 @@
 
 | Status | Track ID | Title | Created | Updated |
 | ------ | -------- | ----- | ------- | ------- |
-| [~] | docs-conductor-migration_20260227 | Migrate .claude/ Context into Conductor Artifacts | 2026-02-27 | 2026-02-27 |
+| [~] | [docs-conductor-migration_20260227](./tracks/docs-conductor-migration_20260227/index.md) | Migrate .claude/ Context into Conductor Artifacts | 2026-02-27 | 2026-02-27 |
+| [x] | [phase-0-cicd_20260227](./tracks/phase-0-cicd_20260227/index.md) | Phase 0: CI/CD Infrastructure | 2026-02-27 | 2026-02-27 |
+| [x] | [phase-1-math_20260227](./tracks/phase-1-math_20260227/index.md) | Phase 1: Math Foundation | 2026-02-27 | 2026-02-27 |
+| [x] | [phase-2-geometry_20260227](./tracks/phase-2-geometry_20260227/index.md) | Phase 2: Geometry Component | 2026-02-27 | 2026-02-27 |
+| [x] | [phase-3-camera_20260227](./tracks/phase-3-camera_20260227/index.md) | Phase 3: Camera System | 2026-02-27 | 2026-02-27 |
+| [x] | [phase-4-framebuffer_20260227](./tracks/phase-4-framebuffer_20260227/index.md) | Phase 4: Framebuffer | 2026-02-27 | 2026-02-27 |
+| [x] | [phase-5-rasterizer_20260227](./tracks/phase-5-rasterizer_20260227/index.md) | Phase 5: Rasterization | 2026-02-27 | 2026-02-27 |
+| [x] | [phase-6-shading_20260227](./tracks/phase-6-shading_20260227/index.md) | Phase 6: Shader Package | 2026-02-27 | 2026-02-27 |
+| [x] | [phase-7-pipeline_20260227](./tracks/phase-7-pipeline_20260227/index.md) | Phase 7: Render Pipeline Integration | 2026-02-27 | 2026-02-27 |
+| [x] | [phase-8-polish_20260227](./tracks/phase-8-polish_20260227/index.md) | Phase 8: Testing & Polish (MVP Complete) | 2026-02-27 | 2026-02-27 |
 
 <!-- Tracks registered by /conductor:new-track -->

@@ -31,6 +31,9 @@ go.work.sum
 .idea/
 .vscode/
 
+# Claude Settings
+.claude/settings.local.json
+
 # Temporary files
 nul
 

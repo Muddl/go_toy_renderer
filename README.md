@@ -13,9 +13,16 @@ A toy 3D renderer written in Go. The MVP is a complete CPU software renderer tha
 - Interpolates vertex colors across triangle surfaces
 - Outputs a PNG image (640×480)
 
+## What it does (Phase 9 — complete)
+
+- Opens a 1280×720 GLFW window with an OpenGL 4.1 context
+- Renders the CPU framebuffer each frame via a fullscreen OpenGL texture blit
+- Caps the loop at 60 fps; closes on ESC or window close
+- `--backend cpu` (default) or `--backend auto` (GPU with CPU fallback — GPU available in Phase 10+)
+
 ## Where it's going (GPU roadmap)
 
-- **Phase 9:** Real-time windowed display at 60 fps via GLFW
+- **Phase 9:** Real-time windowed display at 60 fps via GLFW ✅
 - **Phase 10–11:** WebGPU backend (wgpu-native) — D3D12 on Windows, Metal on macOS, Vulkan on Linux
 - **Phase 12–13:** GPU hardware rasterization with HLSL shaders compiled to WGSL
 - **Phase 14–15:** Per-mesh transforms, Phong/PBR lighting, vertex normals
@@ -37,12 +44,34 @@ go build -o renderer ./cmd/renderer
 ./renderer
 ```
 
+## Quick start (real-time renderer — Phase 9)
+
+```bash
+# Open a 1280×720 window showing the CPU-rendered cube at 60 fps
+go run ./cmd/renderer-rt
+
+# Custom resolution and backend
+go run ./cmd/renderer-rt --width 800 --height 600 --backend cpu
+
+# GPU backend (available Phase 10+)
+go run ./cmd/renderer-rt --backend gpu
+# error: --backend gpu is not yet implemented (available in Phase 10+)
+```
+
+```bash
+# Build
+go build -o renderer-rt ./cmd/renderer-rt
+./renderer-rt --backend auto   # CPU fallback until Phase 10
+```
+
+**Controls:** `ESC` or close the window to exit.
+
 ## Project structure
 
 ```
 cmd/
   renderer/       # PNG output — renders output.png (CPU, complete)
-  renderer-rt/    # Real-time window — Phase 9+ (planned)
+  renderer-rt/    # Real-time window at 60 fps — Phase 9 (complete)
 
 pkg/
   math/           # Vec3, Mat4x4 — vectors, matrices, transformations
@@ -150,11 +179,11 @@ go generate ./assets/shaders/
 ## Building and testing
 
 ```bash
-# Run all tests
-go test ./...
+# Run all tests (headless — no display required)
+go test -tags=headless ./...
 
 # Run tests with coverage
-go test -cover ./...
+go test -tags=headless -cover ./...
 
 # Run benchmarks
 go test -bench=. ./pkg/render/ ./pkg/rasterize/
@@ -163,11 +192,15 @@ go test -bench=. ./pkg/render/ ./pkg/rasterize/
 go test ./pkg/render/ -run TestRender_GoldenImage_Triangle -update
 
 # Lint (requires golangci-lint v2)
-golangci-lint run
+golangci-lint run --build-tags headless
 
 # Format
 go fmt ./...
 ```
+
+> **Note:** The `renderer-rt` binary links GLFW (CGo). Use `-tags=headless` in CI
+> or any environment without a display. Full GLFW builds work on Windows (MinGW),
+> macOS (Xcode), and Linux (with `libgl1-mesa-dev xorg-dev` installed).
 
 ---
 

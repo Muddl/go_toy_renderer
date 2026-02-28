@@ -14,10 +14,14 @@ Navigation hub for project context.
 
 ## Active Tracks
 
+_No active tracks. Run `/conductor:implement phase-9-window_20260227` to start Phase 9._
+
+## Completed Tracks
+
 | Track ID | Title | Status |
 | -------- | ----- | ------ |
-| [docs-conductor-migration_20260227](./tracks/docs-conductor-migration_20260227/index.md) | Migrate .claude/ Context into Conductor Artifacts | Pending |
+| [docs-conductor-migration_20260227](./tracks/docs-conductor-migration_20260227/index.md) | Migrate .claude/ Context into Conductor Artifacts | Complete ✅ |
 
 ## Getting Started
 
-Run `/conductor:new-track` to create your first feature track.
+Run `/conductor:new-track` to create a new feature track, or `/conductor:implement phase-9-window_20260227` to begin the GPU roadmap.

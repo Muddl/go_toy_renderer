@@ -3,7 +3,7 @@
 **Track ID:** docs-conductor-migration_20260227
 **Spec:** [spec.md](./spec.md)
 **Created:** 2026-02-27
-**Status:** [~] In Progress
+**Status:** [x] Complete
 
 ## Overview
 
@@ -132,35 +132,35 @@ Reduce CLAUDE.md to a lean pointer document; move substantive content to Conduct
 
 ### Tasks
 
-- [ ] Task 6.1: Remove or condense sections now fully covered by Conductor:
+- [x] Task 6.1: Remove or condense sections now fully covered by Conductor:
   - "Project Overview" → 1-paragraph summary + link to `conductor/product.md`
   - TDD section → link to `conductor/workflow.md`
   - Git workflow section → link to `conductor/workflow.md`
   - Architecture guidelines → link to `conductor/architecture.md`
   - Phase-based implementation → link to `conductor/tracks.md`
-- [ ] Task 6.2: Retain in CLAUDE.md (not duplicated in Conductor):
+- [x] Task 6.2: Retain in CLAUDE.md (not duplicated in Conductor):
   - Development commands (build, test, run, lint)
   - "Common Gotchas" block (quick-reference for Claude context injection)
   - External resource links
   - "Recent Updates" changelog (last 3 entries)
-- [ ] Task 6.3: Add "Context Sources" section at top of CLAUDE.md pointing to `conductor/index.md` as the canonical reference.
+- [x] Task 6.3: Add "Context Sources" section at top of CLAUDE.md pointing to `conductor/index.md` as the canonical reference.
 
 ### Verification
 
-- [ ] CLAUDE.md is ≤150 lines after trimming.
-- [ ] All retained sections provide value not covered in Conductor.
-- [ ] No broken cross-references in CLAUDE.md.
+- [x] CLAUDE.md is ≤150 lines after trimming (91 lines).
+- [x] All retained sections provide value not covered in Conductor.
+- [x] No broken cross-references in CLAUDE.md.
 
 ---
 
 ## Final Verification
 
-- [ ] All acceptance criteria in `spec.md` are met.
-- [ ] `conductor/migration-audit.md` confirms no significant content lost.
-- [ ] `conductor/tracks.md` lists 9 archived + 8 pending + 1 this chore track (18 total).
-- [ ] `conductor/index.md` links to `architecture.md` and shows active tracks.
-- [ ] All tests still pass: `go test ./...` (no Go source code changed).
-- [ ] CLAUDE.md ≤150 lines and references Conductor throughout.
+- [x] All acceptance criteria in `spec.md` are met.
+- [x] `conductor/migration-audit.md` confirms no significant content lost.
+- [x] `conductor/tracks.md` lists 9 archived + 8 pending + 1 this chore track (18 total).
+- [x] `conductor/index.md` links to `architecture.md` and shows active tracks.
+- [x] All tests still pass: `go test ./...` (no Go source code changed).
+- [x] CLAUDE.md ≤150 lines and references Conductor throughout.
 
 ---
 

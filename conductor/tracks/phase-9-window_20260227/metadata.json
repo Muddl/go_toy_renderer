@@ -2,18 +2,18 @@
   "id": "phase-9-window_20260227",
   "title": "Phase 9: Window & Real-time Display",
   "type": "feature",
-  "status": "in_progress",
+  "status": "complete",
   "created": "2026-02-27T00:00:00Z",
   "updated": "2026-02-28T00:00:00Z",
   "current_phase": 3,
-  "current_task": "3.1",
+  "current_task": "done",
   "phases": {
     "total": 3,
-    "completed": 2
+    "completed": 3
   },
   "tasks": {
     "total": 12,
-    "completed": 8
+    "completed": 12
   },
   "commits": [
     "test: add failing tests for parseConfig flag parsing",
@@ -22,6 +22,9 @@
     "chore: add headless build tag and update CI for renderer-rt",
     "test: add failing tests for framebufferToRGBA conversion",
     "feat: implement framebufferToRGBA float64-to-RGBA conversion",
-    "feat: blit CPU framebuffer to OpenGL texture at 60 fps"
+    "feat: blit CPU framebuffer to OpenGL texture at 60 fps",
+    "test: add failing tests for validateBackend routing",
+    "feat: add --backend routing; gpu returns not-implemented error",
+    "docs: add real-time renderer section to README"
   ]
 }

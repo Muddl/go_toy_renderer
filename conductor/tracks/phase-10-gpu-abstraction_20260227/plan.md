@@ -3,7 +3,7 @@
 **Track ID:** phase-10-gpu-abstraction_20260227
 **Spec:** [spec.md](./spec.md)
 **Created:** 2026-02-27
-**Status:** [ ] Not Started
+**Status:** [x] Complete
 
 ## Overview
 
@@ -15,15 +15,15 @@ Extract the CPU blit path from Phase 9 into a `CPUBackend` implementing a `Rende
 
 ### Tasks
 
-- [ ] Task 1.1: Write failing tests for `Renderer` interface, `CPUBackend.Init`, `CPUBackend.RenderFrame`, `CPUBackend.Shutdown`. Commit `test:`.
-- [ ] Task 1.2: Create `pkg/renderer/renderer.go` — define `Renderer` interface. Commit `feat:`.
-- [ ] Task 1.3: Create `pkg/renderer/cpu.go` — `CPUBackend` implementing `Renderer`; extract GLFW blit logic from Phase 9. Commit `feat: extract CPUBackend from renderer-rt`.
-- [ ] Task 1.4: Update `cmd/renderer-rt/main.go` to use `renderer.New(backendFlag)`. Commit `refactor: use Renderer interface in main loop`.
+- [x] Task 1.1: Write failing tests for `Renderer` interface, `CPUBackend.Init`, `CPUBackend.RenderFrame`, `CPUBackend.Shutdown`. Commit `test:`.
+- [x] Task 1.2: Create `pkg/renderer/renderer.go` — define `Renderer` interface. Commit `feat:`.
+- [x] Task 1.3: Create `pkg/renderer/cpu.go` — `CPUBackend` implementing `Renderer`; extract GLFW blit logic from Phase 9. Commit `feat: extract CPUBackend from renderer-rt`.
+- [x] Task 1.4: Update `cmd/renderer-rt/main.go` to use `renderer.New(backendFlag)`. Commit `refactor: use Renderer interface in main loop`.
 
 ### Verification
 
-- [ ] `cmd/renderer-rt --backend cpu` still shows coloured cube.
-- [ ] All Phase 9 tests still pass.
+- [x] `cmd/renderer-rt --backend cpu` still shows coloured cube.
+- [x] All Phase 9 tests still pass.
 
 ---
 
@@ -31,14 +31,14 @@ Extract the CPU blit path from Phase 9 into a `CPUBackend` implementing a `Rende
 
 ### Tasks
 
-- [ ] Task 2.1: Write tests for `GPUBackend.Init` (returns nil), `GPUBackend.RenderFrame` (returns error "GPU not yet implemented"), factory `New` selection. Commit `test:`.
-- [ ] Task 2.2: Create `pkg/renderer/gpu.go` — `GPUBackend` stub. Commit `feat: add GPUBackend stub`.
-- [ ] Task 2.3: Implement `renderer.New(backend string) (Renderer, error)` factory; wire `--backend auto` fallback logic. Commit `feat: add renderer factory with auto fallback`.
+- [x] Task 2.1: Write tests for `GPUBackend.Init` (returns nil), `GPUBackend.RenderFrame` (returns error "GPU not yet implemented"), factory `New` selection. Commit `test:`.
+- [x] Task 2.2: Create `pkg/renderer/gpu.go` — `GPUBackend` stub. Commit `feat: add GPUBackend stub`.
+- [x] Task 2.3: Implement `renderer.New(backend string) (Renderer, error)` factory; wire `--backend auto` fallback logic. Commit `feat: add renderer factory with auto fallback`.
 
 ### Verification
 
-- [ ] `--backend gpu` exits with "GPU not yet implemented" error.
-- [ ] `--backend auto` falls back to CPU backend.
+- [x] `--backend gpu` exits with "GPU not yet implemented" error.
+- [x] `--backend auto` falls back to CPU backend.
 
 ---
 
@@ -46,13 +46,13 @@ Extract the CPU blit path from Phase 9 into a `CPUBackend` implementing a `Rende
 
 ### Tasks
 
-- [ ] Task 3.1: Ensure full coverage of factory function and both backends. Commit `test:`.
-- [ ] Task 3.2: Run `go test ./...`; all pass. Commit `chore: mark Phase 10 complete`.
+- [x] Task 3.1: Ensure full coverage of factory function and both backends. Commit `test:`.
+- [x] Task 3.2: Run `go test ./...`; all pass. Commit `chore: mark Phase 10 complete`.
 
 ### Verification
 
-- [ ] All acceptance criteria in `spec.md` met.
-- [ ] PR merged to `main`, CI green.
+- [x] All acceptance criteria in `spec.md` met.
+- [x] PR merged to `main`, CI green.
 
 ---
 

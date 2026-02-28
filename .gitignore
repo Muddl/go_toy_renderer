@@ -39,8 +39,8 @@ nul
 
 # Build artifacts
 ./build/
-renderer
-renderer.exe
+/renderer
+/renderer.exe
 
 # Rendered output images
 output.png

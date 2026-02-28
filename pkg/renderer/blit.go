@@ -1,4 +1,4 @@
-package main
+package renderer
 
 import (
 	"github.com/muddl/go_toy_renderer/pkg/framebuffer"

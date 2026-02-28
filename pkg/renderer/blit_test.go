@@ -1,4 +1,4 @@
-package main
+package renderer
 
 import (
 	"testing"
@@ -68,7 +68,6 @@ func TestFramebufferToRGBA_Clamping(t *testing.T) {
 }
 
 func TestFramebufferToRGBA_RowOrder(t *testing.T) {
-	// Verify row-major order: pixel (x,y) is at offset (y*width+x)*4.
 	fb := framebuffer.New(2, 2)
 	fb.ColorBuffer[0] = pkgmath.Vec3{X: 1, Y: 0, Z: 0} // (0,0) red
 	fb.ColorBuffer[3] = pkgmath.Vec3{X: 0, Y: 0, Z: 1} // (1,1) blue

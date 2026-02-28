@@ -93,8 +93,30 @@ jobs:
       - name: Build application
         run: go build -v -o renderer ./cmd/renderer
 
-      - name: Build renderer-rt (headless)
+      - name: Build renderer-rt (headless, non-Windows)
+        if: matrix.os != 'windows-latest'
         run: go build -tags=headless -v -o renderer-rt ./cmd/renderer-rt
+
+      - name: Build renderer-rt (headless, Windows amd64)
+        if: matrix.os == 'windows-latest'
+        env:
+          GOARCH: amd64
+        run: |
+          go env GOARCH
+          go build -tags=headless -v -o renderer-rt ./cmd/renderer-rt
+
+      - name: Verify Windows build is amd64 PE
+        if: matrix.os == 'windows-latest'
+        shell: pwsh
+        run: |
+          $bytes = [System.IO.File]::ReadAllBytes("renderer-rt.exe")
+          $peOffset = [BitConverter]::ToInt32($bytes, 0x3c)
+          $machine  = [BitConverter]::ToUInt16($bytes, $peOffset + 4)
+          if ($machine -ne 0x8664) {
+            Write-Error "renderer-rt.exe is not AMD64 (machine=0x$($machine.ToString('X4')))"
+            exit 1
+          }
+          Write-Host "renderer-rt.exe machine type: 0x$($machine.ToString('X4')) (AMD64) - OK"
 
       - name: Upload build artifact
         uses: actions/upload-artifact@v4

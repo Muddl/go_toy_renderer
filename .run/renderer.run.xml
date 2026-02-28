@@ -1,0 +1,12 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="renderer" type="GoApplicationRunConfiguration" factoryName="Go Application">
+    <module name="go_toy_renderer" />
+    <working_directory value="$PROJECT_DIR$" />
+    <kind value="PACKAGE" />
+    <package value="github.com/muddl/go_toy_renderer/cmd/renderer" />
+    <directory value="$PROJECT_DIR$/cmd/renderer" />
+    <filePath value="$PROJECT_DIR$" />
+    <output_directory value="$PROJECT_DIR$/build" />
+    <method v="2" />
+  </configuration>
+</component>

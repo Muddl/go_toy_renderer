@@ -1,0 +1,19 @@
+{
+  "id": "win64-renderer-rt_20260228",
+  "title": "Windows x64 Build for renderer-rt",
+  "type": "bug",
+  "status": "in_progress",
+  "created": "2026-02-28T00:00:00Z",
+  "updated": "2026-02-28T00:00:00Z",
+  "current_phase": 1,
+  "current_task": "1.1",
+  "phases": {
+    "total": 2,
+    "completed": 0
+  },
+  "tasks": {
+    "total": 6,
+    "completed": 0
+  },
+  "commits": []
+}

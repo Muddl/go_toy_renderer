@@ -1,6 +1,6 @@
 # Architecture Reference — go_toy_renderer
 
-**Last updated:** 2026-02-27 (Phases 0–8 complete; GPU roadmap active)
+**Last updated:** 2026-02-28 (Phase 10 complete — pkg/renderer interface implemented)
 
 ---
 
@@ -258,27 +258,41 @@ Run benchmarks: `go test -bench=. -benchmem ./pkg/render/... ./pkg/rasterize/...
 
 The CPU renderer is preserved as a **reference implementation and fallback**. A `Renderer` interface (Phase 10) abstracts CPU vs GPU backends.
 
-### Backend Abstraction (Phase 10)
+### Backend Abstraction (Phase 10) ✅
 
 ```
-┌─────────────────────────────┐
-│      pkg/renderer.Renderer  │
-│  Render(scene,cam) error    │
-│  Resize(w,h int)            │
-│  Destroy()                  │
-└──────────┬──────────────────┘
-           │
-    ┌──────┴──────┐
-    │             │
-┌───▼───┐   ┌────▼────┐
-│  CPU  │   │   GPU   │
-│Renderer│  │Renderer │
-└───────┘   └─────────┘
-pkg/render  pkg/gpu
-(existing)  (new, Phase 11)
+┌──────────────────────────────────────────┐
+│  pkg/renderer.Renderer interface         │
+│  Init(width, height int) error           │
+│  RenderFrame(scene *render.Scene) error  │
+│  Shutdown()                              │
+└───────────────────┬──────────────────────┘
+                    │
+         ┌──────────┴──────────┐
+         │                     │
+  ┌──────▼──────┐       ┌──────▼──────┐
+  │ CPUBackend  │       │  GPUBackend │
+  │ (cpu.go /   │       │  stub       │
+  │  cpu_       │       │  Phase 11+  │
+  │  headless)  │       └─────────────┘
+  └─────────────┘
+  pkg/render + GLFW
 ```
 
-Factory: `renderer.New(backend, width, height)` — `backend` is `CPU | GPU | Auto`.
+Factory: `renderer.New(backend string) (Renderer, error)` — `backend` is `"cpu" | "gpu" | "auto"`.
+
+`ErrWindowClosed` — sentinel returned by `RenderFrame` when window is dismissed.
+
+**Phase 10 package:** `pkg/renderer` | **Coverage:** 100% | **Tests:** 7 (GPU + factory + headless CPU)
+
+| Type / Function | Signature | Notes |
+|----------------|-----------|-------|
+| `Renderer` | interface | `Init / RenderFrame / Shutdown` |
+| `ErrWindowClosed` | `error` | RenderFrame sentinel; main loop breaks on this |
+| `CPUBackend` | struct (`!headless`) | GLFW window + OpenGL blit; camera fixed at (3,2,5) looking at origin |
+| `CPUBackend` | struct (`headless`) | Stub; all methods return error |
+| `GPUBackend` | struct | Stub; `Init`→nil, `RenderFrame`→"GPU not yet implemented" |
+| `New` | `(backend string) (Renderer, error)` | `"auto"` → CPUBackend (GPU-first in Phase 11) |
 
 ### GPU Pipeline (Phase 11+, wgpu-native / WebGPU)
 

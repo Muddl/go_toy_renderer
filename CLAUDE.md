@@ -103,10 +103,8 @@ CI enforces this automatically for `windows-latest` builds.
 
 ## Recent Updates
 
-**2026-02-28 (Latest):** CI hardening complete — pinned Go to 1.24, golangci-lint to v2.1.6, govulncheck to v1.1.3, gosec to v2.22.0; split Windows race-detector step; removed `|| true` from license enforcement. See `conductor/ci-fragility.md`.
+**2026-02-28 (Latest):** Phase 10 complete — `pkg/renderer` package: `Renderer` interface, `CPUBackend` (GLFW blit extracted from Phase 9), `GPUBackend` stub, `New()` factory. `cmd/renderer-rt` refactored to use `renderer.New()`. `--backend auto` falls back to CPU (GPU-first in Phase 11). `pkg/renderer` at 100% test coverage.
+
+**2026-02-28:** CI hardening complete — pinned Go to 1.24, golangci-lint to v2.1.6, govulncheck to v1.1.3, gosec to v2.22.0; split Windows race-detector step; removed `|| true` from license enforcement. See `conductor/ci-fragility.md`.
 
 **2026-02-28:** Bug fix — Windows x64 `renderer-rt` build pinned to `GOARCH=amd64` in CI; PowerShell PE-header check added. Local build requires 64-bit MinGW-w64 (see Windows Build Prerequisites above).
-
-**2026-02-27:** Conductor migration complete — all `.claude/docs/` and `.claude/tasks/` content migrated into `conductor/` artifacts. 9 archived tracks (Phases 0–8) + 8 pending GPU tracks (Phases 9–16) created. CLAUDE.md trimmed to pointer document.
-
-**2026-02-27:** GPU Roadmap set — WebGPU (wgpu-native) + HLSL→WGSL via naga-cli across Phases 9–16. New docs: `14-gpu-backend.md`, `15-hlsl-shader-pipeline.md`, `16-realtime-display.md`. Architecture and CLAUDE.md updated.

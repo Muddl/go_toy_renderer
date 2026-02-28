@@ -103,7 +103,7 @@ jobs:
           GOARCH: amd64
         run: |
           go env GOARCH
-          go build -tags=headless -v -o renderer-rt ./cmd/renderer-rt
+          go build -tags=headless -v -o renderer-rt.exe ./cmd/renderer-rt
 
       - name: Verify Windows build is amd64 PE
         if: matrix.os == 'windows-latest'

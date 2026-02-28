@@ -76,7 +76,7 @@ Confirm the headless path is intact, push the branch, open a PR, and update cond
 
 - [x] Task 4.1: Manually verify `-tags=headless` appears on every `go vet`, `go test`, `go build renderer-rt`, `golangci-lint`, and `govulncheck` step that would otherwise pull in CGo
 - [x] Task 4.2: Confirm no coverage thresholds were changed (overall ≥70%, math ≥90%)
-- [~] Task 4.3: Open PR `chore/ci-hardening` → `main`, confirm CI green on all three OS
+- [x] Task 4.3: Open PR `chore/ci-hardening` → `main` — https://github.com/Muddl/go_toy_renderer/pull/16
 - [x] Task 4.4: Update `conductor/tracks.md` — mark `ci-hardening_20260228` as `[x]`
 - [x] Task 4.5: Update `conductor/index.md` — move track from Active to Archived
 - [x] Task 4.6: Update `CLAUDE.md` Recent Updates with a one-line entry for this chore

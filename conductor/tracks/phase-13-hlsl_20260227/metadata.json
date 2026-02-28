@@ -1,0 +1,16 @@
+{
+  "id": "phase-13-hlsl_20260227",
+  "title": "Phase 13: HLSL Shader Pipeline",
+  "type": "feature",
+  "status": "pending",
+  "created": "2026-02-27T00:00:00Z",
+  "updated": "2026-02-27T00:00:00Z",
+  "phases": {
+    "total": 3,
+    "completed": 0
+  },
+  "tasks": {
+    "total": 11,
+    "completed": 0
+  }
+}

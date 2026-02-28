@@ -1,0 +1,16 @@
+{
+  "id": "phase-14-uniforms_20260227",
+  "title": "Phase 14: Uniform Buffers & Per-Mesh Transforms",
+  "type": "feature",
+  "status": "pending",
+  "created": "2026-02-27T00:00:00Z",
+  "updated": "2026-02-27T00:00:00Z",
+  "phases": {
+    "total": 3,
+    "completed": 0
+  },
+  "tasks": {
+    "total": 9,
+    "completed": 0
+  }
+}

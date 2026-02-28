@@ -108,21 +108,21 @@ Create full Conductor tracks (spec + plan) for each GPU phase.
 
 ### Tasks
 
-- [ ] Task 5.1: Create `conductor/tracks/phase-9-window_20260227/` — full spec + plan from roadmap Phase 9 (GLFW, event loop, CPU blit, 60 fps) + `16-realtime-display.md`.
-- [ ] Task 5.2: Create `conductor/tracks/phase-10-gpu-abstraction_20260227/` — `Renderer` interface, CPU/GPU backends from roadmap + `14`.
-- [ ] Task 5.3: Create `conductor/tracks/phase-11-webgpu_20260227/` — wgpu-native integration from roadmap + `14`.
-- [ ] Task 5.4: Create `conductor/tracks/phase-12-gpu-geometry_20260227/`.
-- [ ] Task 5.5: Create `conductor/tracks/phase-13-hlsl_20260227/` — HLSL → WGSL pipeline from roadmap + `15`.
-- [ ] Task 5.6: Create `conductor/tracks/phase-14-uniforms_20260227/`.
-- [ ] Task 5.7: Create `conductor/tracks/phase-15-lighting_20260227/`.
-- [ ] Task 5.8: Create `conductor/tracks/phase-16-advanced_20260227/`.
-- [ ] Task 5.9: Register all 8 pending tracks in `conductor/tracks.md`.
+- [x] Task 5.1: Create `conductor/tracks/phase-9-window_20260227/` — full spec + plan from roadmap Phase 9 (GLFW, event loop, CPU blit, 60 fps) + `16-realtime-display.md`.
+- [x] Task 5.2: Create `conductor/tracks/phase-10-gpu-abstraction_20260227/` — `Renderer` interface, CPU/GPU backends from roadmap + `14`.
+- [x] Task 5.3: Create `conductor/tracks/phase-11-webgpu_20260227/` — wgpu-native integration from roadmap + `14`.
+- [x] Task 5.4: Create `conductor/tracks/phase-12-gpu-geometry_20260227/`.
+- [x] Task 5.5: Create `conductor/tracks/phase-13-hlsl_20260227/` — HLSL → WGSL pipeline from roadmap + `15`.
+- [x] Task 5.6: Create `conductor/tracks/phase-14-uniforms_20260227/`.
+- [x] Task 5.7: Create `conductor/tracks/phase-15-lighting_20260227/`.
+- [x] Task 5.8: Create `conductor/tracks/phase-16-advanced_20260227/`.
+- [x] Task 5.9: Register all 8 pending tracks in `conductor/tracks.md`.
 
 ### Verification
 
-- [ ] 8 pending track directories exist with spec + plan.
-- [ ] Phase 9 plan is detailed enough to start `/conductor:implement`.
-- [ ] All 8 registered in `conductor/tracks.md` with status `pending`.
+- [x] 8 pending track directories exist with spec + plan.
+- [x] Phase 9 plan is detailed enough to start `/conductor:implement`.
+- [x] All 8 registered in `conductor/tracks.md` with status `pending`.
 
 ---
 

@@ -12,5 +12,13 @@
 | [x] | [phase-6-shading_20260227](./tracks/phase-6-shading_20260227/index.md) | Phase 6: Shader Package | 2026-02-27 | 2026-02-27 |
 | [x] | [phase-7-pipeline_20260227](./tracks/phase-7-pipeline_20260227/index.md) | Phase 7: Render Pipeline Integration | 2026-02-27 | 2026-02-27 |
 | [x] | [phase-8-polish_20260227](./tracks/phase-8-polish_20260227/index.md) | Phase 8: Testing & Polish (MVP Complete) | 2026-02-27 | 2026-02-27 |
+| [ ] | [phase-9-window_20260227](./tracks/phase-9-window_20260227/index.md) | Phase 9: Window & Real-time Display | 2026-02-27 | 2026-02-27 |
+| [ ] | [phase-10-gpu-abstraction_20260227](./tracks/phase-10-gpu-abstraction_20260227/index.md) | Phase 10: GPU Backend Abstraction | 2026-02-27 | 2026-02-27 |
+| [ ] | [phase-11-webgpu_20260227](./tracks/phase-11-webgpu_20260227/index.md) | Phase 11: WebGPU Integration | 2026-02-27 | 2026-02-27 |
+| [ ] | [phase-12-gpu-geometry_20260227](./tracks/phase-12-gpu-geometry_20260227/index.md) | Phase 12: GPU Geometry & Draw Pipeline | 2026-02-27 | 2026-02-27 |
+| [ ] | [phase-13-hlsl_20260227](./tracks/phase-13-hlsl_20260227/index.md) | Phase 13: HLSL Shader Pipeline | 2026-02-27 | 2026-02-27 |
+| [ ] | [phase-14-uniforms_20260227](./tracks/phase-14-uniforms_20260227/index.md) | Phase 14: Uniform Buffers & Per-Mesh Transforms | 2026-02-27 | 2026-02-27 |
+| [ ] | [phase-15-lighting_20260227](./tracks/phase-15-lighting_20260227/index.md) | Phase 15: Lighting, Normals & Physical Shading | 2026-02-27 | 2026-02-27 |
+| [ ] | [phase-16-advanced_20260227](./tracks/phase-16-advanced_20260227/index.md) | Phase 16: Advanced Features & Polish | 2026-02-27 | 2026-02-27 |
 
 <!-- Tracks registered by /conductor:new-track -->

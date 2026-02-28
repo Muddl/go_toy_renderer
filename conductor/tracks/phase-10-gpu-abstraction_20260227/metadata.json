@@ -1,0 +1,16 @@
+{
+  "id": "phase-10-gpu-abstraction_20260227",
+  "title": "Phase 10: GPU Backend Abstraction",
+  "type": "feature",
+  "status": "pending",
+  "created": "2026-02-27T00:00:00Z",
+  "updated": "2026-02-27T00:00:00Z",
+  "phases": {
+    "total": 3,
+    "completed": 0
+  },
+  "tasks": {
+    "total": 10,
+    "completed": 0
+  }
+}

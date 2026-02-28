@@ -1,0 +1,16 @@
+{
+  "id": "phase-12-gpu-geometry_20260227",
+  "title": "Phase 12: GPU Geometry & Draw Pipeline",
+  "type": "feature",
+  "status": "pending",
+  "created": "2026-02-27T00:00:00Z",
+  "updated": "2026-02-27T00:00:00Z",
+  "phases": {
+    "total": 3,
+    "completed": 0
+  },
+  "tasks": {
+    "total": 10,
+    "completed": 0
+  }
+}

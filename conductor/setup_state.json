@@ -1,0 +1,38 @@
+{
+  "status": "complete",
+  "project_type": "brownfield",
+  "completed_sections": ["product", "guidelines", "tech_stack", "workflow", "styleguides"],
+  "answers": {
+    "project_name": "go_toy_renderer",
+    "description": "A toy 3D renderer implemented in Go, progressing from a CPU software renderer to GPU-accelerated real-time rendering via WebGPU.",
+    "problem": "Understanding 3D graphics from first principles — implementing the full pipeline (CPU → GPU) rather than using a black-box engine.",
+    "target_users": "The author — a developer learning 3D graphics and GPU programming through hands-on implementation.",
+    "key_goals": "Learn the full 3D pipeline from scratch (math → rasterization → GPU shaders); produce working, well-tested code at each phase; build toward real-time GPU rendering via WebGPU + HLSL.",
+    "voice_tone": "Technical and precise — favour accuracy over friendliness; assume the reader knows Go.",
+    "design_principles": "Correctness first, performance second; simplicity over abstraction; testability at every layer; no over-engineering beyond current phase requirements. TDD strictly enforced; separation of concerns across pipeline stages; right-handed coordinate system; column-major matrices.",
+    "additional_standards": "All phases follow trunk-based development with PRs; never commit directly to main; each phase must have task summary + docs updated before marking complete.",
+    "language": "Go 1.24, stdlib only for now; wgpu-native and GLFW bindings will be added in Phases 9–11.",
+    "frontend": "None — rendered output is a PNG file (MVP) or real-time window via GLFW (Phase 9+).",
+    "backend": "None — pure Go, no web server; the backend is the rendering pipeline itself.",
+    "database": "None — assets will eventually be loaded from OBJ files (Phase 16), but no database.",
+    "infrastructure": "Local development machine; CI runs on GitHub Actions (Linux, macOS, Windows matrix).",
+    "tdd_strictness": "strict",
+    "commit_strategy": "conventional_commits",
+    "code_review": "required_all",
+    "verification": "after_phase",
+    "styleguides": ["go", "shell"],
+    "incorporate_existing_lint": true
+  },
+  "files_created": [
+    "conductor/index.md",
+    "conductor/product.md",
+    "conductor/product-guidelines.md",
+    "conductor/tech-stack.md",
+    "conductor/workflow.md",
+    "conductor/tracks.md",
+    "conductor/code_styleguides/go.md",
+    "conductor/code_styleguides/shell.md"
+  ],
+  "started_at": "2026-02-27T00:00:00Z",
+  "last_updated": "2026-02-27T00:00:00Z"
+}

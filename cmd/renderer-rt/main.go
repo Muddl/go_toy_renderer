@@ -18,8 +18,8 @@ func main() {
 		os.Exit(1)
 	}
 
-	if err := run(cfg); err != nil {
-		fmt.Fprintf(os.Stderr, "error: %v\n", err)
+	if runErr := run(cfg); runErr != nil {
+		fmt.Fprintf(os.Stderr, "error: %v\n", runErr)
 		os.Exit(1)
 	}
 }

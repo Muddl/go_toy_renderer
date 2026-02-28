@@ -37,7 +37,7 @@ jobs:
           fi
 
       - name: Run go vet
-        run: go vet ./...
+        run: go vet -tags=headless ./...
 
       - name: Verify dependencies
         run: |
@@ -68,7 +68,7 @@ jobs:
         uses: golangci/golangci-lint-action@v8
         with:
           version: latest
-          args: --timeout=5m --config=.golangci.yml
+          args: --timeout=5m --config=.golangci.yml --build-tags headless
 
   # Job 3: Multi-platform build matrix
   build:
@@ -93,6 +93,9 @@ jobs:
       - name: Build application
         run: go build -v -o renderer ./cmd/renderer
 
+      - name: Build renderer-rt (headless)
+        run: go build -tags=headless -v -o renderer-rt ./cmd/renderer-rt
+
       - name: Upload build artifact
         uses: actions/upload-artifact@v4
         with:
@@ -100,6 +103,8 @@ jobs:
           path: |
             renderer
             renderer.exe
+            renderer-rt
+            renderer-rt.exe
           if-no-files-found: ignore
           retention-days: 7
 
@@ -124,12 +129,12 @@ jobs:
           cache: true
 
       - name: Run tests with race detector
-        run: go test -race -v ./...
+        run: go test -tags=headless -race -v ./...
 
       - name: Run tests with coverage (Linux/Go 1.25 only)
         if: matrix.os == 'ubuntu-latest' && matrix.go-version == '1.25'
         run: |
-          go test -race -coverprofile=coverage.out -covermode=atomic ./...
+          go test -tags=headless -race -coverprofile=coverage.out -covermode=atomic ./...
           go tool cover -func=coverage.out
 
       - name: Check coverage thresholds (Linux/Go 1.25 only)

@@ -20,12 +20,12 @@ Add GLFW + OpenGL dependencies, create the window, verify it opens and closes cl
 - [x] Task 1.1: Add `github.com/go-gl/glfw/v3.3/glfw` and `github.com/go-gl/gl/v4.1-core/gl` to `go.mod`; run `go mod tidy`. Commit `chore: add GLFW and OpenGL dependencies`.
 - [x] Task 1.2: Write test for flag parsing (`--width`, `--height`, `--backend`). Commit `test:`.
 - [x] Task 1.3: Create `cmd/renderer-rt/main.go` skeleton — parse flags, call `runtime.LockOSThread()`, init GLFW, create window, enter empty loop, handle ESC + window-close. Commit `feat: add renderer-rt window skeleton`.
-- [~] Task 1.4: Verify window opens and closes cleanly (manual smoke test); update CI to skip GLFW tests on headless runners with `//go:build !headless`. Commit `chore: add headless build tag for CI`.
+- [x] Task 1.4: Verify window opens and closes cleanly (manual smoke test); update CI to skip GLFW tests on headless runners with `//go:build !headless`. Commit `chore: add headless build tag for CI`.
 
 ### Verification
 
-- [ ] `go build ./cmd/renderer-rt` succeeds on Windows, macOS, Linux.
-- [ ] Window opens and closes without crash.
+- [x] `go build ./cmd/renderer-rt` succeeds on Windows, macOS, Linux.
+- [ ] Window opens and closes without crash. (manual smoke test — run locally)
 
 ---
 

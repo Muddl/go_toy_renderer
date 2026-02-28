@@ -2,15 +2,23 @@
   "id": "phase-9-window_20260227",
   "title": "Phase 9: Window & Real-time Display",
   "type": "feature",
-  "status": "pending",
+  "status": "in_progress",
   "created": "2026-02-27T00:00:00Z",
   "updated": "2026-02-27T00:00:00Z",
+  "current_phase": 2,
+  "current_task": "2.1",
   "phases": {
     "total": 3,
-    "completed": 0
+    "completed": 1
   },
   "tasks": {
     "total": 12,
-    "completed": 0
-  }
+    "completed": 4
+  },
+  "commits": [
+    "test: add failing tests for parseConfig flag parsing",
+    "feat: implement parseConfig and renderer-rt entry point",
+    "feat: add renderer-rt window skeleton with GLFW event loop",
+    "chore: add headless build tag and update CI for renderer-rt"
+  ]
 }

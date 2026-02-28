@@ -34,3 +34,60 @@ The author — a developer learning 3D graphics and GPU programming through hand
 - **Phase 11:** Hello Triangle rendered via wgpu-native (WebGPU).
 - **Phase 13:** Full HLSL shader pipeline (vertex + fragment) running on the GPU.
 - **Phase 16:** Textured OBJ model rendered in real time with Phong/PBR shading.
+
+## Pipeline Overview
+
+```
+┌──────────────┐
+│ Scene Setup  │  Define geometry, camera, lights
+└──────┬───────┘
+       │
+┌──────▼───────┐
+│ Vertex Stage │  Transform vertices (Local → World → View → Clip → NDC → Screen)
+└──────┬───────┘
+       │
+┌──────▼───────┐
+│ Primitive    │  Assemble triangles, cull backfaces, reject W≤0
+│ Assembly     │
+└──────┬───────┘
+       │
+┌──────▼───────┐
+│ Rasterizer   │  Convert triangles to pixels, interpolate attributes
+└──────┬───────┘
+       │
+┌──────▼───────┐
+│ Fragment     │  Calculate per-pixel color (shading)
+│ Shader       │
+└──────┬───────┘
+       │
+┌──────▼───────┐
+│ Framebuffer  │  Write pixels with depth testing (depth < current)
+└──────┬───────┘
+       │
+┌──────▼───────┐
+│ Image Output │  Save framebuffer to PNG / blit to window
+└──────────────┘
+```
+
+**Vertex coordinate transform pipeline:**
+```
+clip  = mvp.MultiplyVec4(px, py, pz, 1.0)   // clip space
+ndcX  = cx/cw, ndcY = cy/cw, ndcZ = cz/cw  // NDC [-1, 1]
+depth = (ndcZ + 1) / 2                       // [0,1]: 0=near, 1=far
+sX    = (ndcX + 1) / 2 * width              // screen X (px)
+sY    = (1 - ndcY) / 2 * height             // screen Y (Y flipped)
+```
+
+## Coordinate System & Matrix Conventions
+
+| Convention | Value | Rationale |
+|-----------|-------|-----------|
+| Handedness | Right-handed | Standard in math and OpenGL; +X=Right, +Y=Up, +Z=Out |
+| Matrix storage | Column-major | Matches mathematical notation and GPU conventions |
+| Multiply order | `result = matrix × vector` | Multiply on right |
+| VP matrix | `Projection × View` | Pre-multiplied; applied per-vertex |
+| Depth buffer | 0.0 = near, 1.0 = far | OpenGL convention; `(ndcZ + 1) / 2` mapping |
+| Depth test | `depth < current` (closer wins) | Standard Z-buffer |
+| Triangle winding | Counter-clockwise (front face) | Enables backface culling |
+| Screen origin | Top-left (0,0); +Y down | Matches image format conventions |
+| Pixel center | `(ix + 0.5, iy + 0.5)` | Matches OpenGL pixel-center convention |

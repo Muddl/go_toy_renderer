@@ -15,6 +15,83 @@
 - Use epsilon comparison for floats: `±0.0001`.
 - Benchmark performance-critical paths only after functionality is proven correct.
 
+### Test Naming Convention
+
+```go
+// Unit tests
+func TestComponent_Behaviour_ExpectedOutcome(t *testing.T)
+// Examples:
+//   TestVec3_Add_ReturnsSumOfVectors
+//   TestMatrix_Multiply_HandlesIdentityMatrix
+//   TestRasterizer_Triangle_SkipsDegenerateTriangle
+
+// Table-driven tests
+func TestFunctionName_Cases(t *testing.T)
+
+// Integration tests
+func TestRender_Integration_ScenarioName(t *testing.T)
+
+// Golden image tests
+func TestRender_GoldenImage_SceneName(t *testing.T)
+
+// Benchmarks
+func BenchmarkComponent_Operation(b *testing.B)
+// Examples:
+//   BenchmarkRender_Cube_640x480
+//   BenchmarkTriangle_Rasterize_Large
+```
+
+### Coverage Thresholds
+
+| Package | Minimum | Current |
+|---------|---------|---------|
+| `pkg/math` | **>90%** | 96.1% ✅ |
+| `pkg/camera` | >80% | 100% ✅ |
+| `pkg/geometry` | >80% | ~100% ✅ |
+| `pkg/rasterize` | >80% | 100% ✅ |
+| `pkg/shader` | >80% | 100% ✅ |
+| `pkg/render` | >80% | 100% ✅ |
+| `pkg/framebuffer` | >80% | 90.2% ✅ |
+| Overall | **>70%** | Well above ✅ |
+
+Check coverage: `go test -cover ./...`
+Detailed report: `go test -coverprofile=coverage.out ./... && go tool cover -html=coverage.out`
+
+### Golden Image Tests
+
+After the rendering pipeline is complete or when visual output changes, golden image tests verify pixel-exact correctness:
+
+1. Render a deterministic scene (fixed geometry, fixed camera, fixed seed).
+2. Save as PNG.
+3. Byte-compare against reference in `testdata/`.
+4. Use `-update` flag to regenerate reference when rendering intentionally changes.
+
+```go
+// Pattern (see pkg/render/integration_test.go)
+func TestRender_GoldenImage_Triangle(t *testing.T) {
+    // render to 100×100 fb
+    // if *update flag: overwrite testdata/golden_triangle.png
+    // else: byte-compare against testdata/golden_triangle.png
+}
+```
+
+**Reference files** are committed to the repo in `testdata/` alongside the test.
+
+### Test Pyramid
+
+```
+        ┌─────────────┐
+        │  Golden     │  ← Few; visual regression guard
+        │  Image      │
+        ├─────────────┤
+        │ Integration │  ← Some; key pipeline workflows
+        │   Tests     │
+        ├─────────────┤
+        │    Unit     │  ← Many; fast, one behaviour each
+        │   Tests     │
+        └─────────────┘
+```
+
 ## Commit Strategy — Conventional Commits
 
 ```
@@ -88,10 +165,11 @@ A phase is only **complete** when ALL of the following are done:
 2. **PR merged** — Feature branch merged to `main` and deleted.
 3. **Task summary** — `.claude/tasks/<date>_<phase>.md` created.
 4. **Documentation updated:**
-   - Relevant `.claude/docs/` component doc updated (status, API examples, coverage).
-   - `.claude/docs/12-development-roadmap.md` — phase marked ✅ COMPLETED.
-   - `.claude/docs/10-mvp-features.md` — feature statuses updated.
-   - `.claude/docs/README.md` — Last Updated + Next Steps refreshed.
+   - `conductor/architecture.md` — update API summary table and coverage for affected packages.
+   - Relevant archived track in `conductor/tracks/` marked complete in `plan.md` and `metadata.json`.
+   - `conductor/tracks.md` — track status updated to `[x]`.
+   - `conductor/index.md` — Active Tracks section updated.
+   - `CLAUDE.md` — Recent Updates section reflects phase completion (last 3 entries only).
 5. **CLAUDE.md** — Recent Updates section reflects phase completion.
 
 ## Task Lifecycle

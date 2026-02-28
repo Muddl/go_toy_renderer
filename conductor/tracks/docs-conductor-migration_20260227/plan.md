@@ -40,16 +40,16 @@ Update the 5 artifacts created during setup with richer content sourced from the
 
 ### Tasks
 
-- [ ] Task 2.1: Enrich `conductor/product.md` — add architecture summary, pipeline data-flow diagram (ASCII from `02`), coordinate system and matrix convention.
-- [ ] Task 2.2: Enrich `conductor/tech-stack.md` — add package dependency table (from `02`), CI matrix details (from `13`), GPU planned deps table (from `14`/`15`/`16`).
-- [ ] Task 2.3: Enrich `conductor/workflow.md` — add test naming conventions, coverage thresholds (>90% math, >80% core, >70% overall), phase completion checklist, golden image test guidance.
-- [ ] Task 2.4: Enrich `conductor/product-guidelines.md` — add "Common Gotchas" section (math, transforms, rasterization, pipeline).
+- [x] Task 2.1: Enrich `conductor/product.md` — add architecture summary, pipeline data-flow diagram (ASCII from `02`), coordinate system and matrix convention.
+- [x] Task 2.2: Enrich `conductor/tech-stack.md` — add package dependency table (from `02`), CI matrix details (from `13`), GPU planned deps table (from `14`/`15`/`16`).
+- [x] Task 2.3: Enrich `conductor/workflow.md` — add test naming conventions, coverage thresholds (>90% math, >80% core, >70% overall), phase completion checklist, golden image test guidance.
+- [x] Task 2.4: Enrich `conductor/product-guidelines.md` — add "Common Gotchas" section (math, transforms, rasterization, pipeline).
 
 ### Verification
 
-- [ ] Each core artifact reviewed against its source docs — no key content missing.
-- [ ] `conductor/tech-stack.md` GPU table matches `14`/`15`/`16`.
-- [ ] `conductor/workflow.md` coverage thresholds correct.
+- [x] Each core artifact reviewed against its source docs — no key content missing.
+- [x] `conductor/tech-stack.md` GPU table matches `14`/`15`/`16`.
+- [x] `conductor/workflow.md` coverage thresholds correct.
 
 ---
 

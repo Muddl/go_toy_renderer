@@ -40,14 +40,63 @@
 
 None. Assets will eventually be loaded from OBJ files (Phase 16) — no database.
 
+## Package Dependency Graph
+
+Dependencies flow in **one direction only** — lower packages never import higher ones.
+
+```
+cmd/renderer       → pkg/render, pkg/framebuffer, pkg/camera, pkg/geometry, pkg/shader
+cmd/renderer-rt    → pkg/renderer (Phase 9+), pkg/window (Phase 9+)
+pkg/render         → pkg/rasterize, pkg/shader, pkg/framebuffer, pkg/camera, pkg/geometry, pkg/math
+pkg/renderer       → pkg/render, pkg/gpu (Phase 10+)
+pkg/gpu            → pkg/geometry, pkg/math (Phase 11+)
+pkg/rasterize      → pkg/shader, pkg/framebuffer, pkg/math
+pkg/shader         → pkg/math
+pkg/framebuffer    → pkg/math
+pkg/camera         → pkg/math
+pkg/geometry       → pkg/math
+pkg/math           → (stdlib only)
+```
+
 ## Infrastructure & CI
+
+### CI Pipeline — GitHub Actions (`.github/workflows/ci.yml`)
+
+**6 jobs, run in parallel after format-validate:**
+
+| Job | Duration | What it does |
+|-----|----------|-------------|
+| `format-validate` | ~30 s | `gofmt`, `go vet`, `go mod tidy` |
+| `lint` | ~1–2 min | golangci-lint v2 (30+ linters) |
+| `build` | ~2–3 min | 3 OS × 2 Go versions = 6 matrix combinations |
+| `test` | ~3–5 min | Race detector + coverage enforcement |
+| `security` | ~1–2 min | govulncheck vulnerability scan |
+| `ci-success` | ~5 s | Aggregate pass/fail for branch protection |
+
+**Build matrix:** Linux × macOS × Windows, Go 1.24 × Go 1.25
+**Coverage enforcement:** Overall ≥70%; math package ≥90%
+**Total runtime:** ~5–8 minutes
+
+### Security Pipeline (`.github/workflows/security.yml`)
+
+Triggers: weekly (Mon 9 AM UTC) + manual dispatch + push to `main` with go.mod changes.
+
+| Scan | Tool |
+|------|------|
+| Known CVEs | govulncheck |
+| Dependency review | GitHub dependency-review-action (PRs only) |
+| Static security | gosec (SARIF → GitHub Security tab) |
+| License compliance | license scan |
+
+### Tooling
 
 | Tool | Purpose |
 |------|---------|
-| GitHub Actions | CI/CD — build matrix (Linux/macOS/Windows × Go 1.24/1.25) |
-| golangci-lint v2 | Static analysis (30+ linters, see `.golangci.yml`) |
+| GitHub Actions | CI/CD pipeline |
+| golangci-lint v2 | 30+ linters (`.golangci.yml`) |
+| gofmt / gofumpt / goimports | Code formatting (enforced in pre-commit + CI) |
 | govulncheck | Security vulnerability scanning |
-| `.githooks/pre-commit` | Local pre-commit hook (fmt → vet → lint) |
+| `.githooks/pre-commit` | Local hook: `go fmt` → `go vet` → `golangci-lint` |
 
 ## Development Environment
 

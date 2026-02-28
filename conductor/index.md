@@ -15,15 +15,14 @@ Navigation hub for project context.
 
 ## Active Tracks
 
-| Track ID | Title | Status |
-| -------- | ----- | ------ |
-| [ci-hardening_20260228](./tracks/ci-hardening_20260228/index.md) | CI Pipeline Hardening | Pending |
+_No active tracks._
 
 ## Completed Tracks
 
 | Track ID | Title | Status |
 | -------- | ----- | ------ |
 | [docs-conductor-migration_20260227](./tracks/docs-conductor-migration_20260227/index.md) | Migrate .claude/ Context into Conductor Artifacts | Complete ✅ |
+| [ci-hardening_20260228](./tracks/ci-hardening_20260228/index.md) | CI Pipeline Hardening | Complete ✅ |
 
 ## Getting Started
 

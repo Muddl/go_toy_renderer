@@ -84,8 +84,8 @@ go generate ./assets/shaders/
 
 ## Recent Updates
 
-**2026-02-27 (Latest):** Conductor migration complete — all `.claude/docs/` and `.claude/tasks/` content migrated into `conductor/` artifacts. 9 archived tracks (Phases 0–8) + 8 pending GPU tracks (Phases 9–16) created. CLAUDE.md trimmed to pointer document.
+**2026-02-28 (Latest):** CI hardening complete — pinned Go to 1.24, golangci-lint to v2.1.6, govulncheck to v1.1.3, gosec to v2.22.0; split Windows race-detector step; removed `|| true` from license enforcement. See `conductor/ci-fragility.md`.
+
+**2026-02-27:** Conductor migration complete — all `.claude/docs/` and `.claude/tasks/` content migrated into `conductor/` artifacts. 9 archived tracks (Phases 0–8) + 8 pending GPU tracks (Phases 9–16) created. CLAUDE.md trimmed to pointer document.
 
 **2026-02-27:** GPU Roadmap set — WebGPU (wgpu-native) + HLSL→WGSL via naga-cli across Phases 9–16. New docs: `14-gpu-backend.md`, `15-hlsl-shader-pipeline.md`, `16-realtime-display.md`. Architecture and CLAUDE.md updated.
-
-**2026-02-27:** Phase 8 Complete — MVP done. Golden image test `TestRender_GoldenImage_Triangle`, 7 integration tests, benchmarks (~1.2 ms/frame, ~58 ns/vertex), full README written.

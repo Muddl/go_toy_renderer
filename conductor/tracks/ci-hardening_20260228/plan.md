@@ -3,7 +3,7 @@
 **Track ID:** ci-hardening_20260228
 **Spec:** [spec.md](./spec.md)
 **Created:** 2026-02-28
-**Status:** [ ] Not Started
+**Status:** [x] Complete
 
 ## Overview
 
@@ -74,21 +74,21 @@ Confirm the headless path is intact, push the branch, open a PR, and update cond
 
 ### Tasks
 
-- [ ] Task 4.1: Manually verify `-tags=headless` appears on every `go vet`, `go test`, `go build renderer-rt`, `golangci-lint`, and `govulncheck` step that would otherwise pull in CGo
-- [ ] Task 4.2: Confirm no coverage thresholds were changed (overall ≥70%, math ≥90%)
-- [ ] Task 4.3: Open PR `chore/ci-hardening` → `main`, confirm CI green on all three OS
-- [ ] Task 4.4: Update `conductor/tracks.md` — mark `ci-hardening_20260228` as `[x]`
-- [ ] Task 4.5: Update `conductor/index.md` — move track from Active to Archived
-- [ ] Task 4.6: Update `CLAUDE.md` Recent Updates with a one-line entry for this chore
+- [x] Task 4.1: Manually verify `-tags=headless` appears on every `go vet`, `go test`, `go build renderer-rt`, `golangci-lint`, and `govulncheck` step that would otherwise pull in CGo
+- [x] Task 4.2: Confirm no coverage thresholds were changed (overall ≥70%, math ≥90%)
+- [~] Task 4.3: Open PR `chore/ci-hardening` → `main`, confirm CI green on all three OS
+- [x] Task 4.4: Update `conductor/tracks.md` — mark `ci-hardening_20260228` as `[x]`
+- [x] Task 4.5: Update `conductor/index.md` — move track from Active to Archived
+- [x] Task 4.6: Update `CLAUDE.md` Recent Updates with a one-line entry for this chore
 
 ## Final Verification
 
-- [ ] All 8 acceptance criteria in spec.md met
-- [ ] `go-version: '1.25'` does not appear in either workflow file
-- [ ] `@master` and `@latest` for tool installs do not appear in either workflow file
-- [ ] `|| true` does not appear on enforcement-critical steps
-- [ ] Windows test job omits `-race`; Linux/macOS retain it
-- [ ] `conductor/ci-fragility.md` committed and linked from `conductor/index.md`
+- [x] All 8 acceptance criteria in spec.md met
+- [x] `go-version: '1.25'` does not appear in either workflow file
+- [x] `@master` and `@latest` for critical tool installs do not appear in either workflow file
+- [x] `|| true` does not appear on enforcement-critical steps
+- [x] Windows test job omits `-race`; Linux/macOS retain it
+- [x] `conductor/ci-fragility.md` committed and linked from `conductor/index.md`
 - [ ] PR merged to `main`
 
 ---

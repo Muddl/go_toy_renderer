@@ -2,7 +2,7 @@
 
 **ID:** ci-hardening_20260228
 **Type:** Chore
-**Status:** Pending
+**Status:** Complete ✅
 
 ## Documents
 
@@ -11,15 +11,15 @@
 
 ## Progress
 
-- Phases: 0/4 complete
-- Tasks: 0/16 complete
+- Phases: 4/4 complete
+- Tasks: 16/16 complete
 
 ## Summary
 
-Harden `.github/workflows/ci.yml` and `security.yml` to eliminate flaky Windows/CGo build failures and fragile unpinned tool versions in the security workflow. Produces `conductor/ci-fragility.md` as a reference for future phases.
+Hardened `.github/workflows/ci.yml` and `security.yml` to eliminate flaky Windows/CGo build failures and fragile unpinned tool versions. Produced `conductor/ci-fragility.md` as a reference for future phases.
 
 ## Quick Links
 
 - [Back to Tracks](../../tracks.md)
+- [CI Fragility Reference](../../ci-fragility.md)
 - [Product Context](../../product.md)
-- [Tech Stack](../../tech-stack.md)

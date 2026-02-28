@@ -35,10 +35,10 @@ Upload CPU framebuffer pixels as an OpenGL texture and display them fullscreen.
 
 ### Tasks
 
-- [ ] Task 2.1: Write test for `framebufferToRGBA(fb *framebuffer.Framebuffer) []byte` conversion — verifies float→uint8 with clamping. Commit `test:`.
-- [ ] Task 2.2: Implement `framebufferToRGBA`. Commit `feat:`.
-- [ ] Task 2.3: Create OpenGL texture + fullscreen quad; upload CPU framebuffer bytes each frame via `gl.TexSubImage2D`. Commit `feat: blit CPU framebuffer to OpenGL texture`.
-- [ ] Task 2.4: Measure frame time; add `time.Sleep` to cap at ~60 fps. Commit `feat: cap frame rate at 60 fps`.
+- [x] Task 2.1: Write test for `framebufferToRGBA(fb *framebuffer.Framebuffer) []byte` conversion — verifies float→uint8 with clamping. Commit `test:`.
+- [x] Task 2.2: Implement `framebufferToRGBA`. Commit `feat:`.
+- [x] Task 2.3: Create OpenGL texture + fullscreen quad; upload CPU framebuffer bytes each frame via `gl.TexSubImage2D`. Commit `feat: blit CPU framebuffer to OpenGL texture`.
+- [x] Task 2.4: Measure frame time; add `time.Sleep` to cap at ~60 fps. Commit `feat: cap frame rate at 60 fps`.
 
 ### Verification
 

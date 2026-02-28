@@ -4,21 +4,24 @@
   "type": "feature",
   "status": "in_progress",
   "created": "2026-02-27T00:00:00Z",
-  "updated": "2026-02-27T00:00:00Z",
-  "current_phase": 2,
-  "current_task": "2.1",
+  "updated": "2026-02-28T00:00:00Z",
+  "current_phase": 3,
+  "current_task": "3.1",
   "phases": {
     "total": 3,
-    "completed": 1
+    "completed": 2
   },
   "tasks": {
     "total": 12,
-    "completed": 4
+    "completed": 8
   },
   "commits": [
     "test: add failing tests for parseConfig flag parsing",
     "feat: implement parseConfig and renderer-rt entry point",
     "feat: add renderer-rt window skeleton with GLFW event loop",
-    "chore: add headless build tag and update CI for renderer-rt"
+    "chore: add headless build tag and update CI for renderer-rt",
+    "test: add failing tests for framebufferToRGBA conversion",
+    "feat: implement framebufferToRGBA float64-to-RGBA conversion",
+    "feat: blit CPU framebuffer to OpenGL texture at 60 fps"
   ]
 }

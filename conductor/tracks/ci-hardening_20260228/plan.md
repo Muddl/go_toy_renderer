@@ -22,7 +22,7 @@ Produce `conductor/ci-fragility.md` cataloguing every fragile pattern found in b
 
 ### Verification
 
-- [ ] `conductor/ci-fragility.md` exists and covers all 8 patterns from the spec
+- [x] `conductor/ci-fragility.md` exists and covers all 8 patterns from the spec
 
 ---
 
@@ -32,19 +32,19 @@ Fix all four fragile patterns in the main CI workflow without touching the pipel
 
 ### Tasks
 
-- [ ] Task 2.1: Split the test job's race-detector step — add `if: matrix.os != 'windows-latest'` to the race step; add a separate Windows-only step running `go test -tags=headless -v ./...` (no `-race`)
-- [ ] Task 2.2: Replace all `go-version: '1.25'` references with `go-version: '1.24'` in `format-validate`, `lint`, `test`, and `security` jobs
-- [ ] Task 2.3: Pin the golangci-lint binary version in the `lint` job — change `version: latest` to `version: v2.1.6` (or current latest stable)
-- [ ] Task 2.4: Pin `govulncheck` install in the `security` job — change `@latest` to `@v1.1.3`
+- [x] Task 2.1: Split the test job's race-detector step — add `if: matrix.os != 'windows-latest'` to the race step; add a separate Windows-only step running `go test -tags=headless -v ./...` (no `-race`)
+- [x] Task 2.2: Replace all `go-version: '1.25'` references with `go-version: '1.24'` in `format-validate`, `lint`, `test`, and `security` jobs
+- [x] Task 2.3: Pin the golangci-lint binary version in the `lint` job — change `version: latest` to `version: v2.1.6` (or current latest stable)
+- [x] Task 2.4: Pin `govulncheck` install in the `security` job — change `@latest` to `@v1.1.3`
 
 ### Verification
 
-- [ ] `go-version: '1.25'` does not appear anywhere in `ci.yml`
-- [ ] `version: latest` does not appear in the golangci-lint step
-- [ ] `govulncheck@latest` does not appear in `ci.yml`
-- [ ] Windows test step does not include `-race`
-- [ ] Linux/macOS test step still includes `-race`
-- [ ] `-tags=headless` is present on all `go test` and `go build` steps for `renderer-rt`
+- [x] `go-version: '1.25'` does not appear anywhere in `ci.yml`
+- [x] `version: latest` does not appear in the golangci-lint step
+- [x] `govulncheck@latest` does not appear in `ci.yml`
+- [x] Windows test step does not include `-race`
+- [x] Linux/macOS test step still includes `-race`
+- [x] `-tags=headless` is present on all `go test` and `go build` steps for `renderer-rt`
 
 ---
 

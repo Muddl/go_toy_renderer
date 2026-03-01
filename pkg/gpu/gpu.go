@@ -17,7 +17,7 @@ import (
 
 // helloTriangleWGSL is an inline WGSL shader for the Hello Triangle.
 // Vertex: positions are computed from vertex_index (no vertex buffer needed).
-// Fragment: solid orange colour.
+// Fragment: solid orange color.
 const helloTriangleWGSL = `
 @vertex
 fn vs_main(@builtin(vertex_index) in_vertex_index: u32) -> @builtin(position) vec4<f32> {
@@ -50,7 +50,7 @@ type NativeWindowHandle struct {
 }
 
 // Device holds the wgpu initialization chain and render resources.
-// Create with [New] and initialise with [Device.Init] before calling
+// Create with [New] and initialize with [Device.Init] before calling
 // [Device.RenderFrame].
 type Device struct {
 	instance *wgpu.Instance
@@ -76,7 +76,7 @@ func (d *Device) IsReady() bool { return d.ready }
 // Used in integration tests to verify the init chain ran up to queue acquisition.
 func (d *Device) HasQueue() bool { return d.queue != nil }
 
-// Init initialises wgpu and prepares the Device for rendering.
+// Init initializes wgpu and prepares the Device for rendering.
 // handle contains the platform-specific native window pointers (populated by
 // pkg/renderer using GLFW native handle functions).
 // width and height are the initial swap-chain dimensions in pixels.
@@ -147,7 +147,7 @@ func (d *Device) Init(width, height uint32, handle NativeWindowHandle) error {
 
 	// Step 9: Create the render pipeline (no vertex buffers needed).
 	pipeline := dev.CreateRenderPipelineSimple(
-		nil,            // auto layout
+		nil, // auto layout
 		shader, "vs_main",
 		shader, "fs_main",
 		d.format,
@@ -165,7 +165,7 @@ func (d *Device) Init(width, height uint32, handle NativeWindowHandle) error {
 // Returns an error if Init has not been called successfully.
 func (d *Device) RenderFrame() error {
 	if !d.ready {
-		return errors.New("gpu: Device not initialised — call Init first")
+		return errors.New("gpu: Device not initialized — call Init first")
 	}
 
 	// Acquire the current swap-chain texture.

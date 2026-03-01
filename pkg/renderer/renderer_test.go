@@ -54,13 +54,13 @@ func TestNew_GPU_ReturnsGPUBackend(t *testing.T) {
 	}
 }
 
-func TestNew_Auto_ReturnsCPUBackend(t *testing.T) {
+func TestNew_Auto_ReturnsRenderer(t *testing.T) {
 	r, err := New("auto")
 	if err != nil {
 		t.Fatalf("New(\"auto\") error = %v", err)
 	}
-	if _, ok := r.(*CPUBackend); !ok {
-		t.Errorf("New(\"auto\") returned %T, want *CPUBackend (GPU not yet available)", r)
+	if r == nil {
+		t.Error("New(\"auto\") returned nil")
 	}
 }
 

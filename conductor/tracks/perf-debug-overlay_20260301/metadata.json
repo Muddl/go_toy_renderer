@@ -5,15 +5,15 @@
   "status": "in_progress",
   "created": "2026-03-01T00:00:00Z",
   "updated": "2026-03-01T00:00:00Z",
-  "current_phase": 2,
-  "current_task": "2.1",
+  "current_phase": 3,
+  "current_task": "3.1",
   "phases": {
     "total": 4,
-    "completed": 1
+    "completed": 2
   },
   "tasks": {
     "total": 15,
-    "completed": 6
+    "completed": 9
   },
   "commits": [
     "fa3da44: test: add failing tests for Metrics and Level/CycleLevel (perf-debug-overlay_20260301)",
@@ -21,6 +21,9 @@
     "a2b3437: test: add failing tests for Sampler rolling FPS (perf-debug-overlay_20260301)",
     "87f59b1: feat: implement Sampler rolling-average FPS circular buffer (perf-debug-overlay_20260301)",
     "03ee4fc: test: add failing tests for bitmap font GlyphFor and dimensions (perf-debug-overlay_20260301)",
-    "1ce9b34: feat: implement bitmap font, TextLayer renderer, and text tests (perf-debug-overlay_20260301)"
+    "1ce9b34: feat: implement bitmap font, TextLayer renderer, and text tests (perf-debug-overlay_20260301)",
+    "a41056d: test: add failing tests for ComposeIntoFramebuffer overlay compositing (perf-debug-overlay_20260301)",
+    "fd11edf: feat: implement ComposeIntoFramebuffer alpha-blend overlay into framebuffer (perf-debug-overlay_20260301)",
+    "193f718: feat: wire overlay into CPUBackend — F3 key, frame timing, compositing (perf-debug-overlay_20260301)"
   ]
 }

@@ -50,14 +50,14 @@ buffer before the GLFW/OpenGL blit. No new CGO required.
 
 ### Tasks
 
-- [ ] Task 2.1: Write failing test for `ComposeIntoFramebuffer` — validates
+- [x] Task 2.1: Write failing test for `ComposeIntoFramebuffer` — validates
       that text pixels are written to the framebuffer at the expected top-left
       offset; framebuffer pixels at non-overlay positions are unchanged.
       Commit `test:`.
-- [ ] Task 2.2: Implement `pkg/overlay/draw.go` (`!headless`) —
+- [x] Task 2.2: Implement `pkg/overlay/draw.go` (`!headless`) —
       `ComposeIntoFramebuffer(layer *TextLayer, fb *framebuffer.Framebuffer)`;
       add no-op `pkg/overlay/draw_headless.go` stub. Commit `feat:`.
-- [ ] Task 2.3: Wire into `pkg/renderer/cpu.go`:
+- [x] Task 2.3: Wire into `pkg/renderer/cpu.go`:
         • add `glfw.KeyF3` callback → `overlay.CycleLevel()`
         • wrap render sub-phases with `time.Since` → populate `Metrics`
         • call `ComposeIntoFramebuffer` after scene render, before blit.
@@ -65,9 +65,9 @@ buffer before the GLFW/OpenGL blit. No new CGO required.
 
 ### Verification
 
-- [ ] Run `go run ./cmd/renderer-rt --backend cpu`; F3 cycles overlay levels
+- [x] Run `go run ./cmd/renderer-rt --backend cpu`; F3 cycles overlay levels
       visibly in the window.
-- [ ] `go test -tags headless ./...` still green.
+- [x] `go test -tags headless ./...` still green.
 
 ---
 

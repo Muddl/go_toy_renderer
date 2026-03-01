@@ -3,7 +3,7 @@
 **Track ID:** phase-12-gpu-geometry_20260227
 **Spec:** [spec.md](./spec.md)
 **Created:** 2026-02-27
-**Status:** [ ] Not Started
+**Status:** [~] In Progress
 
 ## Overview
 
@@ -15,7 +15,7 @@ Upload `pkg/geometry.Mesh` vertex and index data to GPU buffers and render the c
 
 ### Tasks
 
-- [ ] Task 1.1: Write test for `pkg/gpu.PackVertices([]geometry.Vertex) []float32` — verify position + colour packing and stride. Commit `test:`.
+- [~] Task 1.1: Write test for `pkg/gpu.PackVertices([]geometry.Vertex) []float32` — verify position + colour packing and stride. Commit `test:`.
 - [ ] Task 1.2: Implement `PackVertices` and `VertexBuffer` helper (`CreateBuffer` with `Vertex | CopyDst` usage). Commit `feat: add vertex buffer helper`.
 - [ ] Task 1.3: Write test for `IndexBuffer` helper; implement. Commit `test:` then `feat:`.
 

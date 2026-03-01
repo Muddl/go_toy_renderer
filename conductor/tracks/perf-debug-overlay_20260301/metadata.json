@@ -1,0 +1,26 @@
+{
+  "id": "perf-debug-overlay_20260301",
+  "title": "Live Performance Debug Overlay",
+  "type": "feature",
+  "status": "in_progress",
+  "created": "2026-03-01T00:00:00Z",
+  "updated": "2026-03-01T00:00:00Z",
+  "current_phase": 2,
+  "current_task": "2.1",
+  "phases": {
+    "total": 4,
+    "completed": 1
+  },
+  "tasks": {
+    "total": 15,
+    "completed": 6
+  },
+  "commits": [
+    "fa3da44: test: add failing tests for Metrics and Level/CycleLevel (perf-debug-overlay_20260301)",
+    "a32fd7b: feat: implement Metrics, Level, Overlay, CycleLevel (perf-debug-overlay_20260301)",
+    "a2b3437: test: add failing tests for Sampler rolling FPS (perf-debug-overlay_20260301)",
+    "87f59b1: feat: implement Sampler rolling-average FPS circular buffer (perf-debug-overlay_20260301)",
+    "03ee4fc: test: add failing tests for bitmap font GlyphFor and dimensions (perf-debug-overlay_20260301)",
+    "1ce9b34: feat: implement bitmap font, TextLayer renderer, and text tests (perf-debug-overlay_20260301)"
+  ]
+}

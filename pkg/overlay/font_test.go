@@ -9,7 +9,8 @@ import (
 // TestFont_Glyph_KnownChars_HaveNonZeroPixels verifies that printable ASCII
 // characters return glyphs with at least one lit pixel.
 func TestFont_Glyph_KnownChars_HaveNonZeroPixels(t *testing.T) {
-	printable := "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ :./%-"
+	// Space is intentionally blank; exclude it from the lit-pixel check.
+	printable := "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ:./%-"
 	for _, ch := range printable {
 		g := overlay.GlyphFor(byte(ch))
 		lit := 0

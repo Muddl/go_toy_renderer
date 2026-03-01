@@ -76,13 +76,13 @@ func NewCube() *Mesh {
 	// Add 12 triangles (2 per face) with counter-clockwise winding when viewed from outside
 	// Each quad face is split into 2 triangles
 
-	// Bottom face (Y = -0.5) - looking from below, CCW = 0,1,2 and 0,2,3
-	mesh.AddTriangle(0, 2, 1)
-	mesh.AddTriangle(0, 3, 2)
+	// Bottom face (Y = -0.5): normal must point down (-Y); CCW from below = 0,1,2 and 0,2,3
+	mesh.AddTriangle(0, 1, 2)
+	mesh.AddTriangle(0, 2, 3)
 
-	// Top face (Y = 0.5) - looking from above, CCW = 4,5,6 and 4,6,7
-	mesh.AddTriangle(4, 5, 6)
-	mesh.AddTriangle(4, 6, 7)
+	// Top face (Y = 0.5): normal must point up (+Y); CCW from above = 4,6,5 and 4,7,6
+	mesh.AddTriangle(4, 6, 5)
+	mesh.AddTriangle(4, 7, 6)
 
 	// Front face (Z = 0.5) - looking from front, CCW = 3,2,6 and 3,6,7
 	mesh.AddTriangle(3, 2, 6)

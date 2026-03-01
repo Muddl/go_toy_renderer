@@ -86,8 +86,12 @@ func (d *Device) Init(width, height uint32, handle NativeWindowHandle) error {
 	}
 	d.surface = surface
 
-	// Step 4: Request a GPU adapter (physical device selection).
-	adapter, err := inst.RequestAdapter(nil)
+	// Step 4: Request a GPU adapter that is compatible with our surface.
+	// CompatibleSurface ensures the selected adapter's queue family supports
+	// presenting to the surface, preventing the "queue family" validation error.
+	adapter, err := inst.RequestAdapter(&wgpu.RequestAdapterOptions{
+		CompatibleSurface: surface.Handle(),
+	})
 	if err != nil {
 		return fmt.Errorf("gpu: request adapter: %w", err)
 	}

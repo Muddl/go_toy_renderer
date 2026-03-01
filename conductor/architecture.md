@@ -294,7 +294,11 @@ Factory: `renderer.New(backend string) (Renderer, error)` — `backend` is `"cpu
 | `GPUBackend` | struct | Stub; `Init`→nil, `RenderFrame`→"GPU not yet implemented" |
 | `New` | `(backend string) (Renderer, error)` | `"auto"` → CPUBackend (GPU-first in Phase 11) |
 
-### GPU Pipeline (Phase 11+, wgpu-native / WebGPU)
+### GPU Pipeline (Phase 11+, go-webgpu/webgpu / WebGPU)
+
+Binding: `github.com/go-webgpu/webgpu/wgpu` v0.4.0 — **Zero-CGo FFI** (no CGo
+compiler required; loads wgpu-native shared library at runtime via
+`WGPU_NATIVE_PATH`).
 
 ```
 ┌──────────────┐
@@ -323,6 +327,14 @@ Factory: `renderer.New(backend string) (Renderer, error)` — `backend` is `"cpu
 ┌──────▼───────┐
 │ Swap Chain   │  BGRA8Unorm back buffer; present via D3D12/Metal/Vulkan
 └──────────────┘
+```
+
+**wgpu init chain (Phase 11):**
+```
+wgpu.Init()                       // load wgpu-native shared lib
+wgpu.CreateInstance(nil)          // Instance
+instance.RequestAdapter(nil)      // Adapter (GPU selection)
+adapter.RequestDevice(nil)        // Device + Queue
 ```
 
 ### Platform → Backend
@@ -375,7 +387,8 @@ cmd/
 
 ### GPU Testing Notes
 
-GPU tests must be skippable in CI (no GPU on runners):
+`pkg/gpu` uses **Zero-CGo FFI** — no build tags needed for compilation.
+GPU integration tests are skipped at runtime when no library is available:
 
 ```go
 func TestGPUDevice_Init(t *testing.T) {
@@ -385,7 +398,13 @@ func TestGPUDevice_Init(t *testing.T) {
 }
 ```
 
-Run locally: `GPU_TESTS=1 go test ./pkg/gpu/...`
+Run locally (with wgpu-native shared library):
+```
+GPU_TESTS=1 WGPU_NATIVE_PATH=/path/to/libwgpu_native.dll go test ./pkg/gpu/...
+```
+
+CI (`-tags=headless`): GPU tests skip automatically (no `GPU_TESTS=1` set);
+`pkg/gpu` compiles without modification — no `gpu_headless.go` stub needed.
 
 GPU visual output is validated against the CPU renderer with ±2 per-channel tolerance.
 

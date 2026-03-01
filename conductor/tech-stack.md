@@ -25,7 +25,7 @@
 | Package | Phase | Purpose |
 |---------|-------|---------|
 | `github.com/go-gl/glfw` | 9 | Window creation, input, event loop |
-| `wgpu-native` (CGo binding) | 11 | WebGPU backend (D3D12/Metal/Vulkan) |
+| `go-webgpu/webgpu` v0.4.0 (Zero-CGo FFI) | 11 | WebGPU backend (D3D12/Metal/Vulkan); set `WGPU_NATIVE_PATH` at runtime |
 | `naga-cli` (external tool) | 13 | HLSL → WGSL shader compilation |
 | DXC or naga | 13 | HLSL cross-compilation toolchain |
 

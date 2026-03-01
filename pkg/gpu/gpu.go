@@ -31,6 +31,13 @@ type Device struct {
 // New returns a new, uninitialised Device.
 func New() *Device { return &Device{} }
 
+// IsReady returns true if Init completed successfully and the device is ready to render.
+func (d *Device) IsReady() bool { return d.ready }
+
+// HasQueue returns true if the wgpu queue was acquired during Init.
+// Used in integration tests to verify the init chain ran up to queue acquisition.
+func (d *Device) HasQueue() bool { return d.queue != nil }
+
 // Init initialises wgpu and prepares the Device for rendering.
 // surface must be a valid platform surface obtained from the GLFW window.
 // width and height are the initial swap-chain dimensions in pixels.

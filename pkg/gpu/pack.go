@@ -19,10 +19,12 @@ func PackVertices(vertices []geometry.Vertex) []float32 {
 }
 
 // PackIndices converts a slice of int indices into []uint32 for GPU index buffer upload.
+// Mesh indices are validated to be in [0, len(Vertices)) by Mesh.ValidateIndices,
+// so the int→uint32 conversion cannot overflow in practice.
 func PackIndices(indices []int) []uint32 {
 	out := make([]uint32, len(indices))
 	for i, idx := range indices {
-		out[i] = uint32(idx)
+		out[i] = uint32(idx) //nolint:gosec // bounded by mesh vertex count
 	}
 	return out
 }

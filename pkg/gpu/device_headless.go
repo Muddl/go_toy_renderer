@@ -2,7 +2,11 @@
 
 package gpu
 
-import "errors"
+import (
+	"errors"
+
+	"github.com/muddl/go_toy_renderer/pkg/geometry"
+)
 
 // Device is a compile-time stub for headless (CI) builds where no GPU or
 // wgpu library is available. The real Device (requiring CGO_ENABLED=0 via
@@ -25,6 +29,11 @@ func (d *Device) Init(_, _ uint32, _ NativeWindowHandle) error {
 
 // RenderFrame returns an error in headless builds.
 func (d *Device) RenderFrame() error {
+	return errors.New("gpu: not available in headless builds")
+}
+
+// LoadGeometry returns an error in headless builds — no GPU device available.
+func (d *Device) LoadGeometry(_ *geometry.Mesh) error {
 	return errors.New("gpu: not available in headless builds")
 }
 

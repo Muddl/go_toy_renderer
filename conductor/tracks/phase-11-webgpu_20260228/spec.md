@@ -45,8 +45,11 @@ pipeline is functional before adding real geometry and shaders in later phases.
 
 - **Phase 10 complete** — `pkg/renderer`: `Renderer` interface, `GPUBackend`
   stub, `New()` factory, `ErrWindowClosed` sentinel (merged PR #17)
-- **Runtime:** wgpu-native shared library reachable via `WGPU_NATIVE_PATH`
-  (download from wgpu-native releases)
+- **Runtime:** wgpu-native shared library reachable via `WGPU_NATIVE_PATH`.
+  Libraries are already committed to the repo under `assets/{platform}/lib/`:
+  - Windows: `assets/windows-x86_64-gnu/lib/wgpu_native.dll` (v27.0.4.0)
+  - Linux:   `assets/linux-aarch64/lib/libwgpu_native.so` (v27.0.4.0)
+  - macOS:   `assets/macos-aarch64/lib/libwgpu_native.dylib` (v27.0.4.0)
 
 ## Out of Scope
 
@@ -64,9 +67,13 @@ pipeline is functional before adding real geometry and shaders in later phases.
 - Init chain: `wgpu.Init()` → `wgpu.CreateInstance(nil)` →
   `instance.RequestAdapter(nil)` → `adapter.RequestDevice(nil)` →
   `device.GetQueue()`
-- Runtime: set `WGPU_NATIVE_PATH` to wgpu-native shared library path
+- Runtime: set `WGPU_NATIVE_PATH` to the platform shared library from committed
+  assets — e.g. on Windows: `assets/windows-x86_64-gnu/lib/wgpu_native.dll`
 - No build tags needed for `pkg/gpu`; GPU tests gated by `GPU_TESTS=1` at
-  runtime instead
+  runtime; CI remains headless-only (no GPU on runners) but `pkg/gpu` must
+  compile cleanly in the headless build and test matrix
+- `.github/workflows/ci.yml` must be reviewed to confirm `pkg/gpu` is included
+  in `-tags=headless` build/test steps without requiring `WGPU_NATIVE_PATH`
 - `GPUBackend.Init()` returns a descriptive error if `wgpu.Init()` fails
   (library not found), enabling `--backend auto` CPU fallback
 - Inline WGSL shader strings for Hello Triangle (no file I/O yet)

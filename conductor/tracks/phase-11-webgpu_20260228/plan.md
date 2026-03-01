@@ -23,17 +23,17 @@ Add `go-webgpu/webgpu` to the module and create the `pkg/gpu` package skeleton.
       go.mod / go.sum. Note: wgpu-native shared libraries are already committed
       to the repo under `assets/{platform}/lib/` (v27.0.4.0) — no separate
       download required for local development
-- [~] Task 1.2: Create `pkg/gpu/gpu.go` — `Device` struct holding
+- [x] Task 1.2: Create `pkg/gpu/gpu.go` — `Device` struct holding
       `*wgpu.Instance`, `*wgpu.Adapter`, `*wgpu.Device`, `*wgpu.Queue`
       fields; `New()` constructor; stub `Init` and `RenderFrame` signatures
-- [~] Task 1.3: Write failing tests in `pkg/gpu/gpu_test.go`:
+- [x] Task 1.3: Write failing tests in `pkg/gpu/gpu_test.go`:
       `TestDevice_New_ReturnsNonNil`, `TestDevice_Init_SkipsWithoutGPUTests`
       (skip-guard pattern using `GPU_TESTS` env var)
 
 ### Verification
 
-- [ ] `go build ./pkg/gpu/...` compiles on all platforms (no CGo)
-- [ ] `go test ./pkg/gpu/...` passes (GPU tests skip without `GPU_TESTS=1`)
+- [x] `go build ./pkg/gpu/...` compiles on all platforms (no CGo)
+- [x] `go test ./pkg/gpu/...` passes (GPU tests skip without `GPU_TESTS=1`)
 
 ## Phase 2: wgpu Initialization Chain (RED → GREEN)
 

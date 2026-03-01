@@ -2,15 +2,28 @@
   "id": "phase-11-webgpu_20260228",
   "title": "Phase 11: WebGPU Integration via go-webgpu",
   "type": "feature",
-  "status": "pending",
+  "status": "complete",
   "created": "2026-02-28T00:00:00Z",
   "updated": "2026-02-28T00:00:00Z",
+  "current_phase": 4,
+  "current_task": "4.6",
   "phases": {
     "total": 4,
-    "completed": 0
+    "completed": 4
   },
   "tasks": {
     "total": 22,
-    "completed": 0
-  }
+    "completed": 22
+  },
+  "commits": [
+    "f5fdbac: test: add failing tests for pkg/gpu Device scaffold",
+    "727e720: feat: add pkg/gpu Device scaffold with wgpu init stubs",
+    "555a585: test: add Phase 2 RED tests for wgpu init chain",
+    "eaea16c: feat: implement wgpu init chain and Hello Triangle in pkg/gpu",
+    "df3e3d3: chore: promote go-webgpu and gputypes to direct dependencies",
+    "c360863: refactor(pkg/gpu): redesign Device.Init to accept NativeWindowHandle",
+    "68fae40: test(pkg/gpu): update Phase 2 tests for NativeWindowHandle API",
+    "66af0f7: feat(pkg/renderer): wire GPUBackend to pkg/gpu via native window handles",
+    "703670c: fix(pkg/gpu): add headless build tag split to resolve goffi CGO_ENABLED=1 CI failure"
+  ]
 }

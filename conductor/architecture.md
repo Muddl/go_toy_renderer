@@ -1,6 +1,6 @@
 # Architecture Reference — go_toy_renderer
 
-**Last updated:** 2026-02-28 (Phase 10 complete — pkg/renderer interface implemented)
+**Last updated:** 2026-02-28 (Phase 11 complete — pkg/gpu wgpu init chain + Hello Triangle)
 
 ---
 
@@ -270,20 +270,20 @@ The CPU renderer is preserved as a **reference implementation and fallback**. A 
                     │
          ┌──────────┴──────────┐
          │                     │
-  ┌──────▼──────┐       ┌──────▼──────┐
-  │ CPUBackend  │       │  GPUBackend │
-  │ (cpu.go /   │       │  stub       │
-  │  cpu_       │       │  Phase 11+  │
-  │  headless)  │       └─────────────┘
-  └─────────────┘
-  pkg/render + GLFW
+  ┌──────▼──────┐       ┌──────▼───────┐
+  │ CPUBackend  │       │  GPUBackend  │
+  │ (cpu.go /   │       │  GLFW+wgpu   │
+  │  cpu_       │       │  (Phase 11)  │
+  │  headless)  │       └──────┬───────┘
+  └─────────────┘              │
+  pkg/render + GLFW      pkg/gpu.Device
 ```
 
 Factory: `renderer.New(backend string) (Renderer, error)` — `backend` is `"cpu" | "gpu" | "auto"`.
 
 `ErrWindowClosed` — sentinel returned by `RenderFrame` when window is dismissed.
 
-**Phase 10 package:** `pkg/renderer` | **Coverage:** 100% | **Tests:** 7 (GPU + factory + headless CPU)
+**Phase 10 package:** `pkg/renderer` | **Coverage:** 100% | **Tests:** 14 (GPU + factory + headless CPU)
 
 | Type / Function | Signature | Notes |
 |----------------|-----------|-------|
@@ -291,8 +291,49 @@ Factory: `renderer.New(backend string) (Renderer, error)` — `backend` is `"cpu
 | `ErrWindowClosed` | `error` | RenderFrame sentinel; main loop breaks on this |
 | `CPUBackend` | struct (`!headless`) | GLFW window + OpenGL blit; camera fixed at (3,2,5) looking at origin |
 | `CPUBackend` | struct (`headless`) | Stub; all methods return error |
-| `GPUBackend` | struct | Stub; `Init`→nil, `RenderFrame`→"GPU not yet implemented" |
-| `New` | `(backend string) (Renderer, error)` | `"auto"` → CPUBackend (GPU-first in Phase 11) |
+| `GPUBackend` | struct (`!headless`) | GLFW window (NoAPI) + pkg/gpu.Device; delegates full wgpu chain |
+| `GPUBackend` | struct (`headless`) | Stub; `Init`→nil, `RenderFrame`→"GPU not yet implemented" |
+| `New` | `(backend string) (Renderer, error)` | `"auto"`: non-headless tries GPU first, falls back to CPU; headless returns CPU |
+
+### `pkg/gpu` (Phase 11) ✅
+
+**Zero-CGo FFI** — no build tags; GPU integration tests gated by `GPU_TESTS=1`.
+**Binding:** `github.com/go-webgpu/webgpu/wgpu` v0.4.0 + `github.com/gogpu/gputypes` v0.2.0.
+**Coverage:** ~13% in headless CI (full coverage requires `GPU_TESTS=1` + GPU hardware).
+
+| Type / Function | Signature | Notes |
+|----------------|-----------|-------|
+| `NativeWindowHandle` | `{HWND, X11Display uintptr; X11Window uint64; MetalLayer uintptr}` | Platform handles from GLFW native accessors |
+| `Device` | struct | Holds instance, adapter, device, queue, surface, shader, pipeline |
+| `New` | `() *Device` | Returns uninitialised Device |
+| `Device.Init` | `(width, height uint32, handle NativeWindowHandle) error` | Full wgpu chain: load lib → instance → surface → adapter → device → queue → configure → compile shader → pipeline |
+| `Device.RenderFrame` | `() error` | GetCurrentTexture → render pass → draw(3,1,0,0) → present |
+| `Device.Shutdown` | `()` | Releases all resources in reverse init order; safe to call multiple times |
+| `Device.IsReady` | `() bool` | True after Init completes without error |
+| `Device.HasQueue` | `() bool` | True after queue acquisition in Init step 6 |
+
+**Platform surface creation** (build-tagged, Zero-CGo):
+
+| File | Platform | wgpu API |
+|------|----------|----------|
+| `surface_windows.go` | `windows` | `CreateSurfaceFromWindowsHWND(0, hwnd)` |
+| `surface_linux.go` | `linux` | `CreateSurfaceFromXlibWindow(display, window)` |
+| `surface_darwin.go` | `darwin` | `CreateSurfaceFromMetalLayer(layer)` |
+
+**Init chain summary:**
+```
+wgpu.Init()                        // step 1: load wgpu-native shared lib
+wgpu.CreateInstance(nil)           // step 2: WebGPU instance
+createPlatformSurface(inst, hdl)   // step 3: platform surface (Win32/X11/Metal)
+instance.RequestAdapter(nil)       // step 4: GPU adapter
+adapter.RequestDevice(nil)         // step 5: logical device
+device.GetQueue()                  // step 6: default queue
+surface.Configure(...)             // step 7: BGRA8Unorm, PresentModeFifo
+device.CreateShaderModuleWGSL(...) // step 8: inline Hello Triangle WGSL
+device.CreateRenderPipelineSimple  // step 9: no vertex buffers
+```
+
+---
 
 ### GPU Pipeline (Phase 11+, go-webgpu/webgpu / WebGPU)
 
@@ -329,13 +370,9 @@ compiler required; loads wgpu-native shared library at runtime via
 └──────────────┘
 ```
 
-**wgpu init chain (Phase 11):**
-```
-wgpu.Init()                       // load wgpu-native shared lib
-wgpu.CreateInstance(nil)          // Instance
-instance.RequestAdapter(nil)      // Adapter (GPU selection)
-adapter.RequestDevice(nil)        // Device + Queue
-```
+**wgpu init chain (Phase 11):** See `pkg/gpu` API section above for the full 9-step chain.
+`pkg/renderer.GPUBackend` passes a `gpu.NativeWindowHandle` (HWND/X11/Metal pointers) to
+`gpu.Device.Init` which owns the complete wgpu lifecycle.
 
 ### Platform → Backend
 

@@ -14,7 +14,7 @@
 | [x] | [phase-8-polish_20260227](./tracks/phase-8-polish_20260227/index.md) | Phase 8: Testing & Polish (MVP Complete) | 2026-02-27 | 2026-02-27 |
 | [x] | [phase-9-window_20260227](./tracks/phase-9-window_20260227/index.md) | Phase 9: Window & Real-time Display | 2026-02-27 | 2026-02-28 |
 | [x] | [phase-10-gpu-abstraction_20260227](./tracks/phase-10-gpu-abstraction_20260227/index.md) | Phase 10: GPU Backend Abstraction | 2026-02-27 | 2026-02-28 |
-| [ ] | [phase-11-webgpu_20260228](./tracks/phase-11-webgpu_20260228/index.md) | Phase 11: WebGPU Integration via go-webgpu | 2026-02-28 | 2026-02-28 |
+| [x] | [phase-11-webgpu_20260228](./tracks/phase-11-webgpu_20260228/index.md) | Phase 11: WebGPU Integration via go-webgpu | 2026-02-28 | 2026-02-28 |
 | [ ] | [phase-12-gpu-geometry_20260227](./tracks/phase-12-gpu-geometry_20260227/index.md) | Phase 12: GPU Geometry & Draw Pipeline | 2026-02-27 | 2026-02-27 |
 | [ ] | [phase-13-hlsl_20260227](./tracks/phase-13-hlsl_20260227/index.md) | Phase 13: HLSL Shader Pipeline | 2026-02-27 | 2026-02-27 |
 | [ ] | [phase-14-uniforms_20260227](./tracks/phase-14-uniforms_20260227/index.md) | Phase 14: Uniform Buffers & Per-Mesh Transforms | 2026-02-27 | 2026-02-27 |

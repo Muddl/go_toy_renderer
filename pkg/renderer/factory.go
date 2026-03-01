@@ -14,9 +14,10 @@ func New(backend string) (Renderer, error) {
 	case "gpu":
 		return &GPUBackend{}, nil
 	case "auto":
-		// Phase 10: GPU pipeline is not yet functional; always use CPU.
-		// Phase 11 will attempt GPU init and fall back to CPU on failure.
-		return &CPUBackend{}, nil
+		// Phase 11: try GPU first; fall back to CPU on any init error.
+		// newAutoBackend is split by build tag: non-headless returns an autoBackend
+		// that defers GPU→CPU fallback to Init; headless returns *CPUBackend directly.
+		return newAutoBackend(), nil
 	default:
 		return nil, fmt.Errorf("unknown backend %q: must be cpu, gpu, or auto", backend)
 	}

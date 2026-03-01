@@ -9,9 +9,31 @@ package gpu
 
 import (
 	"errors"
+	"fmt"
 
 	"github.com/go-webgpu/webgpu/wgpu"
+	"github.com/gogpu/gputypes"
 )
+
+// helloTriangleWGSL is an inline WGSL shader for the Hello Triangle.
+// Vertex: positions are computed from vertex_index (no vertex buffer needed).
+// Fragment: solid orange colour.
+const helloTriangleWGSL = `
+@vertex
+fn vs_main(@builtin(vertex_index) in_vertex_index: u32) -> @builtin(position) vec4<f32> {
+    var pos = array<vec2<f32>, 3>(
+        vec2<f32>( 0.0,  0.5),
+        vec2<f32>(-0.5, -0.5),
+        vec2<f32>( 0.5, -0.5),
+    );
+    return vec4<f32>(pos[in_vertex_index], 0.0, 1.0);
+}
+
+@fragment
+fn fs_main() -> @location(0) vec4<f32> {
+    return vec4<f32>(1.0, 0.5, 0.2, 1.0);
+}
+`
 
 // Device holds the wgpu initialization chain and render resources.
 // Create with [New] and initialise with [Device.Init] before calling
@@ -22,7 +44,9 @@ type Device struct {
 	device   *wgpu.Device
 	queue    *wgpu.Queue
 	surface  *wgpu.Surface
+	shader   *wgpu.ShaderModule
 	pipeline *wgpu.RenderPipeline
+	format   gputypes.TextureFormat
 	width    uint32
 	height   uint32
 	ready    bool
@@ -39,28 +63,147 @@ func (d *Device) IsReady() bool { return d.ready }
 func (d *Device) HasQueue() bool { return d.queue != nil }
 
 // Init initialises wgpu and prepares the Device for rendering.
-// surface must be a valid platform surface obtained from the GLFW window.
+// surface must be a valid platform surface obtained from the GLFW window
+// (created in pkg/renderer via GLFW native handle functions).
 // width and height are the initial swap-chain dimensions in pixels.
-//
-// Phase 2 implements the full init chain; this stub returns nil.
 func (d *Device) Init(width, height uint32, surface *wgpu.Surface) error {
 	d.width = width
 	d.height = height
+
+	// Step 1: Load the wgpu-native shared library.
+	// Set WGPU_NATIVE_PATH to the platform library path (e.g.
+	// assets/windows-x86_64-gnu/lib/wgpu_native.dll).
+	if err := wgpu.Init(); err != nil {
+		return fmt.Errorf("gpu: wgpu library: %w", err)
+	}
+
+	// Step 2: Create the WebGPU instance.
+	inst, err := wgpu.CreateInstance(nil)
+	if err != nil {
+		return fmt.Errorf("gpu: create instance: %w", err)
+	}
+	d.instance = inst
+
+	// Step 3: Request a GPU adapter (physical device selection).
+	adapter, err := inst.RequestAdapter(nil)
+	if err != nil {
+		return fmt.Errorf("gpu: request adapter: %w", err)
+	}
+	d.adapter = adapter
+
+	// Step 4: Request a logical device from the adapter.
+	dev, err := adapter.RequestDevice(nil)
+	if err != nil {
+		return fmt.Errorf("gpu: request device: %w", err)
+	}
+	d.device = dev
+
+	// Step 5: Obtain the default command queue.
+	q := dev.GetQueue()
+	if q == nil {
+		return fmt.Errorf("gpu: get queue: returned nil")
+	}
+	d.queue = q
+
+	// Step 6: Require a valid surface (created from the GLFW native handle).
+	if surface == nil {
+		return errors.New("gpu: surface is nil — create from GLFW native handle first")
+	}
 	d.surface = surface
+
+	// Step 7: Choose the surface format and configure the swap-chain.
+	d.format = gputypes.TextureFormatBGRA8Unorm
+	surface.Configure(&wgpu.SurfaceConfiguration{
+		Device:      d.device,
+		Format:      d.format,
+		Usage:       gputypes.TextureUsageRenderAttachment,
+		Width:       width,
+		Height:      height,
+		PresentMode: gputypes.PresentModeFifo,
+		AlphaMode:   gputypes.CompositeAlphaModeAuto,
+	})
+
+	// Step 8: Compile the Hello Triangle WGSL shader.
+	shader := dev.CreateShaderModuleWGSL(helloTriangleWGSL)
+	if shader == nil {
+		return errors.New("gpu: create shader module: returned nil")
+	}
+	d.shader = shader
+
+	// Step 9: Create the render pipeline (no vertex buffers needed).
+	pipeline := dev.CreateRenderPipelineSimple(
+		nil,           // auto layout
+		shader, "vs_main",
+		shader, "fs_main",
+		d.format,
+	)
+	if pipeline == nil {
+		return errors.New("gpu: create render pipeline: returned nil")
+	}
+	d.pipeline = pipeline
+
 	d.ready = true
 	return nil
 }
 
-// RenderFrame submits one frame to the GPU.
+// RenderFrame submits one Hello Triangle frame to the GPU.
 // Returns an error if Init has not been called successfully.
-//
-// Phase 3 implements the Hello Triangle render pass; this stub returns an
-// error until the pipeline is wired up.
 func (d *Device) RenderFrame() error {
 	if !d.ready {
 		return errors.New("gpu: Device not initialised — call Init first")
 	}
-	return errors.New("gpu: render pipeline not yet implemented (Phase 3)")
+
+	// Acquire the current swap-chain texture.
+	surfTex, err := d.surface.GetCurrentTexture()
+	if err != nil {
+		return fmt.Errorf("gpu: get surface texture: %w", err)
+	}
+	view := surfTex.Texture.CreateView(nil)
+	if view == nil {
+		return errors.New("gpu: create texture view: returned nil")
+	}
+	defer view.Release()
+	defer surfTex.Texture.Release()
+
+	// Record GPU commands.
+	enc := d.device.CreateCommandEncoder(nil)
+	if enc == nil {
+		return errors.New("gpu: create command encoder: returned nil")
+	}
+
+	pass := enc.BeginRenderPass(&wgpu.RenderPassDescriptor{
+		ColorAttachments: []wgpu.RenderPassColorAttachment{
+			{
+				View:    view,
+				LoadOp:  gputypes.LoadOpClear,
+				StoreOp: gputypes.StoreOpStore,
+				ClearValue: wgpu.Color{
+					R: 0.1, G: 0.1, B: 0.1, A: 1.0, // dark grey background
+				},
+			},
+		},
+	})
+	if pass == nil {
+		enc.Release()
+		return errors.New("gpu: begin render pass: returned nil")
+	}
+
+	pass.SetPipeline(d.pipeline)
+	pass.Draw(3, 1, 0, 0) // 3 vertices, 1 instance
+	pass.End()
+	pass.Release()
+
+	cmd := enc.Finish(nil)
+	enc.Release()
+	if cmd == nil {
+		return errors.New("gpu: finish command encoder: returned nil")
+	}
+
+	d.queue.Submit(cmd)
+	cmd.Release()
+
+	d.surface.Present()
+	return nil
 }
 
 // Shutdown releases all wgpu resources held by the Device.
@@ -70,7 +213,12 @@ func (d *Device) Shutdown() {
 		d.pipeline.Release()
 		d.pipeline = nil
 	}
+	if d.shader != nil {
+		d.shader.Release()
+		d.shader = nil
+	}
 	if d.surface != nil {
+		d.surface.Unconfigure()
 		d.surface.Release()
 		d.surface = nil
 	}

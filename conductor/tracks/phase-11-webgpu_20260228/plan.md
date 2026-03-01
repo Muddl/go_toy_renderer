@@ -41,20 +41,20 @@ Instance → Adapter → Device → Queue → Surface → SwapChain.
 
 ### Tasks
 
-- [ ] Task 2.1: Write failing GPU integration test for `Device.Init` (gated
+- [x] Task 2.1: Write failing GPU integration test for `Device.Init` (gated
       by `GPU_TESTS=1`; asserts non-nil fields after call)
-- [ ] Task 2.2: Implement `wgpu.Init()` call with graceful error return if
+- [x] Task 2.2: Implement `wgpu.Init()` call with graceful error return if
       library not found (descriptive message referencing `WGPU_NATIVE_PATH`).
       Local usage: point `WGPU_NATIVE_PATH` to committed asset for the current
       platform (e.g. `assets/windows-x86_64-gnu/lib/wgpu_native.dll`)
-- [ ] Task 2.3: Implement `wgpu.CreateInstance(nil)` → store instance
-- [ ] Task 2.4: Implement `instance.RequestAdapter(nil)` with surface
+- [x] Task 2.3: Implement `wgpu.CreateInstance(nil)` → store instance
+- [x] Task 2.4: Implement `instance.RequestAdapter(nil)` with surface
       compatibility hint
-- [ ] Task 2.5: Implement `adapter.RequestDevice(nil)` → device; call
+- [x] Task 2.5: Implement `adapter.RequestDevice(nil)` → device; call
       `device.GetQueue()` → queue
-- [ ] Task 2.6: Create wgpu Surface from GLFW window native handle
+- [~] Task 2.6: Create wgpu Surface from GLFW window native handle
       (Win32/Cocoa/X11 platform branch)
-- [ ] Task 2.7: Configure Surface — `BGRA8Unorm` format, present mode `Fifo`
+- [x] Task 2.7: Configure Surface — `BGRA8Unorm` format, present mode `Fifo`
 
 ### Verification
 
@@ -69,18 +69,18 @@ Hardcoded WGSL shader and full GPU render pass.
 
 ### Tasks
 
-- [ ] Task 3.1: Write failing GPU integration test for `Device.RenderFrame`
+- [x] Task 3.1: Write failing GPU integration test for `Device.RenderFrame`
       (gated by `GPU_TESTS=1`)
-- [ ] Task 3.2: Define inline `const helloTriangleWGSL string` — vertex
+- [x] Task 3.2: Define inline `const helloTriangleWGSL string` — vertex
       shader: NDC triangle from `vertex_index`; fragment: solid orange
       `vec4(1.0, 0.5, 0.2, 1.0)`
-- [ ] Task 3.3: Create `wgpu.ShaderModule` from inline WGSL
-- [ ] Task 3.4: Create `wgpu.RenderPipeline` (no vertex buffers; surface
+- [x] Task 3.3: Create `wgpu.ShaderModule` from inline WGSL
+- [x] Task 3.4: Create `wgpu.RenderPipeline` (no vertex buffers; surface
       texture format as color target)
-- [ ] Task 3.5: Implement `RenderFrame`: acquire surface texture → begin
+- [x] Task 3.5: Implement `RenderFrame`: acquire surface texture → begin
       render pass → set pipeline → `draw(3, 1, 0, 0)` → end pass → queue
       submit → present
-- [ ] Task 3.6: Wire `GPUBackend.RenderFrame` in `pkg/renderer/gpu.go` to
+- [~] Task 3.6: Wire `GPUBackend.RenderFrame` in `pkg/renderer/gpu.go` to
       delegate to `(*pkg/gpu.Device).RenderFrame()`
 
 ### Verification

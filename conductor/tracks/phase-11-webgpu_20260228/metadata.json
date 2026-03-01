@@ -23,6 +23,7 @@
     "df3e3d3: chore: promote go-webgpu and gputypes to direct dependencies",
     "c360863: refactor(pkg/gpu): redesign Device.Init to accept NativeWindowHandle",
     "68fae40: test(pkg/gpu): update Phase 2 tests for NativeWindowHandle API",
-    "66af0f7: feat(pkg/renderer): wire GPUBackend to pkg/gpu via native window handles"
+    "66af0f7: feat(pkg/renderer): wire GPUBackend to pkg/gpu via native window handles",
+    "703670c: fix(pkg/gpu): add headless build tag split to resolve goffi CGO_ENABLED=1 CI failure"
   ]
 }

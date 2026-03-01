@@ -66,14 +66,22 @@ func (g *GPUBackend) Init(width, height int) error {
 	return nil
 }
 
-// RenderFrame renders one GPU frame and presents it to the window.
-// Returns ErrWindowClosed when the window has been dismissed.
-func (g *GPUBackend) RenderFrame(_ *render.Scene) error {
+// RenderFrame uploads the first mesh in scene to the GPU (cached after the first
+// frame) and renders one indexed draw call. Returns ErrWindowClosed when the
+// window has been dismissed.
+func (g *GPUBackend) RenderFrame(scene *render.Scene) error {
 	if g.window.ShouldClose() {
 		return ErrWindowClosed
 	}
 
 	frameStart := time.Now()
+
+	// Upload geometry from the first scene mesh (multi-mesh support in Phase 14).
+	if len(scene.Meshes) > 0 {
+		if err := g.device.LoadGeometry(scene.Meshes[0]); err != nil {
+			return fmt.Errorf("gpu backend: load geometry: %w", err)
+		}
+	}
 
 	if err := g.device.RenderFrame(); err != nil {
 		return err

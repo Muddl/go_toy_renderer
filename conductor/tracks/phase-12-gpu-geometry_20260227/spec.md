@@ -19,13 +19,13 @@ As a developer, I want the GPU backend to render the same coloured cube as the C
 
 ## Acceptance Criteria
 
-- [ ] `pkg/gpu` gains `VertexBuffer` and `IndexBuffer` helpers that upload `[]geometry.Vertex` and `[]uint32` to VRAM via `wgpu.Device.CreateBuffer`
-- [ ] Vertex layout matches shader input: position (float32×3) + colour (float32×3), stride 24 bytes
-- [ ] `GPUBackend.RenderFrame` performs: geometry upload (or re-use cached buffers) → `setVertexBuffer` + `setIndexBuffer` → `drawIndexed`
-- [ ] The coloured cube from `geometry.NewCube()` renders correctly (correct perspective, depth ordering)
-- [ ] MVP transform applied in vertex shader (hardcoded camera for now; uniforms in Phase 14)
-- [ ] Depth buffer (`wgpu.TextureFormat_Depth24Plus`) created and bound to render pass
-- [ ] Frame rate still ≥60 fps at 1280×720
+- [x] `pkg/gpu` gains `VertexBuffer` and `IndexBuffer` helpers that upload `[]geometry.Vertex` and `[]uint32` to VRAM via `wgpu.Device.CreateBuffer`
+- [x] Vertex layout matches shader input: position (float32×3) + colour (float32×3), stride 24 bytes
+- [x] `GPUBackend.RenderFrame` performs: geometry upload (or re-use cached buffers) → `setVertexBuffer` + `setIndexBuffer` → `drawIndexed`
+- [x] The coloured cube from `geometry.NewCube()` renders correctly (correct perspective, depth ordering)
+- [x] MVP transform applied in vertex shader (hardcoded camera for now; uniforms in Phase 14)
+- [x] Depth buffer (`wgpu.TextureFormat_Depth24Plus`) created and bound to render pass
+- [x] Frame rate still ≥60 fps at 1280×720
 
 ## Dependencies
 

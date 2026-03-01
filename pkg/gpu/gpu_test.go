@@ -17,14 +17,18 @@ func TestDevice_New_ReturnsNonNil(t *testing.T) {
 }
 
 // TestDevice_Init_SkipsWithoutGPUTests verifies Init is skipped when GPU_TESTS=1
-// is not set. This gate prevents GPU init in CI environments without hardware.
+// is not set, and that a failed Init (zero window handle) leaves IsReady false.
 func TestDevice_Init_SkipsWithoutGPUTests(t *testing.T) {
 	if os.Getenv("GPU_TESTS") != "1" {
 		t.Skip("set GPU_TESTS=1 to run GPU integration tests")
 	}
-	// Full GPU init test is below. This placeholder ensures the skip guard
-	// is exercised in non-GPU CI runs.
-	t.Fatal("GPU_TESTS=1 set but landed in skip-guard placeholder")
+	// With GPU_TESTS=1: Init with a zero handle must not panic and must leave
+	// the device non-ready, since surface creation fails without a real window.
+	d := gpu.New()
+	_ = d.Init(640, 480, gpu.NativeWindowHandle{})
+	if d.IsReady() {
+		t.Fatal("Device must not be ready after Init with zero window handle")
+	}
 }
 
 // TestDevice_Shutdown_IsIdempotent verifies Shutdown can be called on an
@@ -106,4 +110,15 @@ func TestDevice_RenderFrame_AfterInit_ReturnsErrorUntilPhase3(t *testing.T) {
 	// This test documents: RenderFrame without a surface/pipeline is an error.
 	// A full Hello Triangle test requires a GLFW surface (tested via pkg/renderer).
 	t.Log("RenderFrame integration test deferred to pkg/renderer with GLFW surface")
+}
+
+// --- Phase 12: GPU Geometry & Buffer Helpers ---
+
+// TestDevice_LoadGeometry_ReturnsErrorBeforeInit verifies that LoadGeometry
+// returns an error when called before Init.
+func TestDevice_LoadGeometry_ReturnsErrorBeforeInit(t *testing.T) {
+	d := gpu.New()
+	if err := d.LoadGeometry(nil); err == nil {
+		t.Fatal("LoadGeometry before Init should return an error")
+	}
 }

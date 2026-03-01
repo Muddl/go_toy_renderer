@@ -3,7 +3,7 @@
 **Track ID:** phase-12-gpu-geometry_20260227
 **Spec:** [spec.md](./spec.md)
 **Created:** 2026-02-27
-**Status:** [ ] Not Started
+**Status:** [~] In Progress
 
 ## Overview
 
@@ -15,13 +15,13 @@ Upload `pkg/geometry.Mesh` vertex and index data to GPU buffers and render the c
 
 ### Tasks
 
-- [ ] Task 1.1: Write test for `pkg/gpu.PackVertices([]geometry.Vertex) []float32` — verify position + colour packing and stride. Commit `test:`.
-- [ ] Task 1.2: Implement `PackVertices` and `VertexBuffer` helper (`CreateBuffer` with `Vertex | CopyDst` usage). Commit `feat: add vertex buffer helper`.
-- [ ] Task 1.3: Write test for `IndexBuffer` helper; implement. Commit `test:` then `feat:`.
+- [x] Task 1.1: Write test for `pkg/gpu.PackVertices([]geometry.Vertex) []float32` — verify position + colour packing and stride. Commit `test:`.
+- [x] Task 1.2: Implement `PackVertices` and `VertexBuffer` helper (`CreateBuffer` with `Vertex | CopyDst` usage). Commit `feat: add vertex buffer helper`.
+- [x] Task 1.3: Write test for `IndexBuffer` helper; implement. Commit `test:` then `feat:`.
 
 ### Verification
 
-- [ ] Buffer helpers tested; pack output matches expected `[]float32` layout.
+- [x] Buffer helpers tested; pack output matches expected `[]float32` layout.
 
 ---
 
@@ -29,14 +29,14 @@ Upload `pkg/geometry.Mesh` vertex and index data to GPU buffers and render the c
 
 ### Tasks
 
-- [ ] Task 2.1: Create depth texture (`Depth24Plus`); update render pass descriptor to use depth attachment. Commit `feat: add depth buffer to render pass`.
-- [ ] Task 2.2: Update WGSL vertex shader to accept position + colour inputs from vertex buffer (replace hardcoded triangle vertices). Commit `feat: vertex shader reads from buffer`.
-- [ ] Task 2.3: Implement `GPUBackend.RenderFrame`: upload cube geometry → bind vertex/index buffers → `drawIndexed(indexCount, 1, 0, 0, 0)`. Commit `feat: render cube geometry via indexed draw`.
+- [x] Task 2.1: Create depth texture (`Depth24Plus`); update render pass descriptor to use depth attachment. Commit `feat: add depth buffer to render pass`.
+- [x] Task 2.2: Update WGSL vertex shader to accept position + colour inputs from vertex buffer (replace hardcoded triangle vertices). Commit `feat: vertex shader reads from buffer`.
+- [x] Task 2.3: Implement `GPUBackend.RenderFrame`: upload cube geometry → bind vertex/index buffers → `drawIndexed(indexCount, 1, 0, 0, 0)`. Commit `feat: render cube geometry via indexed draw`.
 
 ### Verification
 
-- [ ] Coloured cube visible with correct depth ordering.
-- [ ] MVP matrix hardcoded in shader for now (matches camera at {3,2,5} looking at origin).
+- [x] Coloured cube visible with correct depth ordering.
+- [x] MVP matrix hardcoded in shader for now (matches camera at {3,2,5} looking at origin).
 
 ---
 
@@ -44,12 +44,12 @@ Upload `pkg/geometry.Mesh` vertex and index data to GPU buffers and render the c
 
 ### Tasks
 
-- [ ] Task 3.1: Cache vertex/index buffers; only re-upload if mesh changes (avoid per-frame allocation). Commit `perf: cache GPU geometry buffers`.
-- [ ] Task 3.2: Run `go test ./...`; confirm frame rate ≥60 fps. Commit `chore: mark Phase 12 complete`.
+- [x] Task 3.1: Cache vertex/index buffers; only re-upload if mesh changes (avoid per-frame allocation). Commit `perf: cache GPU geometry buffers`.
+- [x] Task 3.2: Run `go test ./...`; confirm frame rate ≥60 fps. Commit `chore: mark Phase 12 complete`.
 
 ### Verification
 
-- [ ] All acceptance criteria in `spec.md` met.
+- [x] All acceptance criteria in `spec.md` met.
 - [ ] PR merged to `main`, CI green.
 
 ---

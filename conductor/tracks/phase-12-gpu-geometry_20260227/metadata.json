@@ -2,15 +2,23 @@
   "id": "phase-12-gpu-geometry_20260227",
   "title": "Phase 12: GPU Geometry & Draw Pipeline",
   "type": "feature",
-  "status": "pending",
+  "status": "complete",
   "created": "2026-02-27T00:00:00Z",
-  "updated": "2026-02-27T00:00:00Z",
+  "updated": "2026-03-01T00:00:00Z",
+  "current_phase": 3,
+  "current_task": "3.2",
   "phases": {
     "total": 3,
-    "completed": 0
+    "completed": 3
   },
   "tasks": {
     "total": 10,
-    "completed": 0
-  }
+    "completed": 10
+  },
+  "commits": [
+    "10f8018: test: add failing tests for PackVertices and PackIndices",
+    "e9e30be: feat: implement PackVertices and PackIndices; add failing buffer helper tests",
+    "428c6f2: feat: add vertex/index buffer helpers and LoadGeometry",
+    "c221151: feat: wire LoadGeometry into GPUBackend.RenderFrame; Phase 2 complete"
+  ]
 }

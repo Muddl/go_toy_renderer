@@ -35,6 +35,20 @@ fn fs_main() -> @location(0) vec4<f32> {
 }
 `
 
+// NativeWindowHandle carries the platform-specific window handle values
+// needed to create a wgpu surface. Populate the fields for your platform and
+// pass to Device.Init. All uintptr fields are safe to pass across CGo
+// boundaries as they are just integer-sized values.
+type NativeWindowHandle struct {
+	// Windows (Win32): HWND from GLFW GetWin32Window.
+	HWND uintptr
+	// Linux (X11): Display pointer and Window XID from GLFW GetX11Display/GetX11Window.
+	X11Display uintptr
+	X11Window  uint64
+	// macOS: CAMetalLayer pointer obtained from the NSView backing layer.
+	MetalLayer uintptr
+}
+
 // Device holds the wgpu initialization chain and render resources.
 // Create with [New] and initialise with [Device.Init] before calling
 // [Device.RenderFrame].
@@ -63,10 +77,10 @@ func (d *Device) IsReady() bool { return d.ready }
 func (d *Device) HasQueue() bool { return d.queue != nil }
 
 // Init initialises wgpu and prepares the Device for rendering.
-// surface must be a valid platform surface obtained from the GLFW window
-// (created in pkg/renderer via GLFW native handle functions).
+// handle contains the platform-specific native window pointers (populated by
+// pkg/renderer using GLFW native handle functions).
 // width and height are the initial swap-chain dimensions in pixels.
-func (d *Device) Init(width, height uint32, surface *wgpu.Surface) error {
+func (d *Device) Init(width, height uint32, handle NativeWindowHandle) error {
 	d.width = width
 	d.height = height
 
@@ -84,32 +98,33 @@ func (d *Device) Init(width, height uint32, surface *wgpu.Surface) error {
 	}
 	d.instance = inst
 
-	// Step 3: Request a GPU adapter (physical device selection).
+	// Step 3: Create the platform-specific surface from the native handle.
+	surface, err := createPlatformSurface(inst, handle)
+	if err != nil {
+		return fmt.Errorf("gpu: create surface: %w", err)
+	}
+	d.surface = surface
+
+	// Step 4: Request a GPU adapter (physical device selection).
 	adapter, err := inst.RequestAdapter(nil)
 	if err != nil {
 		return fmt.Errorf("gpu: request adapter: %w", err)
 	}
 	d.adapter = adapter
 
-	// Step 4: Request a logical device from the adapter.
+	// Step 5: Request a logical device from the adapter.
 	dev, err := adapter.RequestDevice(nil)
 	if err != nil {
 		return fmt.Errorf("gpu: request device: %w", err)
 	}
 	d.device = dev
 
-	// Step 5: Obtain the default command queue.
+	// Step 6: Obtain the default command queue.
 	q := dev.GetQueue()
 	if q == nil {
 		return fmt.Errorf("gpu: get queue: returned nil")
 	}
 	d.queue = q
-
-	// Step 6: Require a valid surface (created from the GLFW native handle).
-	if surface == nil {
-		return errors.New("gpu: surface is nil — create from GLFW native handle first")
-	}
-	d.surface = surface
 
 	// Step 7: Choose the surface format and configure the swap-chain.
 	d.format = gputypes.TextureFormatBGRA8Unorm
@@ -132,7 +147,7 @@ func (d *Device) Init(width, height uint32, surface *wgpu.Surface) error {
 
 	// Step 9: Create the render pipeline (no vertex buffers needed).
 	pipeline := dev.CreateRenderPipelineSimple(
-		nil,           // auto layout
+		nil,            // auto layout
 		shader, "vs_main",
 		shader, "fs_main",
 		d.format,
@@ -160,6 +175,7 @@ func (d *Device) RenderFrame() error {
 	}
 	view := surfTex.Texture.CreateView(nil)
 	if view == nil {
+		surfTex.Texture.Release()
 		return errors.New("gpu: create texture view: returned nil")
 	}
 	defer view.Release()

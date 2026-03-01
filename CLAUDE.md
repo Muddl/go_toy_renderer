@@ -103,9 +103,9 @@ CI enforces this automatically for `windows-latest` builds.
 
 ## Recent Updates
 
-**2026-02-28 (Latest):** Phase 11 complete — `pkg/gpu` package: full wgpu init chain (instance → surface → adapter → device → queue → pipeline), inline WGSL Hello Triangle, `NativeWindowHandle` struct for platform-agnostic surface creation. `GPUBackend` in `pkg/renderer` now delegates to `pkg/gpu.Device`. `--backend auto` tries GPU first, falls back to CPU. CI updated to Go 1.25 (required by go-webgpu v0.4.0). Architecture.md updated with `pkg/gpu` API summary.
+**2026-03-01 (Latest):** Phase 12 complete — `pkg/gpu`: `PackVertices`/`PackIndices` (pure, no build tag), `VertexBuffer`/`IndexBuffer` helpers, `Device.LoadGeometry` (caches mesh by pointer), depth texture (`Depth24Plus`), cube WGSL shader with hardcoded MVP (camera (3,2,5)→origin, fov=60°, aspect computed at Init), `CreateRenderPipeline` with `VertexBufferLayout` (stride=24) + `DepthStencilState`. `RenderFrame` uses `DrawIndexed`. `pkg/renderer.GPUBackend.RenderFrame` calls `LoadGeometry` before draw. `pkg/gpu` headless coverage now 90%. Architecture.md updated.
 
-**2026-02-28:** Phase 11 track created — WebGPU integration via `github.com/go-webgpu/webgpu` v0.4.0 (Zero-CGo FFI). No build tags needed for `pkg/gpu`; GPU tests gated by `GPU_TESTS=1` env var; `WGPU_NATIVE_PATH` points to wgpu-native shared library at runtime. Docs updated: tech-stack.md, architecture.md, product-guidelines.md.
+**2026-02-28:** Phase 11 complete — `pkg/gpu` package: full wgpu init chain (instance → surface → adapter → device → queue → pipeline), inline WGSL Hello Triangle, `NativeWindowHandle` struct for platform-agnostic surface creation. `GPUBackend` in `pkg/renderer` now delegates to `pkg/gpu.Device`. `--backend auto` tries GPU first, falls back to CPU. CI updated to Go 1.25 (required by go-webgpu v0.4.0). Architecture.md updated with `pkg/gpu` API summary.
 
 **2026-02-28:** Phase 10 complete — `pkg/renderer` package: `Renderer` interface, `CPUBackend` (GLFW blit extracted from Phase 9), `GPUBackend` stub, `New()` factory. `cmd/renderer-rt` refactored to use `renderer.New()`. `--backend auto` falls back to CPU (GPU-first in Phase 11). `pkg/renderer` at 100% test coverage.
 

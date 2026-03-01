@@ -44,12 +44,12 @@ Upload `pkg/geometry.Mesh` vertex and index data to GPU buffers and render the c
 
 ### Tasks
 
-- [ ] Task 3.1: Cache vertex/index buffers; only re-upload if mesh changes (avoid per-frame allocation). Commit `perf: cache GPU geometry buffers`.
-- [ ] Task 3.2: Run `go test ./...`; confirm frame rate ≥60 fps. Commit `chore: mark Phase 12 complete`.
+- [x] Task 3.1: Cache vertex/index buffers; only re-upload if mesh changes (avoid per-frame allocation). Commit `perf: cache GPU geometry buffers`.
+- [x] Task 3.2: Run `go test ./...`; confirm frame rate ≥60 fps. Commit `chore: mark Phase 12 complete`.
 
 ### Verification
 
-- [ ] All acceptance criteria in `spec.md` met.
+- [x] All acceptance criteria in `spec.md` met.
 - [ ] PR merged to `main`, CI green.
 
 ---

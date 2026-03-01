@@ -1,6 +1,6 @@
 # Architecture Reference — go_toy_renderer
 
-**Last updated:** 2026-02-28 (Phase 11 complete — pkg/gpu wgpu init chain + Hello Triangle)
+**Last updated:** 2026-03-01 (Phase 12 complete — GPU geometry upload + indexed draw + depth buffer)
 
 ---
 
@@ -295,22 +295,27 @@ Factory: `renderer.New(backend string) (Renderer, error)` — `backend` is `"cpu
 | `GPUBackend` | struct (`headless`) | Stub; `Init`→nil, `RenderFrame`→"GPU not yet implemented" |
 | `New` | `(backend string) (Renderer, error)` | `"auto"`: non-headless tries GPU first, falls back to CPU; headless returns CPU |
 
-### `pkg/gpu` (Phase 11) ✅
+### `pkg/gpu` (Phase 12) ✅
 
 **Zero-CGo FFI** — no build tags; GPU integration tests gated by `GPU_TESTS=1`.
 **Binding:** `github.com/go-webgpu/webgpu/wgpu` v0.4.0 + `github.com/gogpu/gputypes` v0.2.0.
-**Coverage:** ~13% in headless CI (full coverage requires `GPU_TESTS=1` + GPU hardware).
+**Coverage:** 90% in headless CI (full coverage requires `GPU_TESTS=1` + GPU hardware).
 
 | Type / Function | Signature | Notes |
 |----------------|-----------|-------|
 | `NativeWindowHandle` | `{HWND, X11Display uintptr; X11Window uint64; MetalLayer uintptr}` | Platform handles from GLFW native accessors |
-| `Device` | struct | Holds instance, adapter, device, queue, surface, shader, pipeline |
+| `Device` | struct | Holds instance, adapter, device, queue, surface, shader, pipeline, depth texture, geometry cache |
 | `New` | `() *Device` | Returns uninitialised Device |
-| `Device.Init` | `(width, height uint32, handle NativeWindowHandle) error` | Full wgpu chain: load lib → instance → surface → adapter → device → queue → configure → compile shader → pipeline |
-| `Device.RenderFrame` | `() error` | GetCurrentTexture → render pass → draw(3,1,0,0) → present |
-| `Device.Shutdown` | `()` | Releases all resources in reverse init order; safe to call multiple times |
+| `Device.Init` | `(width, height uint32, handle NativeWindowHandle) error` | Full wgpu chain: load lib → instance → surface → adapter → device → queue → configure → depth texture → compile shader → pipeline |
+| `Device.LoadGeometry` | `(mesh *geometry.Mesh) error` | Uploads vertex+index buffers to VRAM; cached by pointer (no re-upload unless mesh changes) |
+| `Device.RenderFrame` | `() error` | GetCurrentTexture → render pass (with depth) → SetVertexBuffer+SetIndexBuffer+DrawIndexed → present |
+| `Device.Shutdown` | `()` | Releases all resources including buffers and depth texture; safe to call multiple times |
 | `Device.IsReady` | `() bool` | True after Init completes without error |
 | `Device.HasQueue` | `() bool` | True after queue acquisition in Init step 6 |
+| `PackVertices` | `([]geometry.Vertex) []float32` | Packs pos+color as 6×float32 per vertex (stride 24 bytes); no build tag |
+| `PackIndices` | `([]int) []uint32` | Converts int indices to uint32; no build tag |
+| `VertexBuffer` | `(d *Device, []geometry.Vertex) (*wgpu.Buffer, error)` | Creates Vertex\|CopyDst buffer and uploads; `!headless` |
+| `IndexBuffer` | `(d *Device, []int) (*wgpu.Buffer, error)` | Creates Index\|CopyDst buffer and uploads; `!headless` |
 
 **Platform surface creation** (build-tagged, Zero-CGo):
 
@@ -320,18 +325,28 @@ Factory: `renderer.New(backend string) (Renderer, error)` — `backend` is `"cpu
 | `surface_linux.go` | `linux` | `CreateSurfaceFromXlibWindow(display, window)` |
 | `surface_darwin.go` | `darwin` | `CreateSurfaceFromMetalLayer(layer)` |
 
-**Init chain summary:**
+**Init chain summary (Phase 12):**
 ```
 wgpu.Init()                        // step 1: load wgpu-native shared lib
 wgpu.CreateInstance(nil)           // step 2: WebGPU instance
 createPlatformSurface(inst, hdl)   // step 3: platform surface (Win32/X11/Metal)
-instance.RequestAdapter(nil)       // step 4: GPU adapter
+instance.RequestAdapter(opts)      // step 4: GPU adapter (CompatibleSurface hint)
 adapter.RequestDevice(nil)         // step 5: logical device
 device.GetQueue()                  // step 6: default queue
 surface.Configure(...)             // step 7: BGRA8Unorm, PresentModeFifo
-device.CreateShaderModuleWGSL(...) // step 8: inline Hello Triangle WGSL
-device.CreateRenderPipelineSimple  // step 9: no vertex buffers
+device.CreateDepthTexture(...)     // step 8: Depth24Plus texture + view
+device.CreateShaderModuleWGSL(...) // step 9: cube WGSL (vertex+color, hardcoded MVP)
+device.CreateRenderPipeline(...)   // step 10: VertexBufferLayout(stride=24) + DepthStencil
 ```
+
+**Vertex layout (WGSL struct input):**
+```
+location 0: position  float32×3  offset  0  (bytes 0–11)
+location 1: color     float32×3  offset 12  (bytes 12–23)
+stride: 24 bytes
+```
+
+**MVP (hardcoded Phase 12):** camera pos=(3,2,5) target=origin up=(0,1,0) fov=60° — computed at Init from actual width/height for correct aspect ratio. Replaced by uniform buffer in Phase 14.
 
 ---
 

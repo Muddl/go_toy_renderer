@@ -32,8 +32,8 @@ pipeline is functional before adding real geometry and shaders in later phases.
 
 - [ ] `github.com/go-webgpu/webgpu` v0.4.0 is in `go.mod` / `go.sum`
 - [ ] `GPUBackend.Init()` calls `wgpu.Init()` then creates Instance → Adapter
-      → Device → Queue without error on a machine with a GPU and
-      `WGPU_NATIVE_PATH` set
+      → Device → Queue → Surface (from GLFW window handle) without error on a
+      machine with a GPU and `WGPU_NATIVE_PATH` set
 - [ ] A Hello Triangle renders on the GPU at runtime (visible in the GLFW
       window) using a hardcoded WGSL shader
 - [ ] `go run ./cmd/renderer-rt --backend gpu` runs without error and displays

@@ -10,12 +10,12 @@ This file provides concise guidance to Claude Code. For full project context, se
 | [conductor/product.md](./conductor/product.md) | Project vision, pipeline overview, conventions |
 | [conductor/architecture.md](./conductor/architecture.md) | Package APIs, pipeline diagram, GPU architecture |
 | [conductor/workflow.md](./conductor/workflow.md) | TDD policy, commit strategy, branching, coverage thresholds |
-| [conductor/tracks.md](./conductor/tracks.md) | All 18 tracks (9 archived MVP + 8 GPU pending + 1 active) |
+| [conductor/tracks.md](./conductor/tracks.md) | All 19 tracks (14 completed + 5 GPU pending) |
 | [conductor/product-guidelines.md](./conductor/product-guidelines.md) | Design principles, common gotchas |
 
 ## Project Overview
 
-A toy 3D renderer in Go — CPU software renderer MVP complete (Phases 0–8), producing a 640×480 PNG of a coloured cube via barycentric rasterization. Now advancing toward cross-platform GPU acceleration (Phases 9–16) using wgpu-native (WebGPU), GLFW, and HLSL shaders compiled to WGSL via naga-cli. See [conductor/product.md](./conductor/product.md) for full details.
+A toy 3D renderer in Go — CPU software renderer MVP complete (Phases 0–8), producing a 640×480 PNG of a coloured cube via barycentric rasterization. Now advancing toward cross-platform GPU acceleration (Phases 9–16) using go-webgpu/webgpu (Zero-CGo FFI, WebGPU), GLFW, and HLSL shaders compiled to WGSL via naga-cli. See [conductor/product.md](./conductor/product.md) for full details.
 
 ## Development Commands
 
@@ -103,8 +103,8 @@ CI enforces this automatically for `windows-latest` builds.
 
 ## Recent Updates
 
-**2026-02-28 (Latest):** Phase 10 complete — `pkg/renderer` package: `Renderer` interface, `CPUBackend` (GLFW blit extracted from Phase 9), `GPUBackend` stub, `New()` factory. `cmd/renderer-rt` refactored to use `renderer.New()`. `--backend auto` falls back to CPU (GPU-first in Phase 11). `pkg/renderer` at 100% test coverage.
+**2026-02-28 (Latest):** Phase 11 track created — WebGPU integration via `github.com/go-webgpu/webgpu` v0.4.0 (Zero-CGo FFI, not the originally-planned wgpu-native CGo binding). No build tags needed for `pkg/gpu`; GPU tests gated by `GPU_TESTS=1` env var; `WGPU_NATIVE_PATH` points to wgpu-native shared library at runtime. Docs updated: tech-stack.md, architecture.md, product-guidelines.md.
+
+**2026-02-28:** Phase 10 complete — `pkg/renderer` package: `Renderer` interface, `CPUBackend` (GLFW blit extracted from Phase 9), `GPUBackend` stub, `New()` factory. `cmd/renderer-rt` refactored to use `renderer.New()`. `--backend auto` falls back to CPU (GPU-first in Phase 11). `pkg/renderer` at 100% test coverage.
 
 **2026-02-28:** CI hardening complete — pinned Go to 1.24, golangci-lint to v2.1.6, govulncheck to v1.1.3, gosec to v2.22.0; split Windows race-detector step; removed `|| true` from license enforcement. See `conductor/ci-fragility.md`.
-
-**2026-02-28:** Bug fix — Windows x64 `renderer-rt` build pinned to `GOARCH=amd64` in CI; PowerShell PE-header check added. Local build requires 64-bit MinGW-w64 (see Windows Build Prerequisites above).

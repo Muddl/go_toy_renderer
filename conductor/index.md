@@ -15,7 +15,9 @@ Navigation hub for project context.
 
 ## Active Tracks
 
-_No active tracks._
+| Track ID | Title | Status |
+| -------- | ----- | ------ |
+| [phase-11-webgpu_20260228](./tracks/phase-11-webgpu_20260228/index.md) | Phase 11: WebGPU Integration via go-webgpu | Pending ⏳ |
 
 ## Completed Tracks
 

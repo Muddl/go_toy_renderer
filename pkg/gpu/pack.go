@@ -24,7 +24,7 @@ func PackVertices(vertices []geometry.Vertex) []float32 {
 func PackIndices(indices []int) []uint32 {
 	out := make([]uint32, len(indices))
 	for i, idx := range indices {
-		out[i] = uint32(idx) //nolint:gosec // bounded by mesh vertex count
+		out[i] = uint32(idx)
 	}
 	return out
 }

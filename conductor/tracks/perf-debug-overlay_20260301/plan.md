@@ -82,11 +82,11 @@ geometry pass.
 - [x] Task 3.1: Write failing tests for GPU overlay helpers — verify
       `CreateOverlayPipeline` returns error before `Device.Init`, verify
       `UpdateOverlayTexture` returns error with nil texture. Commit `test:`.
-- [~] Task 3.2: Implement `pkg/overlay/gpu.go` (`!headless`) —
+- [x] Task 3.2: Implement `pkg/overlay/gpu.go` (`!headless`) —
       `OverlayPass`: `CreateOverlayPipeline` (SrcAlpha/OneMinusSrcAlpha
       blend, no depth write/test, fullscreen quad), `UpdateOverlayTexture`
       (`queue.WriteTexture`), `Render(pass)`. Commit `feat:`.
-- [ ] Task 3.3: Wire into `pkg/renderer/gpu.go`:
+- [x] Task 3.3: Wire into `pkg/renderer/gpu.go`:
         • add `glfw.KeyF3` callback → `overlay.CycleLevel()`
         • wrap `LoadGeometry`, render pass encode, `queue.Submit`, `Present`
           with `time.Since` → populate `Metrics`

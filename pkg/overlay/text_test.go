@@ -98,6 +98,32 @@ func TestTextLayer_Render_SmallFramebuffer_DoesNotPanic(t *testing.T) {
 	tl.Render(overlay.LevelDetail, overlay.Metrics{FPS: 99, Backend: "cpu"})
 }
 
+// BenchmarkTextLayer_Render_LevelOff measures the overhead of Render when the
+// overlay is hidden (most common steady-state). Must be ≤ 0.1 ms per frame.
+func BenchmarkTextLayer_Render_LevelOff(b *testing.B) {
+	tl := overlay.NewTextLayer(640, 480)
+	m := overlay.Metrics{}
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		tl.Render(overlay.LevelOff, m)
+	}
+}
+
+// BenchmarkTextLayer_Render_LevelDetail measures worst-case overhead (all
+// fields populated). Must be ≤ 0.1 ms per frame.
+func BenchmarkTextLayer_Render_LevelDetail(b *testing.B) {
+	tl := overlay.NewTextLayer(640, 480)
+	m := overlay.Metrics{
+		FPS: 60, FrameTimeMS: 16.67, CPUFrameTimeMS: 14.0,
+		GeometryUploadMS: 1.0, RenderPassMS: 10.0, PresentMS: 0.5,
+		Backend: "GPU", VertexCount: 8, TriangleCount: 12,
+	}
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		tl.Render(overlay.LevelDetail, m)
+	}
+}
+
 func countOpaquePixels(pixels []byte) int {
 	count := 0
 	for i := 3; i < len(pixels); i += 4 {

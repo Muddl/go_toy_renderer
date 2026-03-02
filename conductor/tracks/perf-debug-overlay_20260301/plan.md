@@ -79,10 +79,10 @@ geometry pass.
 
 ### Tasks
 
-- [~] Task 3.1: Write failing tests for GPU overlay helpers — verify
+- [x] Task 3.1: Write failing tests for GPU overlay helpers — verify
       `CreateOverlayPipeline` returns error before `Device.Init`, verify
       `UpdateOverlayTexture` returns error with nil texture. Commit `test:`.
-- [ ] Task 3.2: Implement `pkg/overlay/gpu.go` (`!headless`) —
+- [~] Task 3.2: Implement `pkg/overlay/gpu.go` (`!headless`) —
       `OverlayPass`: `CreateOverlayPipeline` (SrcAlpha/OneMinusSrcAlpha
       blend, no depth write/test, fullscreen quad), `UpdateOverlayTexture`
       (`queue.WriteTexture`), `Render(pass)`. Commit `feat:`.

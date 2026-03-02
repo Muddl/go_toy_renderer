@@ -158,6 +158,10 @@ type Device struct {
 	indexBufSize  uint64
 	indexCount    uint32
 	cachedMesh    *geometry.Mesh
+
+	// Optional overlay renderer (Phase 13 / perf-debug-overlay).
+	// Set via SetOverlayRenderer; called after the geometry draw in each frame.
+	overlayRenderer OverlayRenderer
 }
 
 // New returns a new, uninitialised Device.
@@ -362,6 +366,11 @@ func (d *Device) RenderFrame() error {
 	pass.SetVertexBuffer(0, d.vertexBuf, 0, d.vertexBufSize)
 	pass.SetIndexBuffer(d.indexBuf, gputypes.IndexFormatUint32, 0, d.indexBufSize)
 	pass.DrawIndexed(d.indexCount, 1, 0, 0, 0)
+	// Optional overlay: renders additional draw calls into the same pass
+	// (alpha-blended, no depth write) after the geometry draw.
+	if d.overlayRenderer != nil {
+		_ = d.overlayRenderer.RenderIntoPass(pass)
+	}
 	pass.End()
 	pass.Release()
 

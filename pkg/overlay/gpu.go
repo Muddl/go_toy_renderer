@@ -323,4 +323,3 @@ func (op *OverlayPass) Release() {
 var _ interface {
 	RenderIntoPass(pass *wgpu.RenderPassEncoder) error
 } = (*OverlayPass)(nil)
-

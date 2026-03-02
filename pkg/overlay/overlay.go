@@ -7,6 +7,7 @@ package overlay
 // Level controls how much information the overlay displays.
 type Level uint8
 
+// Level display constants — ordered by increasing verbosity.
 const (
 	LevelOff     Level = 0 // overlay hidden
 	LevelFPS     Level = 1 // FPS only

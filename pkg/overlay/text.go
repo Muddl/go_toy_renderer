@@ -3,12 +3,12 @@ package overlay
 import "fmt"
 
 const (
-	glyphScale  = 2                              // pixel scale multiplier for legibility
-	cellW       = GlyphWidth * glyphScale        // rendered cell width in pixels
-	cellH       = GlyphHeight * glyphScale       // rendered cell height in pixels
-	lineSpacing = cellH + 2                      // vertical distance between lines
-	marginX     = 8                              // left margin in pixels
-	marginY     = 8                              // top margin in pixels
+	glyphScale  = 2                        // pixel scale multiplier for legibility
+	cellW       = GlyphWidth * glyphScale  // rendered cell width in pixels
+	cellH       = GlyphHeight * glyphScale // rendered cell height in pixels
+	lineSpacing = cellH + 2                // vertical distance between lines
+	marginX     = 8                        // left margin in pixels
+	marginY     = 8                        // top margin in pixels
 )
 
 // TextLayer renders overlay text into an RGBA byte slice at a fixed top-left
@@ -70,6 +70,8 @@ func (tl *TextLayer) Render(level Level, m Metrics) []byte {
 // buildLines returns the text lines appropriate for the given level.
 func buildLines(level Level, m Metrics) []string {
 	switch level {
+	case LevelOff:
+		return nil
 	case LevelFPS:
 		return []string{
 			fmt.Sprintf("FPS: %.1f", m.FPS),
@@ -110,10 +112,13 @@ func (tl *TextLayer) drawString(x, y int, s string) {
 
 // drawGlyph renders a single glyph at pixel (px, py) using white text on a
 // semi-transparent dark background for contrast.
+//
+//nolint:gocognit // pixel-level nested loop; extracting sub-functions would obscure the intent
 func (tl *TextLayer) drawGlyph(px, py int, g Glyph) {
 	for row := 0; row < GlyphHeight; row++ {
 		for col := 0; col < GlyphWidth; col++ {
-			lit := g[row]&(1<<uint(GlyphWidth-1-col)) != 0
+			shift := uint(GlyphWidth - 1 - col) //nolint:gosec // col is bounded [0,GlyphWidth), shift is always ≥0
+			lit := g[row]&(1<<shift) != 0
 			for sy := 0; sy < glyphScale; sy++ {
 				for sx := 0; sx < glyphScale; sx++ {
 					dx := px + col*glyphScale + sx

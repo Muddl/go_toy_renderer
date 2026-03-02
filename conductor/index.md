@@ -18,6 +18,7 @@ Navigation hub for project context.
 | Track ID | Title | Status |
 | -------- | ----- | ------ |
 | [phase-11-webgpu_20260228](./tracks/phase-11-webgpu_20260228/index.md) | Phase 11: WebGPU Integration via go-webgpu | Pending ⏳ |
+| [perf-debug-overlay_20260301](./tracks/perf-debug-overlay_20260301/index.md) | Live Performance Debug Overlay | Pending ⏳ |
 
 ## Completed Tracks
 

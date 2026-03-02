@@ -48,7 +48,8 @@ Dependencies flow in **one direction only** — lower packages never import high
 cmd/renderer       → pkg/render, pkg/framebuffer, pkg/camera, pkg/geometry, pkg/shader
 cmd/renderer-rt    → pkg/renderer (Phase 9+), pkg/window (Phase 9+)
 pkg/render         → pkg/rasterize, pkg/shader, pkg/framebuffer, pkg/camera, pkg/geometry, pkg/math
-pkg/renderer       → pkg/render, pkg/gpu (Phase 10+)
+pkg/renderer       → pkg/render, pkg/gpu, pkg/overlay (Phase 10+)
+pkg/overlay        → pkg/framebuffer, pkg/gpu (perf-debug-overlay)
 pkg/gpu            → pkg/geometry, pkg/math (Phase 11+)
 pkg/rasterize      → pkg/shader, pkg/framebuffer, pkg/math
 pkg/shader         → pkg/math

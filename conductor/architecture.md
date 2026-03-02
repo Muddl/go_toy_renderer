@@ -1,6 +1,6 @@
 # Architecture Reference — go_toy_renderer
 
-**Last updated:** 2026-03-01 (Phase 12 complete — GPU geometry upload + indexed draw + depth buffer)
+**Last updated:** 2026-03-01 (perf-debug-overlay complete — pkg/overlay, F3 toggle, CPU + GPU compositing)
 
 ---
 
@@ -82,7 +82,8 @@ Dependencies flow in **one direction only**. Never import a higher-level package
 cmd/renderer       → pkg/render, pkg/framebuffer, pkg/camera, pkg/geometry, pkg/shader
 cmd/renderer-rt    → pkg/renderer*, pkg/window*         (* Phase 9+)
 pkg/render         → pkg/rasterize, pkg/shader, pkg/framebuffer, pkg/camera, pkg/geometry, pkg/math
-pkg/renderer*      → pkg/render, pkg/gpu*               (* Phase 10+)
+pkg/renderer*      → pkg/render, pkg/gpu*, pkg/overlay* (* Phase 10+)
+pkg/overlay*       → pkg/framebuffer, pkg/gpu*          (* perf-debug-overlay)
 pkg/gpu*           → pkg/geometry, pkg/math              (* Phase 11+)
 pkg/rasterize      → pkg/shader, pkg/framebuffer, pkg/math
 pkg/shader         → pkg/math
@@ -348,6 +349,59 @@ stride: 24 bytes
 
 **MVP (hardcoded Phase 12):** camera pos=(3,2,5) target=origin up=(0,1,0) fov=60° — computed at Init from actual width/height for correct aspect ratio. Replaced by uniform buffer in Phase 14.
 
+### `pkg/overlay` (perf-debug-overlay) ✅
+
+Live performance debug overlay — F3 toggles through four granularity levels.
+Pure-Go core (no build tags); GPU compositing path gated `!headless`.
+
+**Coverage:** ≥80% headless CI.
+**Benchmark:** `LevelOff` = 1.8 µs, `LevelDetail` = 54 µs (both ≤ 0.1 ms budget).
+
+#### Core types (no build tag)
+
+| Type / Function | Signature | Notes |
+|----------------|-----------|-------|
+| `Level` | `uint8` | 0=Off, 1=FPS, 2=Timings, 3=Detail |
+| `LevelOff / LevelFPS / LevelTimings / LevelDetail` | `Level` constants | Ordered 0–3; modulo wraparound in `CycleLevel` |
+| `Metrics` | struct | `FPS float64`; `FrameTimeMS`, `CPUFrameTimeMS`; `GeometryUploadMS`, `RenderPassMS`, `PresentMS`; `Backend string`; `VertexCount`, `TriangleCount int` |
+| `Overlay` | struct | Holds current level; zero-value is `LevelOff` |
+| `Overlay.Level` | `() Level` | Current display level |
+| `Overlay.CycleLevel` | `()` | Advance level mod 4 — call from F3 key callback |
+| `Overlay.Update` | `(Metrics)` | Store latest metrics snapshot |
+| `Sampler` | struct | 60-frame circular buffer; zero-value safe |
+| `Sampler.AddSample` | `(time.Duration)` | Push frame duration |
+| `Sampler.FPS` | `() float64` | Rolling-average FPS |
+| `Glyph` | `[GlyphHeight]uint8` | Bitmap row data (8 rows × 8 pixels) |
+| `GlyphWidth / GlyphHeight` | `int` constants | 8 × 8 |
+| `GlyphFor` | `(byte) Glyph` | Looks up glyph; falls back to blank for unmapped chars |
+| `TextLayer` | struct | RGBA pixel buffer (framebuffer-sized); owns backing slice |
+| `NewTextLayer` | `(width, height int) *TextLayer` | Allocates `width×height×4` pixel buffer |
+| `TextLayer.Render` | `(Level, Metrics) []byte` | Clears buffer, draws text at top-left; returns RGBA pixels |
+| `TextLayer.Width / Height / Pixels` | accessors | Expose dimensions and raw pixel buffer |
+
+#### CPU compositing (`!headless`)
+
+| Type / Function | Signature | Notes |
+|----------------|-----------|-------|
+| `ComposeIntoFramebuffer` | `(layer *TextLayer, fb *framebuffer.Framebuffer)` | Alpha-blends overlay pixels into CPU framebuffer before GLFW blit |
+
+#### GPU compositing (`!headless`)
+
+| Type / Function | Signature | Notes |
+|----------------|-----------|-------|
+| `OverlayPass` | struct | Holds wgpu resources for the fullscreen-quad overlay pass |
+| `NewOverlayPass` | `(d *gpu.Device) *OverlayPass` | Wraps an initialised `gpu.Device` |
+| `OverlayPass.CreateOverlayPipeline` | `() error` | Allocates shader/sampler/bind group/pipeline/texture; errors before `Device.Init` |
+| `OverlayPass.UpdateOverlayTexture` | `(layer *TextLayer) error` | Uploads `TextLayer` pixels to GPU overlay texture via `queue.WriteTexture` |
+| `OverlayPass.RenderIntoPass` | `(pass *wgpu.RenderPassEncoder) error` | Sets pipeline, binds texture/sampler, calls `Draw(6,1,0,0)` |
+| `OverlayPass.Release` | `()` | Releases all wgpu handles; safe to call multiple times |
+
+**GPU overlay design:**
+- Fullscreen-quad WGSL shader (6 vertices from `vertex_index`; no VB required)
+- Blend: `SrcAlpha / OneMinusSrcAlpha` (color) + `One / Zero` (alpha)
+- `DepthStencil`: `Always` compare + `DepthWriteEnabled: false` (depth attachment compatible)
+- Registered with `gpu.Device.SetOverlayRenderer(pass)` → called by `Device.RenderFrame` after `DrawIndexed`
+
 ---
 
 ### GPU Pipeline (Phase 11+, go-webgpu/webgpu / WebGPU)
@@ -428,6 +482,7 @@ pkg/
 ├── framebuffer/    # CPU framebuffer preserved
 ├── renderer/       # NEW (Phase 10): Renderer interface + factory
 ├── gpu/            # NEW (Phase 11): device, swapchain, pipeline, buffers
+├── overlay/        # NEW (perf-debug-overlay): F3 debug overlay, CPU + GPU compositing
 ├── window/         # NEW (Phase 9): GLFW window, input, camera controller
 ├── scene/          # NEW (Phase 14): Transform component, GPUScene
 └── loader/         # NEW (Phase 16): OBJ file loading

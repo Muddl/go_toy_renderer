@@ -23,4 +23,6 @@
 | [x] | [ci-hardening_20260228](./tracks/ci-hardening_20260228/index.md) | CI Pipeline Hardening | 2026-02-28 | 2026-02-28 |
 | [x] | [win64-renderer-rt_20260228](./tracks/win64-renderer-rt_20260228/index.md) | Windows x64 Build for renderer-rt | 2026-02-28 | 2026-02-28 |
 
+| [x] | [perf-debug-overlay_20260301](./tracks/perf-debug-overlay_20260301/index.md) | Live Performance Debug Overlay | 2026-03-01 | 2026-03-01 |
+
 <!-- Tracks registered by /conductor:new-track -->

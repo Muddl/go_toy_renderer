@@ -12,6 +12,7 @@ import (
 	"github.com/muddl/go_toy_renderer/pkg/camera"
 	"github.com/muddl/go_toy_renderer/pkg/framebuffer"
 	pkgmath "github.com/muddl/go_toy_renderer/pkg/math"
+	"github.com/muddl/go_toy_renderer/pkg/overlay"
 	"github.com/muddl/go_toy_renderer/pkg/render"
 	"github.com/muddl/go_toy_renderer/pkg/shader"
 )
@@ -61,6 +62,9 @@ type CPUBackend struct {
 	tex           uint32
 	fb            *framebuffer.Framebuffer
 	cam           camera.Camera
+	ovr           overlay.Overlay
+	ovLayer       *overlay.TextLayer
+	sampler       overlay.Sampler
 }
 
 // Init opens a GLFW window, initialises OpenGL, and prepares the CPU framebuffer.
@@ -87,8 +91,14 @@ func (c *CPUBackend) Init(width, height int) error {
 	win.MakeContextCurrent()
 
 	win.SetKeyCallback(func(w *glfw.Window, key glfw.Key, _ int, action glfw.Action, _ glfw.ModifierKey) {
-		if key == glfw.KeyEscape && action == glfw.Press {
+		if action != glfw.Press {
+			return
+		}
+		switch key {
+		case glfw.KeyEscape:
 			w.SetShouldClose(true)
+		case glfw.KeyF3:
+			c.ovr.CycleLevel()
 		}
 	})
 
@@ -110,6 +120,7 @@ func (c *CPUBackend) Init(width, height int) error {
 
 	c.tex = createTexture(width, height)
 	c.fb = framebuffer.New(width, height)
+	c.ovLayer = overlay.NewTextLayer(width, height)
 	c.cam = camera.New(
 		pkgmath.Vec3{X: 3, Y: 2, Z: 5},
 		pkgmath.Vec3{},
@@ -135,7 +146,27 @@ func (c *CPUBackend) RenderFrame(scene *render.Scene) error {
 
 	frameStart := time.Now()
 
+	cpuStart := time.Now()
 	render.Render(scene, c.cam, c.fb, shader.VertexColor)
+	cpuElapsed := time.Since(cpuStart)
+
+	c.sampler.AddSample(time.Since(frameStart))
+
+	verts, tris := 0, 0
+	for _, mesh := range scene.Meshes {
+		verts += len(mesh.Vertices)
+		tris += len(mesh.Indices) / 3
+	}
+	m := overlay.Metrics{
+		FPS:            c.sampler.FPS(),
+		FrameTimeMS:    float64(time.Since(frameStart)) / float64(time.Millisecond),
+		CPUFrameTimeMS: float64(cpuElapsed) / float64(time.Millisecond),
+		Backend:        "CPU",
+		VertexCount:    verts,
+		TriangleCount:  tris,
+	}
+	c.ovLayer.Render(c.ovr.Level(), m)
+	overlay.ComposeIntoFramebuffer(c.ovLayer, c.fb)
 
 	pixels := framebufferToRGBA(c.fb)
 	uploadTexture(c.tex, c.width, c.height, pixels)

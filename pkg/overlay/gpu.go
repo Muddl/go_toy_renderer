@@ -68,19 +68,19 @@ type OverlayPass struct {
 	gpuDevice *gpu.Device
 
 	// Raw wgpu handles — populated by CreateOverlayPipeline.
-	wgpuDevice  *wgpu.Device
-	wgpuQueue   *wgpu.Queue
-	format      gputypes.TextureFormat
-	fbWidth     uint32
-	fbHeight    uint32
-	shader      *wgpu.ShaderModule
+	wgpuDevice     *wgpu.Device
+	wgpuQueue      *wgpu.Queue
+	format         gputypes.TextureFormat
+	fbWidth        uint32
+	fbHeight       uint32
+	shader         *wgpu.ShaderModule
 	bindLayout     *wgpu.BindGroupLayout
 	pipelineLayout *wgpu.PipelineLayout
 	pipeline       *wgpu.RenderPipeline
-	sampler     *wgpu.Sampler
-	texture     *wgpu.Texture
-	textureView *wgpu.TextureView
-	bindGroup   *wgpu.BindGroup
+	sampler        *wgpu.Sampler
+	texture        *wgpu.Texture
+	textureView    *wgpu.TextureView
+	bindGroup      *wgpu.BindGroup
 }
 
 // NewOverlayPass creates an OverlayPass wrapping the given gpu.Device.

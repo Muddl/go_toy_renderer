@@ -25,6 +25,10 @@ type GPUBackend struct {
 	ovLayer       *overlay.TextLayer
 	ovPass        *overlay.OverlayPass
 	sampler       overlay.Sampler
+	// Previous-frame timing used for overlay display (current frame not yet complete
+	// when the overlay texture must be uploaded before Device.RenderFrame).
+	prevFrameDur time.Duration
+	prevPassDur  time.Duration
 }
 
 // Init opens a GLFW window with ClientAPI=NoAPI, extracts the platform-specific
@@ -113,21 +117,22 @@ func (g *GPUBackend) RenderFrame(scene *render.Scene) error {
 	}
 	geoElapsed := time.Since(geoStart)
 
-	g.sampler.AddSample(time.Since(frameStart))
-
 	verts, tris := 0, 0
 	for _, mesh := range scene.Meshes {
 		verts += len(mesh.Vertices)
 		tris += len(mesh.Indices) / 3
 	}
 
-	// Build overlay metrics with data available before the render pass.
-	// RenderPassMS is approximated from the previous frame (zero on first frame).
+	// Build overlay metrics from the PREVIOUS frame's timing so that meaningful
+	// values are available before Device.RenderFrame (which includes GPU work and
+	// present). On frame 0 both durations are zero — acceptable for one frame.
+	msPerDur := func(d time.Duration) float64 { return float64(d) / float64(time.Millisecond) }
 	m := overlay.Metrics{
 		FPS:              g.sampler.FPS(),
-		FrameTimeMS:      float64(time.Since(frameStart)) / float64(time.Millisecond),
-		CPUFrameTimeMS:   float64(time.Since(frameStart)) / float64(time.Millisecond),
-		GeometryUploadMS: float64(geoElapsed) / float64(time.Millisecond),
+		FrameTimeMS:      msPerDur(g.prevFrameDur),
+		CPUFrameTimeMS:   msPerDur(g.prevFrameDur - g.prevPassDur),
+		GeometryUploadMS: msPerDur(geoElapsed),
+		RenderPassMS:     msPerDur(g.prevPassDur),
 		Backend:          "GPU",
 		VertexCount:      verts,
 		TriangleCount:    tris,
@@ -145,13 +150,19 @@ func (g *GPUBackend) RenderFrame(scene *render.Scene) error {
 	if err := g.device.RenderFrame(); err != nil {
 		return err
 	}
-	_ = time.Since(passStart) // RenderPassMS available for next frame's metrics
+	g.prevPassDur = time.Since(passStart)
 
 	glfw.PollEvents()
 
 	if elapsed := time.Since(frameStart); elapsed < time.Second/gpuTargetFPS {
 		time.Sleep(time.Second/gpuTargetFPS - elapsed)
 	}
+
+	// Record full frame duration (CPU + GPU + sleep) for the sampler and for
+	// display on the next frame.
+	g.prevFrameDur = time.Since(frameStart)
+	g.sampler.AddSample(g.prevFrameDur)
+
 	return nil
 }
 

@@ -74,8 +74,9 @@ type OverlayPass struct {
 	fbWidth     uint32
 	fbHeight    uint32
 	shader      *wgpu.ShaderModule
-	bindLayout  *wgpu.BindGroupLayout
-	pipeline    *wgpu.RenderPipeline
+	bindLayout     *wgpu.BindGroupLayout
+	pipelineLayout *wgpu.PipelineLayout
+	pipeline       *wgpu.RenderPipeline
 	sampler     *wgpu.Sampler
 	texture     *wgpu.Texture
 	textureView *wgpu.TextureView
@@ -139,6 +140,15 @@ func (op *OverlayPass) CreateOverlayPipeline() error {
 	}
 	op.bindLayout = bindLayout
 
+	// Pipeline layout wraps the bind group layout. Must be passed explicitly to
+	// CreateRenderPipeline — omitting it causes wgpu to use auto-layout, which
+	// creates exclusive bind group layouts incompatible with our bindGroup.
+	pipelineLayout := op.wgpuDevice.CreatePipelineLayoutSimple([]*wgpu.BindGroupLayout{bindLayout})
+	if pipelineLayout == nil {
+		return errors.New("overlay: CreateOverlayPipeline: create pipeline layout returned nil")
+	}
+	op.pipelineLayout = pipelineLayout
+
 	// Blend state: SrcAlpha / OneMinusSrcAlpha (standard alpha compositing).
 	blend := &wgpu.BlendState{
 		Color: wgpu.BlendComponent{
@@ -156,6 +166,7 @@ func (op *OverlayPass) CreateOverlayPipeline() error {
 	// Render pipeline: no vertex buffers (vertices generated in shader),
 	// no depth write (overlay always draws on top), alpha blend.
 	pipeline := op.wgpuDevice.CreateRenderPipeline(&wgpu.RenderPipelineDescriptor{
+		Layout: pipelineLayout,
 		Vertex: wgpu.VertexState{
 			Module:     shader,
 			EntryPoint: "vs_main",
@@ -309,6 +320,10 @@ func (op *OverlayPass) Release() {
 	if op.pipeline != nil {
 		op.pipeline.Release()
 		op.pipeline = nil
+	}
+	if op.pipelineLayout != nil {
+		op.pipelineLayout.Release()
+		op.pipelineLayout = nil
 	}
 	if op.shader != nil {
 		op.shader.Release()

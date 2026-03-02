@@ -3,7 +3,7 @@
 **Track ID:** perf-debug-overlay_20260301
 **Spec:** [spec.md](./spec.md)
 **Created:** 2026-03-01
-**Status:** [~] In Progress
+**Status:** [x] Complete
 
 ## Overview
 
@@ -106,17 +106,17 @@ geometry pass.
 
 ### Tasks
 
-- [ ] Task 4.1: Run `golangci-lint run --build-tags headless ./...`; resolve
+- [x] Task 4.1: Run `golangci-lint run --build-tags headless ./...`; resolve
       any warnings in the new packages. Commit `fix:` if needed.
-- [ ] Task 4.2: Benchmark overlay at level 0 (`go test -bench=. ./pkg/overlay/...`);
+- [x] Task 4.2: Benchmark overlay at level 0 (`go test -bench=. ./pkg/overlay/...`);
       confirm overhead ≤ 0.1 ms. Commit `perf:` note if optimisation needed.
-- [ ] Task 4.3: Update `conductor/tech-stack.md` (package graph),
+- [x] Task 4.3: Update `conductor/tech-stack.md` (package graph),
       `conductor/architecture.md` (pkg/overlay API table), `CLAUDE.md`
       (Recent Updates). Commit `docs:`.
 
 ### Verification
 
-- [ ] All acceptance criteria in `spec.md` checked.
+- [x] All acceptance criteria in `spec.md` checked.
 - [ ] PR merged to `main`, CI green.
 
 ---

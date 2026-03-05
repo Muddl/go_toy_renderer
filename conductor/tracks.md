@@ -16,7 +16,7 @@
 | [x] | [phase-10-gpu-abstraction_20260227](./tracks/phase-10-gpu-abstraction_20260227/index.md) | Phase 10: GPU Backend Abstraction | 2026-02-27 | 2026-02-28 |
 | [x] | [phase-11-webgpu_20260228](./tracks/phase-11-webgpu_20260228/index.md) | Phase 11: WebGPU Integration via go-webgpu | 2026-02-28 | 2026-02-28 |
 | [x] | [phase-12-gpu-geometry_20260227](./tracks/phase-12-gpu-geometry_20260227/index.md) | Phase 12: GPU Geometry & Draw Pipeline | 2026-02-27 | 2026-03-01 |
-| [ ] | [phase-13-hlsl_20260227](./tracks/phase-13-hlsl_20260227/index.md) | Phase 13: WGSL Shader Pipeline | 2026-02-27 | 2026-03-04 |
+| [x] | [phase-13-hlsl_20260227](./tracks/phase-13-hlsl_20260227/index.md) | Phase 13: WGSL Shader Pipeline | 2026-02-27 | 2026-03-04 |
 | [ ] | [phase-14-uniforms_20260227](./tracks/phase-14-uniforms_20260227/index.md) | Phase 14: Uniform Buffers & Per-Mesh Transforms | 2026-02-27 | 2026-02-27 |
 | [ ] | [phase-15-lighting_20260227](./tracks/phase-15-lighting_20260227/index.md) | Phase 15: Lighting, Normals & Physical Shading | 2026-02-27 | 2026-02-27 |
 | [ ] | [phase-16-advanced_20260227](./tracks/phase-16-advanced_20260227/index.md) | Phase 16: Advanced Features & Polish | 2026-02-27 | 2026-02-27 |

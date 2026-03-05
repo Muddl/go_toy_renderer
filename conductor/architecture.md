@@ -296,6 +296,19 @@ Factory: `renderer.New(backend string) (Renderer, error)` — `backend` is `"cpu
 | `GPUBackend` | struct (`headless`) | Stub; `Init`→nil, `RenderFrame`→"GPU not yet implemented" |
 | `New` | `(backend string) (Renderer, error)` | `"auto"`: non-headless tries GPU first, falls back to CPU; headless returns CPU |
 
+### `assets/shaders` (Phase 13) ✅
+
+WGSL shader source files embedded at build time via `//go:embed`.
+
+| File | Purpose |
+|------|---------|
+| `cube.wgsl` | Combined vertex+fragment WGSL shader for the cube; contains `%f` format verbs for the hardcoded MVP matrix (replaced by uniform buffer in Phase 14) |
+| `embed.go` | `package shaders`; exports `CubeWGSLTemplate string` via `//go:embed cube.wgsl` |
+
+`pkg/gpu.makeCubeShaderWGSL` calls `fmt.Sprintf(shaders.CubeWGSLTemplate, mvp[0], ...)` to produce the final WGSL string at Init time.
+
+---
+
 ### `pkg/gpu` (Phase 12) ✅
 
 **Zero-CGo FFI** — no build tags; GPU integration tests gated by `GPU_TESTS=1`.
@@ -336,7 +349,7 @@ adapter.RequestDevice(nil)         // step 5: logical device
 device.GetQueue()                  // step 6: default queue
 surface.Configure(...)             // step 7: BGRA8Unorm, PresentModeFifo
 device.CreateDepthTexture(...)     // step 8: Depth24Plus texture + view
-device.CreateShaderModuleWGSL(...) // step 9: cube WGSL (vertex+color, hardcoded MVP)
+device.CreateShaderModuleWGSL(...) // step 9: cube WGSL from assets/shaders/cube.wgsl (hardcoded MVP)
 device.CreateRenderPipeline(...)   // step 10: VertexBufferLayout(stride=24) + DepthStencil
 ```
 

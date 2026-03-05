@@ -31,7 +31,7 @@ Complete the GPU roadmap: OBJ loader, texture mapping, GPU timestamp profiling, 
 
 ### Tasks
 
-- [ ] Task 2.1: Update `vertex.hlsl` to pass UV to fragment stage; update `fragment.hlsl` to sample `Texture2D` + `SamplerState` as albedo; regenerate WGSL. Commit `feat: add texture sampling to HLSL shaders`.
+- [ ] Task 2.1: Update `vertex.wgsl` to pass UV to fragment stage; update `fragment.wgsl` to sample `texture_2d` + `sampler` as albedo. Commit `feat: add texture sampling to WGSL shaders`.
 - [ ] Task 2.2: Add freely-licensed `.obj` + `.png` test asset to `assets/models/`; load and render it in demo. Commit `feat: demo OBJ model with texture`.
 - [ ] Task 2.3: Add `wgpu.QuerySet` timestamp queries around render pass; log GPU frame time to stdout. Commit `feat: add GPU timestamp profiling`.
 
@@ -46,8 +46,8 @@ Complete the GPU roadmap: OBJ loader, texture mapping, GPU timestamp profiling, 
 
 ### Tasks
 
-- [ ] Task 3.1: Update `README.md`: GPU quick start, wgpu-native setup steps, HLSL shader authoring guide, performance table (CPU ~1.2 ms vs GPU target <1 ms at 1080p). Commit `docs: update README for GPU roadmap completion`.
-- [ ] Task 3.2: **(Stretch)** PBR fragment shader in HLSL (Fresnel, GGX NDF, Smith geometry). Commit `feat: add PBR HLSL shader (stretch)`.
+- [ ] Task 3.1: Update `README.md`: GPU quick start, wgpu-native setup steps, WGSL shader authoring guide, performance table (CPU ~1.2 ms vs GPU target <1 ms at 1080p). Commit `docs: update README for GPU roadmap completion`.
+- [ ] Task 3.2: **(Stretch)** PBR fragment shader in WGSL (Fresnel, GGX NDF, Smith geometry). Commit `feat: add PBR WGSL shader (stretch)`.
 - [ ] Task 3.3: **(Stretch)** Fullscreen post-processing pass for tone mapping / gamma correction. Commit `feat: add post-processing pass (stretch)`.
 - [ ] Task 3.4: Run `go test ./...`; confirm all non-GPU tests pass on CI. Commit `chore: mark Phase 16 complete — GPU roadmap done`.
 

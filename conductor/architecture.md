@@ -416,8 +416,8 @@ compiler required; loads wgpu-native shared library at runtime via
 └──────┬───────┘
        │
 ┌──────▼───────┐
-│ Vertex Shader│  HLSL → WGSL (naga); MVP matrix from uniform buffer (binding 0)
-│  (HLSL/WGSL) │
+│ Vertex Shader│  WGSL (embedded via go:embed); MVP matrix from uniform buffer (binding 0)
+│   (WGSL)     │
 └──────┬───────┘
        │
 ┌──────▼───────┐
@@ -426,7 +426,7 @@ compiler required; loads wgpu-native shared library at runtime via
 └──────┬───────┘
        │
 ┌──────▼───────┐
-│ Fragment     │  HLSL → WGSL; per-pixel colour, lighting, texture
+│ Fragment     │  WGSL (embedded); per-pixel colour, lighting, texture
 │ Shader       │
 └──────┬───────┘
        │
@@ -454,13 +454,9 @@ compiler required; loads wgpu-native shared library at runtime via
 ### Shader Authoring (Phase 13)
 
 ```
-HLSL source (.hlsl)       ← edit this
+WGSL source (.wgsl)       ← edit this
       │
-  go generate
-      │
-   naga-cli                ← cargo install naga-cli
-      │
-WGSL output (.wgsl)       ← committed to repo
+  go:embed (build time)    ← no external tools required
       │
   wgpu runtime             ← loads WGSL, compiles to native ISA
       │

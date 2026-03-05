@@ -53,7 +53,7 @@ pipeline is functional before adding real geometry and shaders in later phases.
 
 ## Out of Scope
 
-- HLSL/WGSL shader compilation pipeline (Phase 13)
+- WGSL shader pipeline — standalone files and go:embed (Phase 13)
 - Uniform buffers and per-mesh transforms (Phase 14)
 - Lighting and PBR shading (Phase 15)
 - OBJ model loading (Phase 16)

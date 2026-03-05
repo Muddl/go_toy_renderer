@@ -7,7 +7,7 @@
 
 ## Overview
 
-Add per-vertex normals to the geometry, upload a directional light uniform, and implement a Phong HLSL fragment shader. Demo: rotating cube with visible shading and specular highlights.
+Add per-vertex normals to the geometry, upload a directional light uniform, and implement a Phong WGSL fragment shader. Demo: rotating cube with visible shading and specular highlights.
 
 ---
 
@@ -31,9 +31,9 @@ Add per-vertex normals to the geometry, upload a directional light uniform, and 
 ### Tasks
 
 - [ ] Task 2.1: Add `LightUniforms` buffer to `GPUBackend`; upload directional light direction + colour + ambient. Commit `feat: add light uniform buffer`.
-- [ ] Task 2.2: Update `vertex.hlsl` to pass world-space normal + world position to fragment stage. Commit `feat: pass normals through vertex shader`.
-- [ ] Task 2.3: Write Phong fragment shader in `fragment.hlsl` (ambient + diffuse N·L + specular R·V^shininess); regenerate WGSL. Commit `feat: implement Phong lighting in HLSL`.
-- [ ] Task 2.4: Add normal matrix (`transpose(inverse(model))`) to `MeshUniforms`; update HLSL and uniform upload. Commit `feat: add normal matrix uniform`.
+- [ ] Task 2.2: Update `vertex.wgsl` to pass world-space normal + world position to fragment stage. Commit `feat: pass normals through vertex shader`.
+- [ ] Task 2.3: Update `fragment.wgsl` to implement Phong lighting (ambient + diffuse N·L + specular R·V^shininess). Commit `feat: implement Phong lighting in WGSL`.
+- [ ] Task 2.4: Add normal matrix (`transpose(inverse(model))`) to `MeshUniforms`; update `vertex.wgsl` and uniform upload. Commit `feat: add normal matrix uniform`.
 
 ### Verification
 

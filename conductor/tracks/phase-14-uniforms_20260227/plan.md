@@ -29,7 +29,7 @@ Replace the hardcoded MVP matrix in the vertex shader with GPU uniform buffers f
 
 ### Tasks
 
-- [ ] Task 2.1: Update `vertex.hlsl` to read `cbuffer CameraUniforms` (viewProj) and `cbuffer MeshUniforms` (model); regenerate WGSL. Commit `feat: add uniform cbuffers to HLSL vertex shader`.
+- [ ] Task 2.1: Update `vertex.wgsl` to read `CameraUniforms` (viewProj) and `MeshUniforms` (model) via `@group`/`@binding`. Commit `feat: add uniform bindings to WGSL vertex shader`.
 - [ ] Task 2.2: Implement `GPUBackend` uniform buffer creation; bind group layout for camera + mesh uniforms. Commit `feat: create uniform buffers and bind group layout`.
 - [ ] Task 2.3: Update `RenderFrame` to upload camera uniform once per frame; upload mesh uniform per draw call. Commit `feat: upload uniform data per frame`.
 

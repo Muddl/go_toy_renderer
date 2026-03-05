@@ -21,18 +21,18 @@ As a developer, I want to load an OBJ file with textures and render it in real t
 
 - [ ] `pkg/loader` package: `LoadOBJ(path string) ([]geometry.Mesh, error)` supporting positions, normals, UVs, and face indices
 - [ ] `pkg/gpu` gains `Texture2D` helper: create `wgpu.Texture` from `image.RGBA`, upload via staging buffer
-- [ ] HLSL shader supports `Texture2D` + `SamplerState` for albedo texture
+- [ ] WGSL shader supports `texture_2d` + `sampler` for albedo texture
 - [ ] At least one freely-licensed `.obj` + `.png` test asset committed to `assets/models/`
 - [ ] `wgpu.QuerySet` timestamp queries for GPU pass timing (logged to stdout, not UI)
-- [ ] `README.md` updated: GPU quick start, wgpu-native setup, HLSL shader authoring guide, performance table (CPU vs GPU)
+- [ ] `README.md` updated: GPU quick start, wgpu-native setup, WGSL shader authoring guide, performance table (CPU vs GPU)
 - [ ] All tests pass: `go test ./...`
-- [ ] **Stretch:** PBR metalness/roughness HLSL shader (Fresnel, GGX NDF, Smith geometry)
+- [ ] **Stretch:** PBR metalness/roughness WGSL shader (Fresnel, GGX NDF, Smith geometry)
 - [ ] **Stretch:** Fullscreen post-processing pass (tone mapping / gamma correction)
 
 ## Dependencies
 
 - Phase 15 (Phong lighting)
-- naga-cli for any new HLSL shaders (Phase 13 toolchain)
+- Phase 13 (WGSL shader pipeline — standalone `.wgsl` files + go:embed)
 
 ## Out of Scope
 

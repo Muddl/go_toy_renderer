@@ -7,11 +7,11 @@
 
 ## Summary
 
-Add per-vertex normals, a Phong lighting model in HLSL, and a directional light uniform so the rendered scene shows diffuse shading with specular highlights.
+Add per-vertex normals, a Phong lighting model in WGSL, and a directional light uniform so the rendered scene shows diffuse shading with specular highlights.
 
 ## Context
 
-Phase 14 renders flat vertex colours. Phase 15 adds the foundational lighting model: normals uploaded to the GPU, a directional light in a uniform buffer, and a Phong HLSL fragment shader. This is the first phase where output visually demonstrates physically-inspired shading rather than interpolated vertex colour.
+Phase 14 renders flat vertex colours. Phase 15 adds the foundational lighting model: normals uploaded to the GPU, a directional light in a uniform buffer, and a Phong WGSL fragment shader. This is the first phase where output visually demonstrates physically-inspired shading rather than interpolated vertex colour.
 
 ## User Story
 
@@ -22,7 +22,7 @@ As a developer learning GPU shading, I want to see Phong-shaded geometry in the 
 - [ ] `pkg/geometry.Vertex` extended with `Normal Vec3` field; `NewCube()` and `NewTetrahedron()` generate face normals
 - [ ] Vertex buffer stride updated to include normals (position + colour + normal = 36 bytes)
 - [ ] `LightUniforms` buffer: direction Vec3 (16 bytes aligned), colour Vec3, ambient Vec3
-- [ ] HLSL fragment shader implements Phong: ambient + diffuse (N·L) + specular (R·V)^shininess
+- [ ] WGSL fragment shader implements Phong: ambient + diffuse (N·L) + specular (R·V)^shininess
 - [ ] Normal matrix passed as `transpose(inverse(model))` in `MeshUniforms` (or recomputed per frame)
 - [ ] Demo scene: rotating cube with Phong shading visible; light direction configurable at launch
 - [ ] Rotating cube: model matrix updated each frame to animate rotation
@@ -40,7 +40,7 @@ As a developer learning GPU shading, I want to see Phong-shaded geometry in the 
 ## Technical Notes
 
 - Flat normals for cube (6 faces × 4 vertices each); smooth normals deferred to OBJ loader
-- Normal transformation: `normalize(mul(normalMatrix, input.Normal))` in HLSL
+- Normal transformation: `normalize(normalMatrix * input.normal)` in WGSL
 - Animation: compute elapsed time in Go, upload rotation matrix each frame
 
 ---

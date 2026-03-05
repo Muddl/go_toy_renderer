@@ -23,13 +23,13 @@ As a developer, I want to render multiple meshes with independent positions, rot
 - [ ] Uniform buffer layout: `CameraUniforms` (viewProj Mat4x4, 64 bytes) + `MeshUniforms` (model Mat4x4, 64 bytes)
 - [ ] `GPUBackend` creates a bind group layout and bind groups for camera + per-mesh uniforms
 - [ ] Camera uniform updated once per frame; mesh uniform updated per draw call
-- [ ] Vertex shader in HLSL reads `cbuffer CameraUniforms` and `cbuffer MeshUniforms`
+- [ ] Vertex shader in WGSL reads camera and mesh uniforms via `@group`/`@binding` decorators
 - [ ] Demo scene in `cmd/renderer-rt`: cube + tetrahedron at different positions; both rendered correctly
 - [ ] All existing tests still pass: `go test ./...`
 
 ## Dependencies
 
-- Phase 13 (HLSL→WGSL pipeline)
+- Phase 13 (WGSL shader pipeline)
 - `pkg/math` Mat4x4 for model matrix construction
 
 ## Out of Scope

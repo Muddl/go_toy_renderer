@@ -20,7 +20,7 @@
 - All work goes through feature branches and pull requests — **never commit directly to `main`**.
 - Each phase is complete only when: implementation done, PR merged, task summary written, and all docs updated.
 - GPU phases target cross-platform support (D3D12/Metal/Vulkan via `go-webgpu/webgpu` Zero-CGo FFI bindings to wgpu-native).
-- HLSL shaders are compiled to WGSL via naga (not hand-written WGSL).
+- Shaders are written directly in WGSL and embedded into the binary via `//go:embed` (no cross-compilation step).
 
 ## Common Gotchas
 

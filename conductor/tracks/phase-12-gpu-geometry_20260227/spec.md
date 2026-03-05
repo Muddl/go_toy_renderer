@@ -34,7 +34,7 @@ As a developer, I want the GPU backend to render the same coloured cube as the C
 
 ## Out of Scope
 
-- HLSL shaders (Phase 13); use hardcoded WGSL for this phase
+- Standalone WGSL shader files (Phase 13); use hardcoded inline WGSL for this phase
 - Per-mesh transform uniforms (Phase 14)
 - Multi-mesh scenes (Phase 14)
 

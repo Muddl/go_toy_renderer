@@ -9,6 +9,7 @@ import (
 
 	"github.com/go-webgpu/webgpu/wgpu"
 	"github.com/gogpu/gputypes"
+	"github.com/muddl/go_toy_renderer/assets/shaders"
 	"github.com/muddl/go_toy_renderer/pkg/geometry"
 )
 
@@ -19,40 +20,10 @@ const vertexStride = 24 // 6 × float32 = 6 × 4 bytes
 // hardcoded MVP matrix computed from camera pos=(3,2,5) looking at origin.
 // The MVP is recomputed from the actual window dimensions to keep the correct
 // aspect ratio (uniforms are introduced in Phase 14).
+// The WGSL template is loaded from the embedded assets/shaders/cube.wgsl file.
 func makeCubeShaderWGSL(width, height uint32) string {
 	mvp := computeHardcodedMVP(width, height)
-	return fmt.Sprintf(`struct VertexInput {
-    @location(0) position: vec3<f32>,
-    @location(1) color: vec3<f32>,
-}
-
-struct VertexOutput {
-    @builtin(position) clip_position: vec4<f32>,
-    @location(0) color: vec3<f32>,
-}
-
-// MVP = Projection * View; camera at (3,2,5) looking at origin, fov=60 deg.
-// Columns of the column-major mat4x4<f32>:
-const mvp = mat4x4<f32>(
-    vec4<f32>(%f, %f, %f, %f),
-    vec4<f32>(%f, %f, %f, %f),
-    vec4<f32>(%f, %f, %f, %f),
-    vec4<f32>(%f, %f, %f, %f),
-);
-
-@vertex
-fn vs_main(in: VertexInput) -> VertexOutput {
-    var out: VertexOutput;
-    out.clip_position = mvp * vec4<f32>(in.position, 1.0);
-    out.color = in.color;
-    return out;
-}
-
-@fragment
-fn fs_main(in: VertexOutput) -> @location(0) vec4<f32> {
-    return vec4<f32>(in.color, 1.0);
-}
-`,
+	return fmt.Sprintf(shaders.CubeWGSLTemplate,
 		// column 0
 		mvp[0], mvp[1], mvp[2], mvp[3],
 		// column 1

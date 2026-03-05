@@ -16,14 +16,14 @@ func TestGPUBackend_Init_ReturnsNil(t *testing.T) {
 	}
 }
 
-func TestGPUBackend_RenderFrame_ReturnsNotImplemented(t *testing.T) {
+func TestGPUBackend_RenderFrame_ReturnsErrorWhenUninitialized(t *testing.T) {
 	gpu := &GPUBackend{}
 	err := gpu.RenderFrame(render.NewScene())
 	if err == nil {
-		t.Fatal("GPUBackend.RenderFrame() should return an error")
+		t.Fatal("GPUBackend.RenderFrame() should return an error when called without Init")
 	}
-	if !strings.Contains(err.Error(), "GPU not yet implemented") {
-		t.Errorf("GPUBackend.RenderFrame() error = %q, want to contain 'GPU not yet implemented'", err.Error())
+	if !strings.Contains(err.Error(), "not initialized") {
+		t.Errorf("GPUBackend.RenderFrame() error = %q, want to contain 'not initialized'", err.Error())
 	}
 }
 

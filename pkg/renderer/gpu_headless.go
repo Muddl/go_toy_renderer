@@ -16,7 +16,7 @@ func (g *GPUBackend) Init(_, _ int) error { return nil }
 
 // RenderFrame always returns an error in headless mode because no GPU pipeline exists.
 func (g *GPUBackend) RenderFrame(_ *render.Scene) error {
-	return errors.New("GPU not yet implemented")
+	return errors.New("gpu backend: not initialized — call Init first")
 }
 
 // Shutdown is a no-op in headless mode.

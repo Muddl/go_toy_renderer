@@ -1,51 +1,49 @@
-# Specification: Phase 13 — HLSL Shader Pipeline
+# Specification: Phase 13 — WGSL Shader Pipeline
 
 **Track ID:** phase-13-hlsl_20260227
 **Type:** Feature
 **Status:** Pending
 **Created:** 2026-02-27
+**Updated:** 2026-03-04
 
 ## Summary
 
-Establish an HLSL→WGSL shader authoring pipeline using naga-cli (or DXC). HLSL source lives in `assets/shaders/`; compiled WGSL is embedded at build time via `go:generate`. The GPU backend loads WGSL from the embedded files instead of hardcoded strings.
+Establish a WGSL shader authoring pipeline. WGSL source lives in `assets/shaders/`; files are embedded at build time via `go:embed`. The GPU backend loads WGSL from the embedded files instead of hardcoded strings.
 
 ## Context
 
-HLSL is the target shader language for this project (mirroring real-time game/engine workflows on D3D12). naga-cli translates HLSL→WGSL offline, keeping the WGSL as a build artifact rather than hand-authored. Phase 13 establishes the toolchain and converts the existing hardcoded WGSL shaders to HLSL source.
+WGSL is the native shader language for WebGPU and is directly consumed by wgpu-native at runtime — no cross-compilation step is needed. Phase 13 moves the existing hardcoded inline WGSL strings in `pkg/gpu` out to standalone `.wgsl` source files, embeds them via `//go:embed`, and loads them at runtime. This keeps shader source readable and editable without rebuilding Go code.
 
-**Source docs:** `15-hlsl-shader-pipeline.md`
+**Source docs:** `15-hlsl-shader-pipeline.md` (renamed scope)
 
 ## User Story
 
-As a developer, I want to write shaders in HLSL and have them automatically compiled to WGSL at build time so I can iterate on shading code with a familiar syntax and clear error messages.
+As a developer, I want to write shaders in standalone WGSL files so I can iterate on shading code without touching Go source, with clear file-level error messages from the wgpu runtime.
 
 ## Acceptance Criteria
 
-- [ ] `assets/shaders/vertex.hlsl` and `assets/shaders/fragment.hlsl` contain the vertex colour shader logic from Phase 12
-- [ ] `go generate ./assets/shaders/` invokes `naga-cli hlsl-in wgsl-out` to produce `assets/shaders/vertex.wgsl` and `fragment.wgsl`
+- [ ] `assets/shaders/vertex.wgsl` and `assets/shaders/fragment.wgsl` contain the vertex colour shader logic from Phase 12
 - [ ] `//go:embed` in `pkg/gpu/shaders.go` bundles both WGSL files into the binary
 - [ ] `GPUBackend` loads shader modules from embedded WGSL (not hardcoded strings)
-- [ ] Shader compilation errors surface as `go generate` failures with line numbers pointing to HLSL source
-- [ ] naga-cli install instructions documented in `README.md` (`cargo install naga-cli`)
-- [ ] `go test ./assets/shaders/...` — validate that generated WGSL files parse without errors (naga validate)
+- [ ] `go test ./pkg/gpu/...` — headless build continues to pass; GPU integration tests (`GPU_TESTS=1`) render the same coloured cube
 
 ## Dependencies
 
 - Phase 12 (working GPU geometry pipeline)
-- naga-cli (external Rust tool; `cargo install naga-cli`)
 
 ## Out of Scope
 
-- HLSL entry-point attributes beyond `SV_Position` and `SV_Target` (Phase 15 adds lighting)
+- HLSL or any other intermediate shader language
+- External shader compilation tools (naga-cli, DXC, glslc)
+- WGSL entry-point attributes beyond `@builtin(position)` and `@location(0)` (Phase 15 adds lighting)
 - Texture samplers (Phase 16)
 - Multiple shader variants / permutations
 
 ## Technical Notes
 
-- naga-cli command: `naga --entry-point main --stage vertex vertex.hlsl vertex.wgsl`
-- HLSL semantic mapping: `POSITION` → `@builtin(position)`, `COLOR` → `@location(0)`
-- `go:generate` directive should be in `assets/shaders/generate.go`
-- Committed WGSL files allow contributors without naga-cli to build the project
+- `pkg/gpu/shaders.go` uses `//go:embed assets/shaders/vertex.wgsl` and `//go:embed assets/shaders/fragment.wgsl`
+- The embed path must be relative to the Go source file; use a `shaders/` subdirectory symlink or move embed file to `assets/shaders/embed.go`
+- wgpu-native compiles WGSL to native ISA at `Device.Init` time — runtime errors include line/column into the WGSL source
 
 ---
 

@@ -20,19 +20,19 @@ The author — a developer learning 3D graphics and GPU programming through hand
 
 1. Learn the full 3D pipeline from scratch: math primitives → rasterization → GPU shaders.
 2. Produce working, well-tested code at each phase; no phase is "done" until tests pass and docs are updated.
-3. Build toward real-time GPU rendering via WebGPU (go-webgpu/webgpu Zero-CGo FFI over wgpu-native) with HLSL shaders compiled to WGSL.
+3. Build toward real-time GPU rendering via WebGPU (go-webgpu/webgpu Zero-CGo FFI over wgpu-native) with WGSL shaders embedded directly in the binary.
 
 ## Current Status
 
 - **MVP Complete (Phases 0–8):** CPU software renderer renders a colored cube to a 640×480 PNG.
-- **GPU Roadmap Active (Phases 9–16):** Real-time windowed rendering, WebGPU backend, HLSL shader pipeline.
+- **GPU Roadmap Active (Phases 9–16):** Real-time windowed rendering, WebGPU backend, WGSL shader pipeline.
 
 ## Success Criteria
 
 - **MVP (done):** Render a colored 3D object with correct perspective and depth ordering to a 640×480 PNG.
 - **Phase 9:** Real-time window at 60 fps via GLFW with CPU blit.
 - **Phase 11:** Hello Triangle rendered via go-webgpu/webgpu (WebGPU, Zero-CGo FFI).
-- **Phase 13:** Full HLSL shader pipeline (vertex + fragment) running on the GPU.
+- **Phase 13:** Standalone WGSL shader files embedded via go:embed; vertex + fragment running on the GPU.
 - **Phase 16:** Textured OBJ model rendered in real time with Phong/PBR shading.
 
 ## Pipeline Overview

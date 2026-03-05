@@ -1,51 +1,50 @@
-# Implementation Plan: Phase 13 — HLSL Shader Pipeline
+# Implementation Plan: Phase 13 — WGSL Shader Pipeline
 
 **Track ID:** phase-13-hlsl_20260227
 **Spec:** [spec.md](./spec.md)
 **Created:** 2026-02-27
+**Updated:** 2026-03-04
 **Status:** [ ] Not Started
 
 ## Overview
 
-Convert hardcoded WGSL shaders to HLSL source, add a `go:generate` step that invokes naga-cli to produce WGSL, and embed the generated WGSL in the binary. No runtime logic changes.
+Extract the hardcoded inline WGSL strings from `pkg/gpu` into standalone `.wgsl` source files under `assets/shaders/`, embed them via `//go:embed`, and update `GPUBackend` to load shader modules from the embedded bytes. No cross-compilation tools required.
 
 ---
 
-## Phase 1: HLSL Source Files
+## Phase 1: WGSL Source Files
 
 ### Tasks
 
-- [ ] Task 1.1: Install naga-cli (`cargo install naga-cli`); document in `README.md`. Commit `docs: add naga-cli install instructions`.
-- [ ] Task 1.2: Write `assets/shaders/vertex.hlsl` — vertex colour passthrough matching current WGSL semantics. Commit `feat: add HLSL vertex shader source`.
-- [ ] Task 1.3: Write `assets/shaders/fragment.hlsl` — colour output from vertex stage. Commit `feat: add HLSL fragment shader source`.
+- [ ] Task 1.1: Create `assets/shaders/vertex.wgsl` — vertex colour passthrough matching current inline WGSL in `pkg/gpu`. Commit `feat: add standalone WGSL vertex shader`.
+- [ ] Task 1.2: Create `assets/shaders/fragment.wgsl` — colour output from vertex stage. Commit `feat: add standalone WGSL fragment shader`.
 
 ### Verification
 
-- [ ] HLSL files compile via naga-cli without errors.
+- [ ] WGSL files are syntactically valid (confirmed by wgpu runtime in GPU integration test).
 
 ---
 
-## Phase 2: go:generate & Embed
+## Phase 2: go:embed & GPUBackend Update
 
 ### Tasks
 
-- [ ] Task 2.1: Create `assets/shaders/generate.go` with `//go:generate` directives invoking naga-cli for vertex and fragment shaders. Commit `feat: add go:generate for HLSL→WGSL`.
-- [ ] Task 2.2: Run `go generate ./assets/shaders/` and commit generated WGSL files. Commit `chore: commit generated WGSL from HLSL source`.
-- [ ] Task 2.3: Create `pkg/gpu/shaders.go` with `//go:embed` for both WGSL files; update `GPUBackend` to load shader modules from embedded bytes instead of hardcoded strings. Commit `feat: embed WGSL and load from pkg/gpu/shaders.go`.
+- [ ] Task 2.1: Create `assets/shaders/embed.go` (package `shaders`) with `//go:embed` directives for both WGSL files; export `VertexWGSL` and `FragmentWGSL` as `[]byte` or `string`. Commit `feat: embed WGSL shader files`.
+- [ ] Task 2.2: Update `pkg/gpu/shaders.go` (or equivalent) to import the `shaders` package and replace hardcoded WGSL strings with the embedded values. Commit `feat: load shader modules from embedded WGSL`.
 
 ### Verification
 
-- [ ] `--backend gpu` still renders coloured cube.
-- [ ] Deleting WGSL files and running `go generate` regenerates them identically.
+- [ ] `--backend gpu` still renders the coloured cube.
+- [ ] Headless build (`go build -tags headless ./...`) passes.
 
 ---
 
-## Phase 3: Validation & CI
+## Phase 3: Tests & CI
 
 ### Tasks
 
-- [ ] Task 3.1: Add `go test` that invokes `naga validate` on embedded WGSL (gated behind `//go:build gpu`). Commit `test: validate embedded WGSL with naga`.
-- [ ] Task 3.2: Run `go test ./...`; confirm CI still passes (WGSL files committed; no naga-cli required on CI). Commit `chore: mark Phase 13 complete`.
+- [ ] Task 3.1: Add/update `pkg/gpu` GPU integration test (`GPU_TESTS=1`) to confirm the cube renders correctly end-to-end with the new embedded shaders. Commit `test: verify GPU render with embedded WGSL shaders`.
+- [ ] Task 3.2: Run `go test ./...`; confirm CI still passes. Commit `chore: mark Phase 13 complete`.
 
 ### Verification
 

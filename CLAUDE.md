@@ -15,7 +15,7 @@ This file provides concise guidance to Claude Code. For full project context, se
 
 ## Project Overview
 
-A toy 3D renderer in Go — CPU software renderer MVP complete (Phases 0–8), producing a 640×480 PNG of a coloured cube via barycentric rasterization. Now advancing toward cross-platform GPU acceleration (Phases 9–16) using go-webgpu/webgpu (Zero-CGo FFI, WebGPU), GLFW, and HLSL shaders compiled to WGSL via naga-cli. See [conductor/product.md](./conductor/product.md) for full details.
+A toy 3D renderer in Go — CPU software renderer MVP complete (Phases 0–8), producing a 640×480 PNG of a coloured cube via barycentric rasterization. Now advancing toward cross-platform GPU acceleration (Phases 9–16) using go-webgpu/webgpu (Zero-CGo FFI, WebGPU), GLFW, and WGSL shaders embedded via go:embed. See [conductor/product.md](./conductor/product.md) for full details.
 
 ## Development Commands
 
@@ -49,8 +49,7 @@ golangci-lint run           # requires golangci-lint v2
 go test -race -coverprofile=coverage.out ./...
 govulncheck ./...
 
-# GPU shaders (Phase 13+) — requires: cargo install naga-cli
-go generate ./assets/shaders/
+# GPU shaders live in assets/shaders/*.wgsl — embedded via go:embed in pkg/gpu/shaders.go
 ```
 
 ## Windows Build Prerequisites (renderer-rt)
@@ -99,7 +98,7 @@ CI enforces this automatically for `windows-latest` builds.
 - [Scratchapixel](https://www.scratchapixel.com/) — 3D graphics fundamentals
 - [Learn OpenGL](https://learnopengl.com/) — modern GPU pipeline concepts
 - [WebGPU Spec](https://www.w3.org/TR/webgpu/) — wgpu-native reference
-- [naga-cli docs](https://github.com/gfx-rs/wgpu/tree/trunk/naga) — HLSL→WGSL compiler
+- [WGSL spec](https://www.w3.org/TR/WGSL/) — shader language reference
 
 ## Recent Updates
 

@@ -31,7 +31,8 @@ func TestCubeWGSLTemplate_HasFragmentEntryPoint(t *testing.T) {
 // TestCubeWGSLTemplate_HasMVPFormatVerbs verifies the template contains %f verbs
 // for runtime MVP substitution (Phase 14 replaces these with uniform buffers).
 func TestCubeWGSLTemplate_HasMVPFormatVerbs(t *testing.T) {
-	if !strings.Contains(shaders.CubeWGSLTemplate, "%f") {
-		t.Fatal("CubeWGSLTemplate: must contain %%f format verbs for runtime MVP substitution")
+	const verb = "%f"
+	if !strings.Contains(shaders.CubeWGSLTemplate, verb) {
+		t.Fatal("CubeWGSLTemplate: must contain format verbs for runtime MVP substitution")
 	}
 }

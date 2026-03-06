@@ -29,8 +29,8 @@ type GPUBackend struct {
 	ovLayer       *overlay.TextLayer
 	ovPass        *overlay.OverlayPass
 	sampler       overlay.Sampler
-	gpuScene  *scene.Scene // optional; if set, used for multi-mesh rendering
-	startTime time.Time   // set on first frame for orbit angle calculation
+	gpuScene      *scene.Scene // optional; if set, used for multi-mesh rendering
+	startTime     time.Time    // set on first frame for orbit angle calculation
 	// Previous-frame timing used for overlay display (current frame not yet complete
 	// when the overlay texture must be uploaded before Device.RenderFrame).
 	prevFrameDur time.Duration
@@ -114,13 +114,13 @@ func orbitCamera(width, height int, angle float64) camera.Camera {
 	x := r * stdmath.Cos(angle)
 	z := r * stdmath.Sin(angle)
 	return camera.New(
-		math.Vec3{X: x, Y: 3, Z: z},   // position on orbit
-		math.Vec3{},                     // target = origin
+		math.Vec3{X: x, Y: 3, Z: z},    // position on orbit
+		math.Vec3{},                    // target = origin
 		math.Vec3{Y: 1},                // up
-		60.0,                            // fov degrees
-		float64(width)/float64(height),  // aspect
-		0.1,                             // near
-		100.0,                           // far
+		60.0,                           // fov degrees
+		float64(width)/float64(height), // aspect
+		0.1,                            // near
+		100.0,                          // far
 	)
 }
 

@@ -188,3 +188,62 @@ func TestNewCube_HasColoredVertices(t *testing.T) {
 		}
 	}
 }
+
+// --- Plane tests ---
+
+// TestNewPlane_CreatesValidMesh tests plane creation with 4 vertices and 2 triangles.
+func TestNewPlane_CreatesValidMesh(t *testing.T) {
+	mesh := NewPlane(10, 10)
+
+	if len(mesh.Vertices) != 4 {
+		t.Errorf("Plane Vertices count = %d, want 4", len(mesh.Vertices))
+	}
+	if len(mesh.Indices) != 6 {
+		t.Errorf("Plane Indices count = %d, want 6", len(mesh.Indices))
+	}
+	if mesh.TriangleCount() != 2 {
+		t.Errorf("Plane TriangleCount() = %d, want 2", mesh.TriangleCount())
+	}
+	if !mesh.ValidateIndices() {
+		t.Error("Plane has invalid indices")
+	}
+}
+
+// TestNewPlane_AllNormalsPointUp tests that all plane normals are +Y.
+func TestNewPlane_AllNormalsPointUp(t *testing.T) {
+	mesh := NewPlane(5, 5)
+	up := math.Vec3{Y: 1}
+	for i, v := range mesh.Vertices {
+		if !v.Normal.Equals(up, 0.0001) {
+			t.Errorf("vertex %d: normal = %v, want +Y", i, v.Normal)
+		}
+	}
+}
+
+// TestNewPlane_DimensionsMatchArguments tests that vertices span the given width and depth.
+func TestNewPlane_DimensionsMatchArguments(t *testing.T) {
+	mesh := NewPlane(8, 6)
+	var minX, maxX, minZ, maxZ float64
+	for i, v := range mesh.Vertices {
+		if i == 0 || v.Position.X < minX {
+			minX = v.Position.X
+		}
+		if i == 0 || v.Position.X > maxX {
+			maxX = v.Position.X
+		}
+		if i == 0 || v.Position.Z < minZ {
+			minZ = v.Position.Z
+		}
+		if i == 0 || v.Position.Z > maxZ {
+			maxZ = v.Position.Z
+		}
+	}
+	w := maxX - minX
+	d := maxZ - minZ
+	if w < 7.999 || w > 8.001 {
+		t.Errorf("plane width = %f, want 8", w)
+	}
+	if d < 5.999 || d > 6.001 {
+		t.Errorf("plane depth = %f, want 6", d)
+	}
+}

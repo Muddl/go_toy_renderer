@@ -7,7 +7,9 @@ import (
 	"time"
 
 	"github.com/go-gl/glfw/v3.3/glfw"
+	"github.com/muddl/go_toy_renderer/pkg/camera"
 	"github.com/muddl/go_toy_renderer/pkg/gpu"
+	"github.com/muddl/go_toy_renderer/pkg/math"
 	"github.com/muddl/go_toy_renderer/pkg/overlay"
 	"github.com/muddl/go_toy_renderer/pkg/render"
 )
@@ -94,9 +96,24 @@ func (g *GPUBackend) Init(width, height int) error {
 	return nil
 }
 
+// defaultCamera returns the default camera matching the Phase 12 hardcoded
+// camera parameters: pos=(3,2,5) looking at origin, fov=60 deg.
+func defaultCamera(width, height int) camera.Camera {
+	return camera.New(
+		math.Vec3{X: 3, Y: 2, Z: 5}, // position
+		math.Vec3{},                   // target = origin
+		math.Vec3{Y: 1},              // up
+		60.0,                          // fov degrees
+		float64(width)/float64(height), // aspect
+		0.1,                           // near
+		100.0,                         // far
+	)
+}
+
 // RenderFrame uploads the first mesh in scene to the GPU (cached after the first
-// frame), renders the geometry pass (with overlay composited into the same pass
-// by pkg/gpu.Device if SetOverlayRenderer was called), and presents the frame.
+// frame), uploads camera and mesh uniforms, renders the geometry pass (with overlay
+// composited into the same pass by pkg/gpu.Device if SetOverlayRenderer was called),
+// and presents the frame.
 // Returns ErrWindowClosed when the window has been dismissed.
 func (g *GPUBackend) RenderFrame(scene *render.Scene) error {
 	if g.window == nil {
@@ -108,12 +125,18 @@ func (g *GPUBackend) RenderFrame(scene *render.Scene) error {
 
 	frameStart := time.Now()
 
+	// --- Camera uniform (once per frame) ---
+	cam := defaultCamera(g.width, g.height)
+	g.device.UpdateCameraUniforms(cam.ViewProjectionMatrixWebGPU())
+
 	// --- Geometry upload ---
 	geoStart := time.Now()
 	if len(scene.Meshes) > 0 {
 		if err := g.device.LoadGeometry(scene.Meshes[0]); err != nil {
 			return fmt.Errorf("gpu backend: load geometry: %w", err)
 		}
+		// Per-mesh model matrix: identity for now (single mesh).
+		g.device.UpdateMeshUniforms(math.NewIdentity())
 	}
 	geoElapsed := time.Since(geoStart)
 

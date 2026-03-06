@@ -103,6 +103,27 @@ func (c Camera) ProjectionMatrix() math.Mat4x4 {
 // ViewProjectionMatrix returns the combined view-projection matrix: Projection × View.
 // Apply to world-space vertices to obtain clip-space coordinates.
 // After perspective divide (clip.xyz / clip.w), you get NDC coordinates.
+// Uses OpenGL NDC convention (z ∈ [-1, 1]).
 func (c Camera) ViewProjectionMatrix() math.Mat4x4 {
 	return c.ProjectionMatrix().Multiply(c.ViewMatrix())
+}
+
+// ProjectionMatrixWebGPU returns a perspective projection matrix using WebGPU NDC
+// convention where Z maps to [0, 1] (near=0, far=1) instead of OpenGL's [-1, 1].
+func (c Camera) ProjectionMatrixWebGPU() math.Mat4x4 {
+	fovRad := c.FOV * stdmath.Pi / 180.0
+	f := 1.0 / stdmath.Tan(fovRad/2.0)
+	rangeInv := 1.0 / (c.Near - c.Far)
+
+	return math.Mat4x4{
+		f / c.Aspect, 0, 0, 0,
+		0, f, 0, 0,
+		0, 0, c.Far * rangeInv, -1,
+		0, 0, c.Near * c.Far * rangeInv, 0,
+	}
+}
+
+// ViewProjectionMatrixWebGPU returns Projection × View using WebGPU NDC (Z ∈ [0,1]).
+func (c Camera) ViewProjectionMatrixWebGPU() math.Mat4x4 {
+	return c.ProjectionMatrixWebGPU().Multiply(c.ViewMatrix())
 }

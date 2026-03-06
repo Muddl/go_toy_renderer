@@ -30,6 +30,7 @@ type GPUBackend struct {
 	ovPass        *overlay.OverlayPass
 	sampler       overlay.Sampler
 	gpuScene      *scene.Scene // optional; if set, used for multi-mesh rendering
+	camNodeIdx    int          // index of camera-tracking cylinder node (-1 = none)
 	startTime     time.Time    // set on first frame for orbit angle calculation
 	// Previous-frame timing used for overlay display (current frame not yet complete
 	// when the overlay texture must be uploaded before Device.RenderFrame).
@@ -44,11 +45,18 @@ func (g *GPUBackend) SetScene(s *scene.Scene) {
 	g.gpuScene = s
 }
 
+// SetCameraNodeIndex sets the index of the scene node that should track
+// the orbiting camera's position and orientation each frame.
+func (g *GPUBackend) SetCameraNodeIndex(idx int) {
+	g.camNodeIdx = idx
+}
+
 // Init opens a GLFW window with ClientAPI=NoAPI, extracts the platform-specific
 // native window handle, and initialises pkg/gpu.Device (which owns the full
 // wgpu chain: instance → surface → adapter → device → queue → pipeline).
 // The overlay pass is created after the device is ready; failure is non-fatal.
 func (g *GPUBackend) Init(width, height int) error {
+	g.camNodeIdx = -1
 	g.width = width
 	g.height = height
 
@@ -147,6 +155,17 @@ func (g *GPUBackend) RenderFrame(scene *render.Scene) error {
 	angle := 2.0 * stdmath.Pi * time.Since(g.startTime).Seconds() / 10.0
 	cam := orbitCamera(g.width, g.height, angle)
 	g.device.UpdateCameraUniforms(cam.ViewProjectionMatrixWebGPU())
+
+	// --- Update camera cylinder node position + orientation ---
+	if g.camNodeIdx >= 0 && g.gpuScene != nil && g.camNodeIdx < len(g.gpuScene.Nodes) {
+		n := &g.gpuScene.Nodes[g.camNodeIdx]
+		n.Transform.Position = cam.Position
+		// Orient the cylinder (default axis +Y) to point from camera toward origin.
+		fwd := cam.Position.Scale(-1).Normalize() // direction from camera to origin
+		yaw := stdmath.Atan2(fwd.X, fwd.Z)
+		pitch := stdmath.Asin(-fwd.Y)
+		n.Transform.Rotation = math.Vec3{X: pitch, Y: yaw + stdmath.Pi/2, Z: 0}
+	}
 
 	// --- Light uniform (once per frame) ---
 	g.device.UpdateLightUniforms(gpu.LightUniforms{

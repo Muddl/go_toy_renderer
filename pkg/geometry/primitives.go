@@ -138,9 +138,11 @@ func NewPlane(width, depth float64) *Mesh {
 		mesh.AddVertex(v)
 	}
 
-	// Two CCW triangles: 0-1-2, 0-2-3.
-	mesh.AddTriangle(0, 1, 2)
-	mesh.AddTriangle(0, 2, 3)
+	// Two CCW triangles (viewed from +Y): 0-2-1, 0-3-2.
+	// Winding must produce a +Y geometric normal so the face isn't
+	// backface-culled when the camera is above the plane.
+	mesh.AddTriangle(0, 2, 1)
+	mesh.AddTriangle(0, 3, 2)
 
 	return mesh
 }

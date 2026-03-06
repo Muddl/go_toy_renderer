@@ -109,13 +109,13 @@ func (g *GPUBackend) Init(width, height int) error {
 // camera parameters: pos=(3,2,5) looking at origin, fov=60 deg.
 func defaultCamera(width, height int) camera.Camera {
 	return camera.New(
-		math.Vec3{X: 3, Y: 2, Z: 5}, // position
-		math.Vec3{},                   // target = origin
-		math.Vec3{Y: 1},              // up
-		60.0,                          // fov degrees
+		math.Vec3{X: 3, Y: 2, Z: 5},    // position
+		math.Vec3{},                    // target = origin
+		math.Vec3{Y: 1},                // up
+		60.0,                           // fov degrees
 		float64(width)/float64(height), // aspect
-		0.1,                           // near
-		100.0,                         // far
+		0.1,                            // near
+		100.0,                          // far
 	)
 }
 

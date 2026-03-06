@@ -48,12 +48,12 @@ type Device struct {
 	cachedMesh    *geometry.Mesh
 
 	// Uniform buffers (Phase 14).
-	cameraUniformBuf  *wgpu.Buffer
-	meshUniformBuf    *wgpu.Buffer
-	bindGroupLayout   *wgpu.BindGroupLayout
-	cameraBindGroup   *wgpu.BindGroup
-	meshBindGroup     *wgpu.BindGroup
-	pipelineLayout    *wgpu.PipelineLayout
+	cameraUniformBuf *wgpu.Buffer
+	meshUniformBuf   *wgpu.Buffer
+	bindGroupLayout  *wgpu.BindGroupLayout
+	cameraBindGroup  *wgpu.BindGroup
+	meshBindGroup    *wgpu.BindGroup
+	pipelineLayout   *wgpu.PipelineLayout
 
 	// Optional overlay renderer (Phase 13 / perf-debug-overlay).
 	// Set via SetOverlayRenderer; called after the geometry draw in each frame.

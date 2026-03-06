@@ -3,7 +3,7 @@
 **Track ID:** phase-14-uniforms_20260227
 **Spec:** [spec.md](./spec.md)
 **Created:** 2026-02-27
-**Status:** [ ] Not Started
+**Status:** [x] Complete
 
 ## Overview
 
@@ -15,13 +15,13 @@ Replace the hardcoded MVP matrix in the vertex shader with GPU uniform buffers f
 
 ### Tasks
 
-- [ ] Task 1.1: Write tests for `pkg/scene.Transform` (model matrix from position/rotation/scale). Commit `test:`.
-- [ ] Task 1.2: Implement `pkg/scene`: `Transform`, `Node`, `Scene` types. Commit `feat: add pkg/scene with Transform component`.
-- [ ] Task 1.3: Write test verifying `CameraUniforms` and `MeshUniforms` byte layout (64 bytes each, 16-byte aligned). Commit `test:`.
+- [x] Task 1.1: Write tests for `pkg/scene.Transform` (model matrix from position/rotation/scale). Commit `test:`.
+- [x] Task 1.2: Implement `pkg/scene`: `Transform`, `Node`, `Scene` types. Commit `feat: add pkg/scene with Transform component`.
+- [x] Task 1.3: Write test verifying `CameraUniforms` and `MeshUniforms` byte layout (64 bytes each, 16-byte aligned). Commit `test:`.
 
 ### Verification
 
-- [ ] `pkg/scene` tests pass; model matrix matches expected output for known translation/rotation.
+- [x] `pkg/scene` tests pass; model matrix matches expected output for known translation/rotation.
 
 ---
 
@@ -29,13 +29,13 @@ Replace the hardcoded MVP matrix in the vertex shader with GPU uniform buffers f
 
 ### Tasks
 
-- [ ] Task 2.1: Update `vertex.wgsl` to read `CameraUniforms` (viewProj) and `MeshUniforms` (model) via `@group`/`@binding`. Commit `feat: add uniform bindings to WGSL vertex shader`.
-- [ ] Task 2.2: Implement `GPUBackend` uniform buffer creation; bind group layout for camera + mesh uniforms. Commit `feat: create uniform buffers and bind group layout`.
-- [ ] Task 2.3: Update `RenderFrame` to upload camera uniform once per frame; upload mesh uniform per draw call. Commit `feat: upload uniform data per frame`.
+- [x] Task 2.1: Update `vertex.wgsl` to read `CameraUniforms` (viewProj) and `MeshUniforms` (model) via `@group`/`@binding`. Commit `feat: add uniform bindings to WGSL vertex shader`.
+- [x] Task 2.2: Implement `GPUBackend` uniform buffer creation; bind group layout for camera + mesh uniforms. Commit `feat: create uniform buffers and bind group layout`.
+- [x] Task 2.3: Update `RenderFrame` to upload camera uniform once per frame; upload mesh uniform per draw call. Commit `feat: upload uniform data per frame`.
 
 ### Verification
 
-- [ ] Single cube renders at correct position with camera uniform controlling perspective.
+- [x] Single cube renders at correct position with camera uniform controlling perspective.
 
 ---
 
@@ -43,13 +43,13 @@ Replace the hardcoded MVP matrix in the vertex shader with GPU uniform buffers f
 
 ### Tasks
 
-- [ ] Task 3.1: Update `cmd/renderer-rt` demo to render cube + tetrahedron at different positions using `pkg/scene`. Commit `feat: demo multi-mesh scene with per-mesh transforms`.
-- [ ] Task 3.2: Run `go test ./...`; all pass. Commit `chore: mark Phase 14 complete`.
+- [x] Task 3.1: Update `cmd/renderer-rt` demo to render cube + tetrahedron at different positions using `pkg/scene`. Commit `feat: demo multi-mesh scene with per-mesh transforms`.
+- [x] Task 3.2: Run `go test ./...`; all pass. Commit `chore: mark Phase 14 complete`.
 
 ### Verification
 
-- [ ] All acceptance criteria in `spec.md` met.
-- [ ] PR merged to `main`, CI green.
+- [x] All acceptance criteria in `spec.md` met.
+- [x] PR merged to `main`, CI green.
 
 ---
 

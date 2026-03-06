@@ -40,13 +40,16 @@ type Device struct {
 	depthTexture *wgpu.Texture
 	depthView    *wgpu.TextureView
 
-	// Geometry cache (Phase 12).
+	// Geometry cache: maps mesh pointer → GPU buffers.
+	// Multiple meshes stay resident so buffers remain valid during a render pass.
+	meshCache map[*geometry.Mesh]*meshBufferEntry
+
+	// Active geometry for the current draw call (set by LoadGeometry).
 	vertexBuf     *wgpu.Buffer
 	vertexBufSize uint64
 	indexBuf      *wgpu.Buffer
 	indexBufSize  uint64
 	indexCount    uint32
-	cachedMesh    *geometry.Mesh
 
 	// Uniform buffers (Phase 14).
 	cameraUniformBuf *wgpu.Buffer
@@ -403,16 +406,20 @@ func (d *Device) RenderFrameMulti(nodes []DrawNode) error {
 // Shutdown releases all wgpu resources held by the Device.
 // Safe to call on an uninitialised Device and to call multiple times.
 func (d *Device) Shutdown() {
-	if d.vertexBuf != nil {
-		d.vertexBuf.Destroy()
-		d.vertexBuf.Release()
-		d.vertexBuf = nil
+	// Release all cached mesh GPU buffers.
+	for _, entry := range d.meshCache {
+		if entry.vertexBuf != nil {
+			entry.vertexBuf.Destroy()
+			entry.vertexBuf.Release()
+		}
+		if entry.indexBuf != nil {
+			entry.indexBuf.Destroy()
+			entry.indexBuf.Release()
+		}
 	}
-	if d.indexBuf != nil {
-		d.indexBuf.Destroy()
-		d.indexBuf.Release()
-		d.indexBuf = nil
-	}
+	d.meshCache = nil
+	d.vertexBuf = nil
+	d.indexBuf = nil
 	if d.cameraBindGroup != nil {
 		d.cameraBindGroup.Release()
 		d.cameraBindGroup = nil
@@ -473,6 +480,5 @@ func (d *Device) Shutdown() {
 		d.instance.Release()
 		d.instance = nil
 	}
-	d.cachedMesh = nil
 	d.ready = false
 }

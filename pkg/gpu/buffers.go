@@ -78,8 +78,19 @@ func uint32SliceToBytes(data []uint32) []byte {
 	return out
 }
 
+// meshBufferEntry holds cached GPU buffers for a single mesh.
+type meshBufferEntry struct {
+	vertexBuf     *wgpu.Buffer
+	vertexBufSize uint64
+	indexBuf      *wgpu.Buffer
+	indexBufSize  uint64
+	indexCount    uint32
+}
+
 // LoadGeometry uploads mesh vertex and index data to VRAM and caches the result.
 // If the same mesh pointer is passed again, the cached buffers are reused.
+// Multiple meshes can be cached simultaneously so buffers remain valid during
+// a render pass with multiple draw calls.
 // Returns an error if the Device has not been initialized via Init.
 func (d *Device) LoadGeometry(mesh *geometry.Mesh) error {
 	if !d.ready {
@@ -88,22 +99,22 @@ func (d *Device) LoadGeometry(mesh *geometry.Mesh) error {
 	if mesh == nil {
 		return errors.New("gpu: LoadGeometry: mesh is nil")
 	}
-	if mesh == d.cachedMesh {
-		return nil // buffers already uploaded for this mesh
+
+	if d.meshCache == nil {
+		d.meshCache = make(map[*geometry.Mesh]*meshBufferEntry)
 	}
 
-	// Release any previously cached buffers.
-	if d.vertexBuf != nil {
-		d.vertexBuf.Destroy()
-		d.vertexBuf.Release()
-		d.vertexBuf = nil
-	}
-	if d.indexBuf != nil {
-		d.indexBuf.Destroy()
-		d.indexBuf.Release()
-		d.indexBuf = nil
+	// Check cache hit.
+	if entry, ok := d.meshCache[mesh]; ok {
+		d.vertexBuf = entry.vertexBuf
+		d.vertexBufSize = entry.vertexBufSize
+		d.indexBuf = entry.indexBuf
+		d.indexBufSize = entry.indexBufSize
+		d.indexCount = entry.indexCount
+		return nil
 	}
 
+	// Cache miss: upload new buffers.
 	vb, err := VertexBuffer(d, mesh.Vertices)
 	if err != nil {
 		return fmt.Errorf("gpu: LoadGeometry: %w", err)
@@ -115,11 +126,19 @@ func (d *Device) LoadGeometry(mesh *geometry.Mesh) error {
 		return fmt.Errorf("gpu: LoadGeometry: %w", err)
 	}
 
-	d.vertexBuf = vb
-	d.vertexBufSize = uint64(len(mesh.Vertices)) * vertexStride
-	d.indexBuf = ib
-	d.indexBufSize = uint64(len(mesh.Indices)) * 4 // uint32 = 4 bytes
-	d.indexCount = uint32(len(mesh.Indices))
-	d.cachedMesh = mesh
+	entry := &meshBufferEntry{
+		vertexBuf:     vb,
+		vertexBufSize: uint64(len(mesh.Vertices)) * vertexStride,
+		indexBuf:      ib,
+		indexBufSize:  uint64(len(mesh.Indices)) * 4, // uint32 = 4 bytes
+		indexCount:    uint32(len(mesh.Indices)),
+	}
+	d.meshCache[mesh] = entry
+
+	d.vertexBuf = entry.vertexBuf
+	d.vertexBufSize = entry.vertexBufSize
+	d.indexBuf = entry.indexBuf
+	d.indexBufSize = entry.indexBufSize
+	d.indexCount = entry.indexCount
 	return nil
 }

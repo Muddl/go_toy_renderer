@@ -300,6 +300,63 @@ func TestCamera_ViewProjectionMatrix_WorldOriginProjectsToCenter(t *testing.T) {
 	}
 }
 
+// TestCamera_ProjectionMatrixWebGPU_NearPlane_MapsToZero verifies WebGPU near plane mapping.
+func TestCamera_ProjectionMatrixWebGPU_NearPlane_MapsToZero(t *testing.T) {
+	cam := New(
+		math.Vec3{X: 0, Y: 0, Z: 5},
+		math.Vec3{},
+		math.Vec3{Y: 1},
+		90.0, 1.0, 1.0, 100.0,
+	)
+	proj := cam.ProjectionMatrixWebGPU()
+	_, _, pz, pw := proj.MultiplyVec4(0, 0, -cam.Near, 1)
+	if stdmath.Abs(pw) < epsilon {
+		t.Fatal("near-zero w")
+	}
+	ndcZ := pz / pw
+	if !approxEqual(ndcZ, 0.0) {
+		t.Errorf("WebGPU near plane NDC Z = %f, want 0.0", ndcZ)
+	}
+}
+
+// TestCamera_ProjectionMatrixWebGPU_FarPlane_MapsToOne verifies WebGPU far plane mapping.
+func TestCamera_ProjectionMatrixWebGPU_FarPlane_MapsToOne(t *testing.T) {
+	cam := New(
+		math.Vec3{X: 0, Y: 0, Z: 5},
+		math.Vec3{},
+		math.Vec3{Y: 1},
+		90.0, 1.0, 1.0, 100.0,
+	)
+	proj := cam.ProjectionMatrixWebGPU()
+	_, _, pz, pw := proj.MultiplyVec4(0, 0, -cam.Far, 1)
+	if stdmath.Abs(pw) < epsilon {
+		t.Fatal("near-zero w")
+	}
+	ndcZ := pz / pw
+	if !approxEqual(ndcZ, 1.0) {
+		t.Errorf("WebGPU far plane NDC Z = %f, want 1.0", ndcZ)
+	}
+}
+
+// TestCamera_ViewProjectionMatrixWebGPU_EqualsWebGPUProjTimesView verifies VP composition.
+func TestCamera_ViewProjectionMatrixWebGPU_EqualsWebGPUProjTimesView(t *testing.T) {
+	cam := New(
+		math.Vec3{X: 0, Y: 0, Z: 5},
+		math.Vec3{},
+		math.Vec3{Y: 1},
+		45.0, 800.0/600.0, 0.1, 100.0,
+	)
+	vp := cam.ViewProjectionMatrixWebGPU()
+	expected := cam.ProjectionMatrixWebGPU().Multiply(cam.ViewMatrix())
+	for row := 0; row < 4; row++ {
+		for col := 0; col < 4; col++ {
+			if !approxEqual(vp.Get(row, col), expected.Get(row, col)) {
+				t.Errorf("VP[%d,%d] = %f, want %f", row, col, vp.Get(row, col), expected.Get(row, col))
+			}
+		}
+	}
+}
+
 // TestCamera_ViewMatrix_UpVectorParallelToViewDirection_DoesNotPanic verifies no panic on degenerate input.
 func TestCamera_ViewMatrix_UpVectorParallelToViewDirection_DoesNotPanic(t *testing.T) {
 	// Camera looking straight up with up=(0,1,0) — degenerate case

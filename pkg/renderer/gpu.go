@@ -4,12 +4,16 @@ package renderer
 
 import (
 	"fmt"
+	stdmath "math"
 	"time"
 
 	"github.com/go-gl/glfw/v3.3/glfw"
+	"github.com/muddl/go_toy_renderer/pkg/camera"
 	"github.com/muddl/go_toy_renderer/pkg/gpu"
+	"github.com/muddl/go_toy_renderer/pkg/math"
 	"github.com/muddl/go_toy_renderer/pkg/overlay"
 	"github.com/muddl/go_toy_renderer/pkg/render"
+	"github.com/muddl/go_toy_renderer/pkg/scene"
 )
 
 const gpuTargetFPS = 60
@@ -25,10 +29,19 @@ type GPUBackend struct {
 	ovLayer       *overlay.TextLayer
 	ovPass        *overlay.OverlayPass
 	sampler       overlay.Sampler
+	gpuScene      *scene.Scene // optional; if set, used for multi-mesh rendering
+	startTime     time.Time    // set on first frame for orbit angle calculation
 	// Previous-frame timing used for overlay display (current frame not yet complete
 	// when the overlay texture must be uploaded before Device.RenderFrame).
 	prevFrameDur time.Duration
 	prevPassDur  time.Duration
+}
+
+// SetScene configures the GPU backend to use a scene.Scene for multi-mesh
+// rendering with per-mesh transforms. If set, RenderFrame ignores the
+// render.Scene meshes and uses the scene nodes instead.
+func (g *GPUBackend) SetScene(s *scene.Scene) {
+	g.gpuScene = s
 }
 
 // Init opens a GLFW window with ClientAPI=NoAPI, extracts the platform-specific
@@ -94,9 +107,27 @@ func (g *GPUBackend) Init(width, height int) error {
 	return nil
 }
 
+// orbitCamera returns a camera that orbits the origin at the given angle (radians).
+// The camera sits at radius 6, height 3, looking at the origin.
+func orbitCamera(width, height int, angle float64) camera.Camera {
+	r := 6.0
+	x := r * stdmath.Cos(angle)
+	z := r * stdmath.Sin(angle)
+	return camera.New(
+		math.Vec3{X: x, Y: 3, Z: z},    // position on orbit
+		math.Vec3{},                    // target = origin
+		math.Vec3{Y: 1},                // up
+		60.0,                           // fov degrees
+		float64(width)/float64(height), // aspect
+		0.1,                            // near
+		100.0,                          // far
+	)
+}
+
 // RenderFrame uploads the first mesh in scene to the GPU (cached after the first
-// frame), renders the geometry pass (with overlay composited into the same pass
-// by pkg/gpu.Device if SetOverlayRenderer was called), and presents the frame.
+// frame), uploads camera and mesh uniforms, renders the geometry pass (with overlay
+// composited into the same pass by pkg/gpu.Device if SetOverlayRenderer was called),
+// and presents the frame.
 // Returns ErrWindowClosed when the window has been dismissed.
 func (g *GPUBackend) RenderFrame(scene *render.Scene) error {
 	if g.window == nil {
@@ -108,19 +139,44 @@ func (g *GPUBackend) RenderFrame(scene *render.Scene) error {
 
 	frameStart := time.Now()
 
-	// --- Geometry upload ---
+	// --- Camera uniform (once per frame) ---
+	if g.startTime.IsZero() {
+		g.startTime = frameStart
+	}
+	// One full orbit every 10 seconds.
+	angle := 2.0 * stdmath.Pi * time.Since(g.startTime).Seconds() / 10.0
+	cam := orbitCamera(g.width, g.height, angle)
+	g.device.UpdateCameraUniforms(cam.ViewProjectionMatrixWebGPU())
+
+	// --- Build draw nodes ---
 	geoStart := time.Now()
-	if len(scene.Meshes) > 0 {
-		if err := g.device.LoadGeometry(scene.Meshes[0]); err != nil {
-			return fmt.Errorf("gpu backend: load geometry: %w", err)
+	var nodes []gpu.DrawNode
+	if g.gpuScene != nil {
+		nodes = make([]gpu.DrawNode, 0, len(g.gpuScene.Nodes))
+		for i := range g.gpuScene.Nodes {
+			n := &g.gpuScene.Nodes[i]
+			nodes = append(nodes, gpu.DrawNode{
+				Mesh:  n.Mesh,
+				Model: n.Transform.ModelMatrix(),
+			})
+		}
+	} else {
+		nodes = make([]gpu.DrawNode, 0, len(scene.Meshes))
+		for _, mesh := range scene.Meshes {
+			nodes = append(nodes, gpu.DrawNode{
+				Mesh:  mesh,
+				Model: math.NewIdentity(),
+			})
 		}
 	}
 	geoElapsed := time.Since(geoStart)
 
 	verts, tris := 0, 0
-	for _, mesh := range scene.Meshes {
-		verts += len(mesh.Vertices)
-		tris += len(mesh.Indices) / 3
+	for i := range nodes {
+		if nodes[i].Mesh != nil {
+			verts += len(nodes[i].Mesh.Vertices)
+			tris += len(nodes[i].Mesh.Indices) / 3
+		}
 	}
 
 	// Build overlay metrics from the PREVIOUS frame's timing so that meaningful
@@ -147,7 +203,7 @@ func (g *GPUBackend) RenderFrame(scene *render.Scene) error {
 
 	// --- GPU render pass (geometry + overlay composited in same pass) ---
 	passStart := time.Now()
-	if err := g.device.RenderFrame(); err != nil {
+	if err := g.device.RenderFrameMulti(nodes); err != nil {
 		return err
 	}
 	g.prevPassDur = time.Since(passStart)

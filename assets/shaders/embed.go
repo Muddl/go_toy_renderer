@@ -3,10 +3,9 @@ package shaders
 
 import _ "embed"
 
-// CubeWGSLTemplate is the combined vertex+fragment WGSL shader for the cube.
-// The MVP matrix constant contains %f format verbs that are substituted at
-// runtime by pkg/gpu with an aspect-correct MVP matrix (camera at (3,2,5)
-// looking at origin, fov=60 deg). Uniform buffers replace this in Phase 14.
+// CubeWGSL is the combined vertex+fragment WGSL shader for the cube.
+// The vertex shader reads camera (viewProj) and mesh (model) uniforms
+// via @group(0) @binding(0) and @group(0) @binding(1) respectively.
 //
 //go:embed cube.wgsl
-var CubeWGSLTemplate string
+var CubeWGSL string

@@ -6,6 +6,7 @@ import (
 	"errors"
 
 	"github.com/muddl/go_toy_renderer/pkg/geometry"
+	"github.com/muddl/go_toy_renderer/pkg/math"
 )
 
 // Device is a compile-time stub for headless (CI) builds where no GPU or
@@ -32,10 +33,21 @@ func (d *Device) RenderFrame() error {
 	return errors.New("gpu: not available in headless builds")
 }
 
+// RenderFrameMulti returns an error in headless builds.
+func (d *Device) RenderFrameMulti(_ []DrawNode) error {
+	return errors.New("gpu: not available in headless builds")
+}
+
 // LoadGeometry returns an error in headless builds — no GPU device available.
 func (d *Device) LoadGeometry(_ *geometry.Mesh) error {
 	return errors.New("gpu: not available in headless builds")
 }
+
+// UpdateCameraUniforms is a no-op in headless builds.
+func (d *Device) UpdateCameraUniforms(_ math.Mat4x4) {}
+
+// UpdateMeshUniforms is a no-op in headless builds.
+func (d *Device) UpdateMeshUniforms(_ math.Mat4x4) {}
 
 // Shutdown is a no-op in headless builds.
 func (d *Device) Shutdown() {}

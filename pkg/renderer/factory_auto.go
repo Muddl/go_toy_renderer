@@ -6,6 +6,7 @@ import (
 	"fmt"
 
 	"github.com/muddl/go_toy_renderer/pkg/render"
+	"github.com/muddl/go_toy_renderer/pkg/scene"
 )
 
 // autoBackend tries GPUBackend first; if Init fails it falls back to CPUBackend.
@@ -37,6 +38,13 @@ func (a *autoBackend) Init(width, height int) error {
 // RenderFrame delegates to whichever backend was selected during Init.
 func (a *autoBackend) RenderFrame(scene *render.Scene) error {
 	return a.active.RenderFrame(scene)
+}
+
+// SetScene forwards to the active backend if it supports scene-aware rendering.
+func (a *autoBackend) SetScene(s *scene.Scene) {
+	if setter, ok := a.active.(interface{ SetScene(*scene.Scene) }); ok {
+		setter.SetScene(s)
+	}
 }
 
 // Shutdown releases the active backend's resources.

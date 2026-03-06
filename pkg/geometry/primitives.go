@@ -34,11 +34,12 @@ func NewTetrahedron() *Mesh {
 	mesh.AddVertex(v2)
 	mesh.AddVertex(v3)
 
-	// Add 4 triangular faces with counter-clockwise winding (outward-facing normals)
-	mesh.AddTriangle(0, 1, 2) // Base triangle 1
-	mesh.AddTriangle(0, 3, 1) // Base triangle 2
-	mesh.AddTriangle(0, 2, 3) // Side triangle 1
-	mesh.AddTriangle(1, 3, 2) // Side triangle 2
+	// Add 4 triangular faces with counter-clockwise winding (outward-facing normals).
+	// Winding verified: cross product of edge vectors points away from centroid.
+	mesh.AddTriangle(0, 2, 1) // Face opposite v3
+	mesh.AddTriangle(0, 1, 3) // Face opposite v2
+	mesh.AddTriangle(0, 3, 2) // Face opposite v1
+	mesh.AddTriangle(1, 2, 3) // Face opposite v0
 
 	return mesh
 }

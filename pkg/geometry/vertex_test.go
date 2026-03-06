@@ -131,6 +131,30 @@ func TestVertex_Equals_ReturnsFalseForDifferentVertices(t *testing.T) {
 	}
 }
 
+// TestVertex_Normal_DefaultsToZero verifies that NewVertex sets Normal to zero.
+func TestVertex_Normal_DefaultsToZero(t *testing.T) {
+	v := NewVertex(
+		math.Vec3{X: 1, Y: 2, Z: 3},
+		math.Vec3{X: 1, Y: 0, Z: 0},
+	)
+	zero := math.Vec3{}
+	if !v.Normal.Equals(zero, 0.0001) {
+		t.Errorf("NewVertex().Normal = %v, want zero", v.Normal)
+	}
+}
+
+// TestVertex_Normal_SetExplicitly verifies the Normal field can be set.
+func TestVertex_Normal_SetExplicitly(t *testing.T) {
+	v := NewVertex(
+		math.Vec3{X: 0, Y: 0, Z: 0},
+		math.Vec3{X: 1, Y: 1, Z: 1},
+	)
+	v.Normal = math.Vec3{X: 0, Y: 1, Z: 0}
+	if !v.Normal.Equals(math.Vec3{X: 0, Y: 1, Z: 0}, 0.0001) {
+		t.Errorf("Vertex.Normal = %v, want (0,1,0)", v.Normal)
+	}
+}
+
 // TestVertex_Equals_HandlesEpsilonComparison tests epsilon-based float comparison.
 func TestVertex_Equals_HandlesEpsilonComparison(t *testing.T) {
 	v1 := NewVertex(

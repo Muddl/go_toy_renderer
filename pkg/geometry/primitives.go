@@ -1,6 +1,8 @@
 package geometry
 
 import (
+	stdmath "math"
+
 	"github.com/muddl/go_toy_renderer/pkg/math"
 )
 
@@ -143,6 +145,81 @@ func NewPlane(width, depth float64) *Mesh {
 	// backface-culled when the camera is above the plane.
 	mesh.AddTriangle(0, 2, 1)
 	mesh.AddTriangle(0, 3, 2)
+
+	return mesh
+}
+
+// NewCylinder creates a cylinder with the given number of lateral segments.
+// Height 1 (Y from -0.5 to 0.5), radius 0.5. Per-face normals for flat shading.
+// Layout: lateral quads (4*seg verts), top cap fan (seg+1 verts), bottom cap fan (seg+1 verts).
+func NewCylinder(segments int) *Mesh {
+	mesh := NewMesh()
+	r := 0.5
+	halfH := 0.5
+	color := math.Vec3{X: 0.6, Y: 0.6, Z: 0.6}
+
+	// --- Lateral faces (4 verts per quad, per-face radial normals) ---
+	for i := 0; i < segments; i++ {
+		a0 := 2.0 * stdmath.Pi * float64(i) / float64(segments)
+		a1 := 2.0 * stdmath.Pi * float64(i+1) / float64(segments)
+
+		c0, s0 := stdmath.Cos(a0), stdmath.Sin(a0)
+		c1, s1 := stdmath.Cos(a1), stdmath.Sin(a1)
+
+		// Face normal = average of the two edge normals (flat shading).
+		am := (a0 + a1) / 2.0
+		normal := math.Vec3{X: stdmath.Cos(am), Y: 0, Z: stdmath.Sin(am)}
+
+		// 4 corners: bottom-left, bottom-right, top-right, top-left.
+		bl := math.Vec3{X: r * c0, Y: -halfH, Z: r * s0}
+		br := math.Vec3{X: r * c1, Y: -halfH, Z: r * s1}
+		tr := math.Vec3{X: r * c1, Y: halfH, Z: r * s1}
+		tl := math.Vec3{X: r * c0, Y: halfH, Z: r * s0}
+
+		base := len(mesh.Vertices)
+		for _, pos := range []math.Vec3{bl, br, tr, tl} {
+			v := NewVertex(pos, color)
+			v.Normal = normal
+			mesh.AddVertex(v)
+		}
+		// Two CCW triangles (viewed from outside): 0-2-1, 0-3-2.
+		mesh.AddTriangle(base+0, base+2, base+1)
+		mesh.AddTriangle(base+0, base+3, base+2)
+	}
+
+	// --- Top cap (fan from center, normal +Y) ---
+	topCenter := len(mesh.Vertices)
+	cv := NewVertex(math.Vec3{Y: halfH}, color)
+	cv.Normal = math.Vec3{Y: 1}
+	mesh.AddVertex(cv)
+	for i := 0; i < segments; i++ {
+		a := 2.0 * stdmath.Pi * float64(i) / float64(segments)
+		v := NewVertex(math.Vec3{X: r * stdmath.Cos(a), Y: halfH, Z: r * stdmath.Sin(a)}, color)
+		v.Normal = math.Vec3{Y: 1}
+		mesh.AddVertex(v)
+	}
+	for i := 0; i < segments; i++ {
+		next := (i + 1) % segments
+		// CCW from above: center, next, current.
+		mesh.AddTriangle(topCenter, topCenter+1+next, topCenter+1+i)
+	}
+
+	// --- Bottom cap (fan from center, normal -Y) ---
+	botCenter := len(mesh.Vertices)
+	bv := NewVertex(math.Vec3{Y: -halfH}, color)
+	bv.Normal = math.Vec3{Y: -1}
+	mesh.AddVertex(bv)
+	for i := 0; i < segments; i++ {
+		a := 2.0 * stdmath.Pi * float64(i) / float64(segments)
+		v := NewVertex(math.Vec3{X: r * stdmath.Cos(a), Y: -halfH, Z: r * stdmath.Sin(a)}, color)
+		v.Normal = math.Vec3{Y: -1}
+		mesh.AddVertex(v)
+	}
+	for i := 0; i < segments; i++ {
+		next := (i + 1) % segments
+		// CCW from below: center, current, next (reversed from top).
+		mesh.AddTriangle(botCenter, botCenter+1+i, botCenter+1+next)
+	}
 
 	return mesh
 }

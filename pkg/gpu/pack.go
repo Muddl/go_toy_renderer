@@ -3,17 +3,20 @@ package gpu
 import "github.com/muddl/go_toy_renderer/pkg/geometry"
 
 // PackVertices converts a slice of geometry.Vertex into []float32 for GPU upload.
-// Each vertex is packed as: px, py, pz, cr, cg, cb (6 float32 values, stride 24 bytes).
+// Each vertex is packed as: px, py, pz, cr, cg, cb, nx, ny, nz (9 float32 values, stride 36 bytes).
 func PackVertices(vertices []geometry.Vertex) []float32 {
-	out := make([]float32, len(vertices)*6)
+	out := make([]float32, len(vertices)*9)
 	for i, v := range vertices {
-		base := i * 6
+		base := i * 9
 		out[base+0] = float32(v.Position.X)
 		out[base+1] = float32(v.Position.Y)
 		out[base+2] = float32(v.Position.Z)
 		out[base+3] = float32(v.Color.X)
 		out[base+4] = float32(v.Color.Y)
 		out[base+5] = float32(v.Color.Z)
+		out[base+6] = float32(v.Normal.X)
+		out[base+7] = float32(v.Normal.Y)
+		out[base+8] = float32(v.Normal.Z)
 	}
 	return out
 }

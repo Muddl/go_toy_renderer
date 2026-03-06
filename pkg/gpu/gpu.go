@@ -14,8 +14,8 @@ import (
 	"github.com/muddl/go_toy_renderer/pkg/math"
 )
 
-// vertexStride is the byte stride for one packed vertex: 3×f32 position + 3×f32 color.
-const vertexStride = 24 // 6 × float32 = 6 × 4 bytes
+// vertexStride is the byte stride for one packed vertex: 3×f32 position + 3×f32 color + 3×f32 normal.
+const vertexStride = 36 // 9 × float32 = 9 × 4 bytes
 
 // uniformBufferSize is the byte size of a single mat4x4<f32> uniform (64 bytes).
 const uniformBufferSize = 64
@@ -233,6 +233,7 @@ func (d *Device) Init(width, height uint32, handle NativeWindowHandle) error {
 	attrs := []wgpu.VertexAttribute{
 		{Format: gputypes.VertexFormatFloat32x3, Offset: 0, ShaderLocation: 0},  // position
 		{Format: gputypes.VertexFormatFloat32x3, Offset: 12, ShaderLocation: 1}, // color
+		{Format: gputypes.VertexFormatFloat32x3, Offset: 24, ShaderLocation: 2}, // normal
 	}
 	pipeline := d.device.CreateRenderPipeline(&wgpu.RenderPipelineDescriptor{
 		Layout: plLayout,

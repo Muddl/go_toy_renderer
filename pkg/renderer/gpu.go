@@ -157,13 +157,20 @@ func (g *GPUBackend) RenderFrame(scene *render.Scene) error {
 	})
 
 	// --- Build draw nodes ---
+	elapsed := time.Since(g.startTime).Seconds()
 	geoStart := time.Now()
 	var nodes []gpu.DrawNode
 	if g.gpuScene != nil {
 		nodes = make([]gpu.DrawNode, 0, len(g.gpuScene.Nodes))
 		for i := range g.gpuScene.Nodes {
 			n := &g.gpuScene.Nodes[i]
-			model := n.Transform.ModelMatrix()
+			// Animate: each mesh spins around Y at a slightly different rate.
+			spin := math.NewRotationY(elapsed * (1.0 + 0.3*float64(i)))
+			base := n.Transform.ModelMatrix()
+			// Apply spin in local space: T * R_scene * Spin * S
+			// base already = T * R * S, so we insert spin before scale
+			// by multiplying base * spin (rotate the already-placed mesh).
+			model := base.Multiply(spin)
 			nodes = append(nodes, gpu.DrawNode{
 				Mesh:         n.Mesh,
 				Model:        model,

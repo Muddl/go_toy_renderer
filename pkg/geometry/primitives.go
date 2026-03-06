@@ -114,3 +114,33 @@ func NewCube() *Mesh {
 
 	return mesh
 }
+
+// NewPlane creates a flat quad on the XZ plane at Y=0, centered at origin.
+// It has 4 vertices, 2 triangles (6 indices), all normals pointing +Y.
+func NewPlane(width, depth float64) *Mesh {
+	mesh := NewMesh()
+
+	hw := width / 2.0
+	hd := depth / 2.0
+	grey := math.Vec3{X: 0.5, Y: 0.5, Z: 0.5}
+	up := math.Vec3{Y: 1}
+
+	corners := [4]math.Vec3{
+		{X: -hw, Y: 0, Z: -hd},
+		{X: hw, Y: 0, Z: -hd},
+		{X: hw, Y: 0, Z: hd},
+		{X: -hw, Y: 0, Z: hd},
+	}
+
+	for _, c := range corners {
+		v := NewVertex(c, grey)
+		v.Normal = up
+		mesh.AddVertex(v)
+	}
+
+	// Two CCW triangles: 0-1-2, 0-2-3.
+	mesh.AddTriangle(0, 1, 2)
+	mesh.AddTriangle(0, 2, 3)
+
+	return mesh
+}

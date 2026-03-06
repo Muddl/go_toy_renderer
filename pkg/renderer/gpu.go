@@ -4,6 +4,7 @@ package renderer
 
 import (
 	"fmt"
+	stdmath "math"
 	"time"
 
 	"github.com/go-gl/glfw/v3.3/glfw"
@@ -28,7 +29,8 @@ type GPUBackend struct {
 	ovLayer       *overlay.TextLayer
 	ovPass        *overlay.OverlayPass
 	sampler       overlay.Sampler
-	gpuScene      *scene.Scene // optional; if set, used for multi-mesh rendering
+	gpuScene  *scene.Scene // optional; if set, used for multi-mesh rendering
+	startTime time.Time   // set on first frame for orbit angle calculation
 	// Previous-frame timing used for overlay display (current frame not yet complete
 	// when the overlay texture must be uploaded before Device.RenderFrame).
 	prevFrameDur time.Duration
@@ -105,17 +107,20 @@ func (g *GPUBackend) Init(width, height int) error {
 	return nil
 }
 
-// defaultCamera returns the default camera matching the Phase 12 hardcoded
-// camera parameters: pos=(3,2,5) looking at origin, fov=60 deg.
-func defaultCamera(width, height int) camera.Camera {
+// orbitCamera returns a camera that orbits the origin at the given angle (radians).
+// The camera sits at radius 6, height 3, looking at the origin.
+func orbitCamera(width, height int, angle float64) camera.Camera {
+	r := 6.0
+	x := r * stdmath.Cos(angle)
+	z := r * stdmath.Sin(angle)
 	return camera.New(
-		math.Vec3{X: 3, Y: 2, Z: 5},    // position
-		math.Vec3{},                    // target = origin
+		math.Vec3{X: x, Y: 3, Z: z},   // position on orbit
+		math.Vec3{},                     // target = origin
 		math.Vec3{Y: 1},                // up
-		60.0,                           // fov degrees
-		float64(width)/float64(height), // aspect
-		0.1,                            // near
-		100.0,                          // far
+		60.0,                            // fov degrees
+		float64(width)/float64(height),  // aspect
+		0.1,                             // near
+		100.0,                           // far
 	)
 }
 
@@ -135,7 +140,12 @@ func (g *GPUBackend) RenderFrame(scene *render.Scene) error {
 	frameStart := time.Now()
 
 	// --- Camera uniform (once per frame) ---
-	cam := defaultCamera(g.width, g.height)
+	if g.startTime.IsZero() {
+		g.startTime = frameStart
+	}
+	// One full orbit every 10 seconds.
+	angle := 2.0 * stdmath.Pi * time.Since(g.startTime).Seconds() / 10.0
+	cam := orbitCamera(g.width, g.height, angle)
 	g.device.UpdateCameraUniforms(cam.ViewProjectionMatrixWebGPU())
 
 	// --- Build draw nodes ---

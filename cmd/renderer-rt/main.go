@@ -67,22 +67,23 @@ func runRenderer(cfg Config) error {
 	}
 }
 
-// buildDemoScene creates a scene with a cube at (-1.5, 0, 0) and a
-// tetrahedron at (1.5, 0, 0) to demonstrate per-mesh transforms.
+// buildDemoScene creates a scene with a cube and a tetrahedron placed
+// side by side to demonstrate per-mesh transforms.
 func buildDemoScene() *scene.Scene {
 	s := scene.NewScene()
 
 	// Cube on the left.
 	cubeTransform := scene.NewTransform()
-	cubeTransform.Position = math.Vec3{X: -1.5, Y: 0, Z: 0}
+	cubeTransform.Position = math.Vec3{X: -2, Y: 0, Z: 0}
 	s.AddNode(scene.Node{
 		Mesh:      geometry.NewCube(),
 		Transform: cubeTransform,
 	})
 
-	// Tetrahedron on the right.
+	// Tetrahedron on the right (scaled down to 0.5 so it matches the cube's size).
 	tetraTransform := scene.NewTransform()
-	tetraTransform.Position = math.Vec3{X: 1.5, Y: 0, Z: 0}
+	tetraTransform.Position = math.Vec3{X: 2, Y: 0, Z: 0}
+	tetraTransform.Scale = math.Vec3{X: 0.5, Y: 0.5, Z: 0.5}
 	s.AddNode(scene.Node{
 		Mesh:      geometry.NewTetrahedron(),
 		Transform: tetraTransform,

@@ -5,102 +5,19 @@ package gpu
 import (
 	"errors"
 	"fmt"
-	gomath "math"
 
 	"github.com/go-webgpu/webgpu/wgpu"
 	"github.com/gogpu/gputypes"
 	"github.com/muddl/go_toy_renderer/assets/shaders"
 	"github.com/muddl/go_toy_renderer/pkg/geometry"
+	"github.com/muddl/go_toy_renderer/pkg/math"
 )
 
 // vertexStride is the byte stride for one packed vertex: 3×f32 position + 3×f32 color.
 const vertexStride = 24 // 6 × float32 = 6 × 4 bytes
 
-// makeCubeShaderWGSL generates the cube vertex+fragment WGSL shader with a
-// hardcoded MVP matrix computed from camera pos=(3,2,5) looking at origin.
-// The MVP is recomputed from the actual window dimensions to keep the correct
-// aspect ratio (uniforms are introduced in Phase 14).
-// The WGSL template is loaded from the embedded assets/shaders/cube.wgsl file.
-func makeCubeShaderWGSL(width, height uint32) string {
-	mvp := computeHardcodedMVP(width, height)
-	return fmt.Sprintf(shaders.CubeWGSLTemplate,
-		// column 0
-		mvp[0], mvp[1], mvp[2], mvp[3],
-		// column 1
-		mvp[4], mvp[5], mvp[6], mvp[7],
-		// column 2
-		mvp[8], mvp[9], mvp[10], mvp[11],
-		// column 3
-		mvp[12], mvp[13], mvp[14], mvp[15],
-	)
-}
-
-// computeHardcodedMVP computes MVP = Projection * View for a fixed camera.
-// Camera: pos=(3,2,5), target=(0,0,0), up=(0,1,0), fov=60 deg.
-// Projection uses WebGPU NDC (Z in [0,1]). Result is column-major [16]float64.
-func computeHardcodedMVP(width, height uint32) [16]float64 {
-	// Camera parameters.
-	eyeX, eyeY, eyeZ := 3.0, 2.0, 5.0
-	upX, upY, upZ := 0.0, 1.0, 0.0
-	fov := gomath.Pi / 3.0 // 60 degrees
-	aspect := float64(width) / float64(height)
-	near, far := 0.1, 100.0
-
-	// forward = normalize(target - eye); target is origin.
-	fwdX, fwdY, fwdZ := -eyeX, -eyeY, -eyeZ
-	fwdLen := gomath.Sqrt(fwdX*fwdX + fwdY*fwdY + fwdZ*fwdZ)
-	fwdX, fwdY, fwdZ = fwdX/fwdLen, fwdY/fwdLen, fwdZ/fwdLen
-
-	// right = normalize(forward × up)
-	rx := fwdY*upZ - fwdZ*upY
-	ry := fwdZ*upX - fwdX*upZ
-	rz := fwdX*upY - fwdY*upX
-	rLen := gomath.Sqrt(rx*rx + ry*ry + rz*rz)
-	rx, ry, rz = rx/rLen, ry/rLen, rz/rLen
-
-	// correctedUp = right × forward
-	ux := ry*fwdZ - rz*fwdY
-	uy := rz*fwdX - rx*fwdZ
-	uz := rx*fwdY - ry*fwdX
-
-	// View matrix translation components.
-	rdotE := rx*eyeX + ry*eyeY + rz*eyeZ
-	udotE := ux*eyeX + uy*eyeY + uz*eyeZ
-	fdotE := fwdX*eyeX + fwdY*eyeY + fwdZ*eyeZ
-
-	// View matrix (column-major):
-	// Row i of the view matrix = [r, u, -fwd, 0] with translation column.
-	view := [16]float64{
-		rx, ux, -fwdX, 0, // col 0
-		ry, uy, -fwdY, 0, // col 1
-		rz, uz, -fwdZ, 0, // col 2
-		-rdotE, -udotE, fdotE, 1, // col 3
-	}
-
-	// Projection matrix (WebGPU NDC Z in [0,1], column-major):
-	// m[2][2] = far/(near-far), m[2][3] = near*far/(near-far), m[3][2] = -1
-	tanHalf := gomath.Tan(fov / 2.0)
-	proj := [16]float64{
-		1.0 / (aspect * tanHalf), 0, 0, 0, // col 0
-		0, 1.0 / tanHalf, 0, 0, // col 1
-		0, 0, far / (near - far), -1, // col 2
-		0, 0, near * far / (near - far), 0, // col 3
-	}
-
-	// MVP = proj × view (column-major multiply).
-	// mvp[col*4+row] = Σ_k proj[k*4+row] * view[col*4+k]
-	var mvp [16]float64
-	for col := 0; col < 4; col++ {
-		for row := 0; row < 4; row++ {
-			var sum float64
-			for k := 0; k < 4; k++ {
-				sum += proj[k*4+row] * view[col*4+k]
-			}
-			mvp[col*4+row] = sum
-		}
-	}
-	return mvp
-}
+// uniformBufferSize is the byte size of a single mat4x4<f32> uniform (64 bytes).
+const uniformBufferSize = 64
 
 // Device holds the wgpu initialization chain and render resources.
 // Create with [New] and initialize with [Device.Init] before calling
@@ -129,6 +46,14 @@ type Device struct {
 	indexBufSize  uint64
 	indexCount    uint32
 	cachedMesh    *geometry.Mesh
+
+	// Uniform buffers (Phase 14).
+	cameraUniformBuf  *wgpu.Buffer
+	meshUniformBuf    *wgpu.Buffer
+	bindGroupLayout   *wgpu.BindGroupLayout
+	cameraBindGroup   *wgpu.BindGroup
+	meshBindGroup     *wgpu.BindGroup
+	pipelineLayout    *wgpu.PipelineLayout
 
 	// Optional overlay renderer (Phase 13 / perf-debug-overlay).
 	// Set via SetOverlayRenderer; called after the geometry draw in each frame.
@@ -223,20 +148,97 @@ func (d *Device) Init(width, height uint32, handle NativeWindowHandle) error {
 	}
 	d.depthView = depthView
 
-	// Step 9: Compile the cube WGSL shader (MVP hardcoded from camera at (3,2,5)).
-	cubeWGSL := makeCubeShaderWGSL(width, height)
-	shader := dev.CreateShaderModuleWGSL(cubeWGSL)
+	// Step 9: Create uniform buffers for camera (viewProj) and mesh (model).
+	d.cameraUniformBuf = dev.CreateBuffer(&wgpu.BufferDescriptor{
+		Size:  uniformBufferSize,
+		Usage: gputypes.BufferUsageUniform | gputypes.BufferUsageCopyDst,
+	})
+	if d.cameraUniformBuf == nil {
+		return errors.New("gpu: create camera uniform buffer: returned nil")
+	}
+	d.meshUniformBuf = dev.CreateBuffer(&wgpu.BufferDescriptor{
+		Size:  uniformBufferSize,
+		Usage: gputypes.BufferUsageUniform | gputypes.BufferUsageCopyDst,
+	})
+	if d.meshUniformBuf == nil {
+		return errors.New("gpu: create mesh uniform buffer: returned nil")
+	}
+
+	// Step 9b: Create bind group layout with two uniform bindings.
+	bglEntries := []wgpu.BindGroupLayoutEntry{
+		{
+			Binding:    0,
+			Visibility: gputypes.ShaderStageVertex,
+			Buffer: &wgpu.BufferBindingLayout{
+				Type:           gputypes.BufferBindingTypeUniform,
+				MinBindingSize: uniformBufferSize,
+			},
+		},
+		{
+			Binding:    1,
+			Visibility: gputypes.ShaderStageVertex,
+			Buffer: &wgpu.BufferBindingLayout{
+				Type:           gputypes.BufferBindingTypeUniform,
+				MinBindingSize: uniformBufferSize,
+			},
+		},
+	}
+	bgl := dev.CreateBindGroupLayout(&wgpu.BindGroupLayoutDescriptor{
+		EntryCount: uint32(len(bglEntries)),
+		Entries:    &bglEntries[0],
+	})
+	if bgl == nil {
+		return errors.New("gpu: create bind group layout: returned nil")
+	}
+	d.bindGroupLayout = bgl
+
+	// Step 9c: Create bind groups.
+	cameraBGEntries := []wgpu.BindGroupEntry{
+		{
+			Binding: 0,
+			Buffer:  d.cameraUniformBuf,
+			Size:    uniformBufferSize,
+		},
+		{
+			Binding: 1,
+			Buffer:  d.meshUniformBuf,
+			Size:    uniformBufferSize,
+		},
+	}
+	cameraBindGroup := dev.CreateBindGroup(&wgpu.BindGroupDescriptor{
+		Layout:     bgl,
+		EntryCount: uint32(len(cameraBGEntries)),
+		Entries:    &cameraBGEntries[0],
+	})
+	if cameraBindGroup == nil {
+		return errors.New("gpu: create bind group: returned nil")
+	}
+	d.cameraBindGroup = cameraBindGroup
+
+	// Step 9d: Create pipeline layout.
+	plLayout := dev.CreatePipelineLayout(&wgpu.PipelineLayoutDescriptor{
+		BindGroupLayoutCount: 1,
+		BindGroupLayouts:     []*wgpu.BindGroupLayout{bgl},
+	})
+	if plLayout == nil {
+		return errors.New("gpu: create pipeline layout: returned nil")
+	}
+	d.pipelineLayout = plLayout
+
+	// Step 10: Compile the cube WGSL shader with uniform bindings.
+	shader := dev.CreateShaderModuleWGSL(shaders.CubeWGSL)
 	if shader == nil {
 		return errors.New("gpu: create shader module: returned nil")
 	}
 	d.shader = shader
 
-	// Step 10: Create the render pipeline with vertex buffer layout and depth stencil.
+	// Step 11: Create the render pipeline with vertex buffer layout and depth stencil.
 	attrs := []wgpu.VertexAttribute{
 		{Format: gputypes.VertexFormatFloat32x3, Offset: 0, ShaderLocation: 0},  // position
 		{Format: gputypes.VertexFormatFloat32x3, Offset: 12, ShaderLocation: 1}, // color
 	}
 	pipeline := d.device.CreateRenderPipeline(&wgpu.RenderPipelineDescriptor{
+		Layout: plLayout,
 		Vertex: wgpu.VertexState{
 			Module:     shader,
 			EntryPoint: "vs_main",
@@ -280,8 +282,28 @@ func (d *Device) Init(width, height uint32, handle NativeWindowHandle) error {
 	return nil
 }
 
+// UpdateCameraUniforms uploads the view-projection matrix to the camera uniform buffer.
+func (d *Device) UpdateCameraUniforms(viewProj math.Mat4x4) {
+	if d.queue == nil || d.cameraUniformBuf == nil {
+		return
+	}
+	cu := CameraUniforms{ViewProj: viewProj}
+	d.queue.WriteBuffer(d.cameraUniformBuf, 0, cu.Bytes())
+}
+
+// UpdateMeshUniforms uploads the model matrix to the mesh uniform buffer.
+func (d *Device) UpdateMeshUniforms(model math.Mat4x4) {
+	if d.queue == nil || d.meshUniformBuf == nil {
+		return
+	}
+	mu := MeshUniforms{Model: model}
+	d.queue.WriteBuffer(d.meshUniformBuf, 0, mu.Bytes())
+}
+
 // RenderFrame renders one frame of cube geometry to the GPU.
 // LoadGeometry must be called before the first RenderFrame call to upload mesh data.
+// Camera and mesh uniforms should be uploaded via UpdateCameraUniforms/UpdateMeshUniforms
+// before calling RenderFrame.
 // Returns an error if Init has not been called successfully.
 func (d *Device) RenderFrame() error {
 	if !d.ready {
@@ -334,6 +356,7 @@ func (d *Device) RenderFrame() error {
 	}
 
 	pass.SetPipeline(d.pipeline)
+	pass.SetBindGroup(0, d.cameraBindGroup, nil)
 	pass.SetVertexBuffer(0, d.vertexBuf, 0, d.vertexBufSize)
 	pass.SetIndexBuffer(d.indexBuf, gputypes.IndexFormatUint32, 0, d.indexBufSize)
 	pass.DrawIndexed(d.indexCount, 1, 0, 0, 0)
@@ -370,6 +393,28 @@ func (d *Device) Shutdown() {
 		d.indexBuf.Destroy()
 		d.indexBuf.Release()
 		d.indexBuf = nil
+	}
+	if d.cameraBindGroup != nil {
+		d.cameraBindGroup.Release()
+		d.cameraBindGroup = nil
+	}
+	if d.cameraUniformBuf != nil {
+		d.cameraUniformBuf.Destroy()
+		d.cameraUniformBuf.Release()
+		d.cameraUniformBuf = nil
+	}
+	if d.meshUniformBuf != nil {
+		d.meshUniformBuf.Destroy()
+		d.meshUniformBuf.Release()
+		d.meshUniformBuf = nil
+	}
+	if d.bindGroupLayout != nil {
+		d.bindGroupLayout.Release()
+		d.bindGroupLayout = nil
+	}
+	if d.pipelineLayout != nil {
+		d.pipelineLayout.Release()
+		d.pipelineLayout = nil
 	}
 	if d.depthView != nil {
 		d.depthView.Release()

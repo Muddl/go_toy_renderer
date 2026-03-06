@@ -7,32 +7,33 @@ import (
 	"github.com/muddl/go_toy_renderer/assets/shaders"
 )
 
-// TestCubeWGSLTemplate_IsNonEmpty verifies the embedded shader file is present.
-func TestCubeWGSLTemplate_IsNonEmpty(t *testing.T) {
-	if len(shaders.CubeWGSLTemplate) == 0 {
-		t.Fatal("CubeWGSLTemplate must not be empty")
+func TestCubeWGSL_IsNonEmpty(t *testing.T) {
+	if len(shaders.CubeWGSL) == 0 {
+		t.Fatal("CubeWGSL must not be empty")
 	}
 }
 
-// TestCubeWGSLTemplate_HasVertexEntryPoint verifies the template declares vs_main.
-func TestCubeWGSLTemplate_HasVertexEntryPoint(t *testing.T) {
-	if !strings.Contains(shaders.CubeWGSLTemplate, "fn vs_main") {
-		t.Fatal("CubeWGSLTemplate: missing vs_main vertex entry point")
+func TestCubeWGSL_HasVertexEntryPoint(t *testing.T) {
+	if !strings.Contains(shaders.CubeWGSL, "fn vs_main") {
+		t.Fatal("CubeWGSL: missing vs_main vertex entry point")
 	}
 }
 
-// TestCubeWGSLTemplate_HasFragmentEntryPoint verifies the template declares fs_main.
-func TestCubeWGSLTemplate_HasFragmentEntryPoint(t *testing.T) {
-	if !strings.Contains(shaders.CubeWGSLTemplate, "fn fs_main") {
-		t.Fatal("CubeWGSLTemplate: missing fs_main fragment entry point")
+func TestCubeWGSL_HasFragmentEntryPoint(t *testing.T) {
+	if !strings.Contains(shaders.CubeWGSL, "fn fs_main") {
+		t.Fatal("CubeWGSL: missing fs_main fragment entry point")
 	}
 }
 
-// TestCubeWGSLTemplate_HasMVPFormatVerbs verifies the template contains %f verbs
-// for runtime MVP substitution (Phase 14 replaces these with uniform buffers).
-func TestCubeWGSLTemplate_HasMVPFormatVerbs(t *testing.T) {
-	const verb = "%f"
-	if !strings.Contains(shaders.CubeWGSLTemplate, verb) {
-		t.Fatal("CubeWGSLTemplate: must contain format verbs for runtime MVP substitution")
+func TestCubeWGSL_HasUniformBindings(t *testing.T) {
+	for _, want := range []string{
+		"@group(0) @binding(0)",
+		"@group(0) @binding(1)",
+		"var<uniform> camera",
+		"var<uniform> mesh",
+	} {
+		if !strings.Contains(shaders.CubeWGSL, want) {
+			t.Fatalf("CubeWGSL: missing %q", want)
+		}
 	}
 }

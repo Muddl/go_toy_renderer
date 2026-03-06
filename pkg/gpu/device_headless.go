@@ -47,7 +47,10 @@ func (d *Device) LoadGeometry(_ *geometry.Mesh) error {
 func (d *Device) UpdateCameraUniforms(_ math.Mat4x4) {}
 
 // UpdateMeshUniforms is a no-op in headless builds.
-func (d *Device) UpdateMeshUniforms(_ math.Mat4x4) {}
+func (d *Device) UpdateMeshUniforms(_, _ math.Mat4x4) {}
+
+// UpdateLightUniforms is a no-op in headless builds.
+func (d *Device) UpdateLightUniforms(_ LightUniforms) {}
 
 // Shutdown is a no-op in headless builds.
 func (d *Device) Shutdown() {}

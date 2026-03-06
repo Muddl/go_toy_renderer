@@ -29,8 +29,10 @@ func TestCubeWGSL_HasUniformBindings(t *testing.T) {
 	for _, want := range []string{
 		"@group(0) @binding(0)",
 		"@group(0) @binding(1)",
+		"@group(0) @binding(2)",
 		"var<uniform> camera",
 		"var<uniform> mesh",
+		"var<uniform> light",
 	} {
 		if !strings.Contains(shaders.CubeWGSL, want) {
 			t.Fatalf("CubeWGSL: missing %q", want)

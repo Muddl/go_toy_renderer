@@ -14,11 +14,15 @@ import (
 	"github.com/muddl/go_toy_renderer/pkg/math"
 )
 
-// vertexStride is the byte stride for one packed vertex: 3×f32 position + 3×f32 color.
-const vertexStride = 24 // 6 × float32 = 6 × 4 bytes
+// vertexStride is the byte stride for one packed vertex: 3×f32 position + 3×f32 color + 3×f32 normal.
+const vertexStride = 36 // 9 × float32 = 9 × 4 bytes
 
-// uniformBufferSize is the byte size of a single mat4x4<f32> uniform (64 bytes).
-const uniformBufferSize = 64
+// Uniform buffer sizes in bytes.
+const (
+	cameraUniformSize = 64  // mat4x4<f32> viewProj
+	meshUniformSize   = 128 // mat4x4<f32> model + mat4x4<f32> normalMatrix
+	lightUniformSize  = 64  // 4 × vec4<f32> (direction, color, ambient, cameraPos)
+)
 
 // Device holds the wgpu initialization chain and render resources.
 // Create with [New] and initialize with [Device.Init] before calling
@@ -51,12 +55,12 @@ type Device struct {
 	indexBufSize  uint64
 	indexCount    uint32
 
-	// Uniform buffers (Phase 14).
+	// Uniform buffers (Phase 14 + Phase 15 lighting).
 	cameraUniformBuf *wgpu.Buffer
 	meshUniformBuf   *wgpu.Buffer
+	lightUniformBuf  *wgpu.Buffer
 	bindGroupLayout  *wgpu.BindGroupLayout
 	cameraBindGroup  *wgpu.BindGroup
-	meshBindGroup    *wgpu.BindGroup
 	pipelineLayout   *wgpu.PipelineLayout
 
 	// Optional overlay renderer (Phase 13 / perf-debug-overlay).
@@ -152,30 +156,37 @@ func (d *Device) Init(width, height uint32, handle NativeWindowHandle) error {
 	}
 	d.depthView = depthView
 
-	// Step 9: Create uniform buffers for camera (viewProj) and mesh (model).
+	// Step 9: Create uniform buffers for camera, mesh, and light.
 	d.cameraUniformBuf = dev.CreateBuffer(&wgpu.BufferDescriptor{
-		Size:  uniformBufferSize,
+		Size:  cameraUniformSize,
 		Usage: gputypes.BufferUsageUniform | gputypes.BufferUsageCopyDst,
 	})
 	if d.cameraUniformBuf == nil {
 		return errors.New("gpu: create camera uniform buffer: returned nil")
 	}
 	d.meshUniformBuf = dev.CreateBuffer(&wgpu.BufferDescriptor{
-		Size:  uniformBufferSize,
+		Size:  meshUniformSize,
 		Usage: gputypes.BufferUsageUniform | gputypes.BufferUsageCopyDst,
 	})
 	if d.meshUniformBuf == nil {
 		return errors.New("gpu: create mesh uniform buffer: returned nil")
 	}
+	d.lightUniformBuf = dev.CreateBuffer(&wgpu.BufferDescriptor{
+		Size:  lightUniformSize,
+		Usage: gputypes.BufferUsageUniform | gputypes.BufferUsageCopyDst,
+	})
+	if d.lightUniformBuf == nil {
+		return errors.New("gpu: create light uniform buffer: returned nil")
+	}
 
-	// Step 9b: Create bind group layout with two uniform bindings.
+	// Step 9b: Create bind group layout with three uniform bindings.
 	bglEntries := []wgpu.BindGroupLayoutEntry{
 		{
 			Binding:    0,
 			Visibility: gputypes.ShaderStageVertex,
 			Buffer: wgpu.BufferBindingLayout{
 				Type:           gputypes.BufferBindingTypeUniform,
-				MinBindingSize: uniformBufferSize,
+				MinBindingSize: cameraUniformSize,
 			},
 		},
 		{
@@ -183,7 +194,15 @@ func (d *Device) Init(width, height uint32, handle NativeWindowHandle) error {
 			Visibility: gputypes.ShaderStageVertex,
 			Buffer: wgpu.BufferBindingLayout{
 				Type:           gputypes.BufferBindingTypeUniform,
-				MinBindingSize: uniformBufferSize,
+				MinBindingSize: meshUniformSize,
+			},
+		},
+		{
+			Binding:    2,
+			Visibility: gputypes.ShaderStageVertex | gputypes.ShaderStageFragment,
+			Buffer: wgpu.BufferBindingLayout{
+				Type:           gputypes.BufferBindingTypeUniform,
+				MinBindingSize: lightUniformSize,
 			},
 		},
 	}
@@ -196,20 +215,21 @@ func (d *Device) Init(width, height uint32, handle NativeWindowHandle) error {
 	}
 	d.bindGroupLayout = bgl
 
-	// Step 9c: Create bind groups using the helper that handles Handle() conversion.
-	cameraBGEntries := []wgpu.BindGroupEntry{
-		wgpu.BufferBindingEntry(0, d.cameraUniformBuf, 0, uniformBufferSize),
-		wgpu.BufferBindingEntry(1, d.meshUniformBuf, 0, uniformBufferSize),
+	// Step 9c: Create bind group with all three uniform buffers.
+	bgEntries := []wgpu.BindGroupEntry{
+		wgpu.BufferBindingEntry(0, d.cameraUniformBuf, 0, cameraUniformSize),
+		wgpu.BufferBindingEntry(1, d.meshUniformBuf, 0, meshUniformSize),
+		wgpu.BufferBindingEntry(2, d.lightUniformBuf, 0, lightUniformSize),
 	}
-	cameraBindGroup := dev.CreateBindGroup(&wgpu.BindGroupDescriptor{
+	bindGroup := dev.CreateBindGroup(&wgpu.BindGroupDescriptor{
 		Layout:     bgl.Handle(),
-		EntryCount: uintptr(len(cameraBGEntries)),
-		Entries:    uintptr(unsafe.Pointer(&cameraBGEntries[0])),
+		EntryCount: uintptr(len(bgEntries)),
+		Entries:    uintptr(unsafe.Pointer(&bgEntries[0])),
 	})
-	if cameraBindGroup == nil {
+	if bindGroup == nil {
 		return errors.New("gpu: create bind group: returned nil")
 	}
-	d.cameraBindGroup = cameraBindGroup
+	d.cameraBindGroup = bindGroup
 
 	// Step 9d: Create pipeline layout.
 	bglHandles := [1]uintptr{bgl.Handle()}
@@ -233,6 +253,7 @@ func (d *Device) Init(width, height uint32, handle NativeWindowHandle) error {
 	attrs := []wgpu.VertexAttribute{
 		{Format: gputypes.VertexFormatFloat32x3, Offset: 0, ShaderLocation: 0},  // position
 		{Format: gputypes.VertexFormatFloat32x3, Offset: 12, ShaderLocation: 1}, // color
+		{Format: gputypes.VertexFormatFloat32x3, Offset: 24, ShaderLocation: 2}, // normal
 	}
 	pipeline := d.device.CreateRenderPipeline(&wgpu.RenderPipelineDescriptor{
 		Layout: plLayout,
@@ -288,13 +309,21 @@ func (d *Device) UpdateCameraUniforms(viewProj math.Mat4x4) {
 	d.queue.WriteBuffer(d.cameraUniformBuf, 0, cu.Bytes())
 }
 
-// UpdateMeshUniforms uploads the model matrix to the mesh uniform buffer.
-func (d *Device) UpdateMeshUniforms(model math.Mat4x4) {
+// UpdateMeshUniforms uploads the model and normal matrices to the mesh uniform buffer.
+func (d *Device) UpdateMeshUniforms(model, normalMatrix math.Mat4x4) {
 	if d.queue == nil || d.meshUniformBuf == nil {
 		return
 	}
-	mu := MeshUniforms{Model: model}
+	mu := MeshUniforms{Model: model, NormalMatrix: normalMatrix}
 	d.queue.WriteBuffer(d.meshUniformBuf, 0, mu.Bytes())
+}
+
+// UpdateLightUniforms uploads the light parameters to the light uniform buffer.
+func (d *Device) UpdateLightUniforms(lu LightUniforms) {
+	if d.queue == nil || d.lightUniformBuf == nil {
+		return
+	}
+	d.queue.WriteBuffer(d.lightUniformBuf, 0, lu.Bytes())
 }
 
 // RenderFrame renders one frame of cube geometry to the GPU.
@@ -376,7 +405,7 @@ func (d *Device) RenderFrameMulti(nodes []DrawNode) error {
 			if err := d.LoadGeometry(nodes[i].Mesh); err != nil {
 				continue
 			}
-			d.UpdateMeshUniforms(nodes[i].Model)
+			d.UpdateMeshUniforms(nodes[i].Model, nodes[i].NormalMatrix)
 			pass.SetVertexBuffer(0, d.vertexBuf, 0, d.vertexBufSize)
 			pass.SetIndexBuffer(d.indexBuf, gputypes.IndexFormatUint32, 0, d.indexBufSize)
 			pass.DrawIndexed(d.indexCount, 1, 0, 0, 0)
@@ -433,6 +462,11 @@ func (d *Device) Shutdown() {
 		d.meshUniformBuf.Destroy()
 		d.meshUniformBuf.Release()
 		d.meshUniformBuf = nil
+	}
+	if d.lightUniformBuf != nil {
+		d.lightUniformBuf.Destroy()
+		d.lightUniformBuf.Release()
+		d.lightUniformBuf = nil
 	}
 	if d.bindGroupLayout != nil {
 		d.bindGroupLayout.Release()

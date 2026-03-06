@@ -15,10 +15,10 @@ func TestCameraUniforms_ByteSize(t *testing.T) {
 }
 
 func TestMeshUniforms_ByteSize(t *testing.T) {
-	mu := MeshUniforms{Model: math.NewIdentity()}
+	mu := MeshUniforms{Model: math.NewIdentity(), NormalMatrix: math.NewIdentity()}
 	data := mu.Bytes()
-	if len(data) != 64 {
-		t.Fatalf("MeshUniforms.Bytes() = %d bytes, want 64", len(data))
+	if len(data) != 128 {
+		t.Fatalf("MeshUniforms.Bytes() = %d bytes, want 128", len(data))
 	}
 }
 
@@ -32,10 +32,55 @@ func TestCameraUniforms_Alignment(t *testing.T) {
 }
 
 func TestMeshUniforms_Alignment(t *testing.T) {
-	mu := MeshUniforms{Model: math.NewIdentity()}
+	mu := MeshUniforms{Model: math.NewIdentity(), NormalMatrix: math.NewIdentity()}
 	data := mu.Bytes()
 	if len(data)%16 != 0 {
 		t.Fatalf("MeshUniforms not 16-byte aligned: %d bytes", len(data))
+	}
+}
+
+func TestLightUniforms_ByteSize(t *testing.T) {
+	lu := LightUniforms{}
+	data := lu.Bytes()
+	if len(data) != 64 {
+		t.Fatalf("LightUniforms.Bytes() = %d bytes, want 64", len(data))
+	}
+}
+
+func TestLightUniforms_Alignment(t *testing.T) {
+	lu := LightUniforms{}
+	data := lu.Bytes()
+	if len(data)%16 != 0 {
+		t.Fatalf("LightUniforms not 16-byte aligned: %d bytes", len(data))
+	}
+}
+
+func TestLightUniforms_DirectionAtOffset0(t *testing.T) {
+	lu := LightUniforms{
+		Direction: math.Vec3{X: 0, Y: -1, Z: 0},
+	}
+	data := lu.Bytes()
+	// Direction Y = -1.0 at bytes 4..7 (second float32).
+	// IEEE 754 float32(-1.0) = 0xBF800000 -> LE: 0x00, 0x00, 0x80, 0xBF
+	if data[4] != 0x00 || data[5] != 0x00 || data[6] != 0x80 || data[7] != 0xBF {
+		t.Fatalf("direction.Y at bytes 4..7: got [%02x %02x %02x %02x], want [00 00 80 bf]",
+			data[4], data[5], data[6], data[7])
+	}
+}
+
+func TestMeshUniforms_NormalMatrixAtOffset64(t *testing.T) {
+	mu := MeshUniforms{
+		Model:        math.Mat4x4{},
+		NormalMatrix: math.NewIdentity(),
+	}
+	data := mu.Bytes()
+	// NormalMatrix identity diagonal at bytes 64, 84, 104, 124.
+	diagOffsets := []int{64, 84, 104, 124}
+	for _, off := range diagOffsets {
+		if data[off] != 0x00 || data[off+1] != 0x00 || data[off+2] != 0x80 || data[off+3] != 0x3F {
+			t.Fatalf("normalMatrix diagonal at byte %d: got [%02x %02x %02x %02x], want [00 00 80 3f]",
+				off, data[off], data[off+1], data[off+2], data[off+3])
+		}
 	}
 }
 

@@ -373,3 +373,58 @@ func TestMat4x4_MultiplyVec4_TranslationMatrix_DoesNotTranslateDirection(t *test
 		t.Errorf("MultiplyVec4 direction with translation = (%f,%f,%f,%f), want (1,0,0,0)", rx, ry, rz, rw)
 	}
 }
+
+func TestMat4x4_Inverse_Identity_ReturnsIdentity(t *testing.T) {
+	inv, ok := NewIdentity().Inverse()
+	if !ok {
+		t.Fatal("identity should be invertible")
+	}
+	if !mat4Equals(inv, NewIdentity(), epsilon) {
+		t.Errorf("inverse of identity should be identity")
+	}
+}
+
+func TestMat4x4_Inverse_Translation_ReturnsNegatedTranslation(t *testing.T) {
+	m := NewTranslation(3, 4, 5)
+	inv, ok := m.Inverse()
+	if !ok {
+		t.Fatal("translation should be invertible")
+	}
+	product := m.Multiply(inv)
+	if !mat4Equals(product, NewIdentity(), epsilon) {
+		t.Errorf("M * M^-1 should be identity, got %v", product)
+	}
+}
+
+func TestMat4x4_Inverse_Scale_ReturnsReciprocalScale(t *testing.T) {
+	m := NewScale(2, 3, 4)
+	inv, ok := m.Inverse()
+	if !ok {
+		t.Fatal("scale should be invertible")
+	}
+	product := m.Multiply(inv)
+	if !mat4Equals(product, NewIdentity(), epsilon) {
+		t.Errorf("M * M^-1 should be identity, got %v", product)
+	}
+}
+
+func TestMat4x4_Inverse_Singular_ReturnsFalse(t *testing.T) {
+	// Zero matrix is singular.
+	_, ok := NewZero().Inverse()
+	if ok {
+		t.Error("zero matrix should not be invertible")
+	}
+}
+
+func TestMat4x4_NormalMatrix_UniformScale(t *testing.T) {
+	// For uniform scale, normalMatrix should undo the scale for normals.
+	model := NewScale(2, 2, 2).Multiply(NewRotationY(0.5))
+	nm := NormalMatrix(model)
+	// Apply normal matrix to Y-axis normal.
+	ny := nm.MultiplyVec3(Vec3{Y: 1})
+	// Should still point roughly in Y direction, unit length after normalize.
+	nyn := ny.Normalize()
+	if math.Abs(nyn.Y-1.0) > 0.001 {
+		t.Errorf("normal matrix of uniform scale+rotation should preserve Y normal, got %v", nyn)
+	}
+}

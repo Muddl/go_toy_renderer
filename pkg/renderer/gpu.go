@@ -148,24 +148,42 @@ func (g *GPUBackend) RenderFrame(scene *render.Scene) error {
 	cam := orbitCamera(g.width, g.height, angle)
 	g.device.UpdateCameraUniforms(cam.ViewProjectionMatrixWebGPU())
 
+	// --- Light uniform (once per frame) ---
+	g.device.UpdateLightUniforms(gpu.LightUniforms{
+		Direction: math.Vec3{X: -0.3, Y: -1.0, Z: -0.5}.Normalize(),
+		Color:     math.Vec3{X: 1, Y: 1, Z: 1},
+		Ambient:   math.Vec3{X: 0.15, Y: 0.15, Z: 0.15},
+		CameraPos: math.Vec3{X: cam.Position.X, Y: cam.Position.Y, Z: cam.Position.Z},
+	})
+
 	// --- Build draw nodes ---
+	elapsed := time.Since(g.startTime).Seconds()
 	geoStart := time.Now()
 	var nodes []gpu.DrawNode
 	if g.gpuScene != nil {
 		nodes = make([]gpu.DrawNode, 0, len(g.gpuScene.Nodes))
 		for i := range g.gpuScene.Nodes {
 			n := &g.gpuScene.Nodes[i]
+			// Animate: each mesh spins around Y at a slightly different rate.
+			spin := math.NewRotationY(elapsed * (1.0 + 0.3*float64(i)))
+			base := n.Transform.ModelMatrix()
+			// Apply spin in local space: T * R_scene * Spin * S
+			// base already = T * R * S, so we insert spin before scale
+			// by multiplying base * spin (rotate the already-placed mesh).
+			model := base.Multiply(spin)
 			nodes = append(nodes, gpu.DrawNode{
-				Mesh:  n.Mesh,
-				Model: n.Transform.ModelMatrix(),
+				Mesh:         n.Mesh,
+				Model:        model,
+				NormalMatrix: math.NormalMatrix(model),
 			})
 		}
 	} else {
 		nodes = make([]gpu.DrawNode, 0, len(scene.Meshes))
 		for _, mesh := range scene.Meshes {
 			nodes = append(nodes, gpu.DrawNode{
-				Mesh:  mesh,
-				Model: math.NewIdentity(),
+				Mesh:         mesh,
+				Model:        math.NewIdentity(),
+				NormalMatrix: math.NewIdentity(),
 			})
 		}
 	}

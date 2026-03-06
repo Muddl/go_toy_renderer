@@ -260,8 +260,8 @@ func TestNewCylinder_CreatesValidMesh(t *testing.T) {
 	mesh := NewCylinder(seg)
 
 	wantVerts := 4*seg + 2*(seg+1) // 98
-	wantIdx := 12 * seg             // 192
-	wantTris := 4 * seg             // 64
+	wantIdx := 12 * seg            // 192
+	wantTris := 4 * seg            // 64
 
 	if len(mesh.Vertices) != wantVerts {
 		t.Errorf("Cylinder Vertices = %d, want %d", len(mesh.Vertices), wantVerts)

@@ -25,4 +25,6 @@
 
 | [x] | [perf-debug-overlay_20260301](./tracks/perf-debug-overlay_20260301/index.md) | Live Performance Debug Overlay | 2026-03-01 | 2026-03-01 |
 
+| [x] | [scene-enrich_20260306](./tracks/scene-enrich_20260306/index.md) | Scene Enrichment: Ground Plane, Skybox & Camera Cylinder | 2026-03-06 | 2026-03-06 |
+
 <!-- Tracks registered by /conductor:new-track -->

@@ -37,6 +37,7 @@ func (tr Transform) ModelMatrix() math.Mat4x4 {
 type Node struct {
 	Mesh      *geometry.Mesh
 	Transform Transform
+	Static    bool // If true, the renderer skips per-frame animation for this node.
 }
 
 // Scene holds nodes to render and camera parameters.

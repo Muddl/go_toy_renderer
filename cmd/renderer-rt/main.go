@@ -89,12 +89,13 @@ func buildDemoScene() *scene.Scene {
 		Transform: tetraTransform,
 	})
 
-	// Ground plane beneath the meshes.
+	// Ground plane beneath the meshes (static — no spin animation).
 	planeTransform := scene.NewTransform()
 	planeTransform.Position = math.Vec3{X: 0, Y: -1, Z: 0}
 	s.AddNode(scene.Node{
 		Mesh:      geometry.NewPlane(10, 10),
 		Transform: planeTransform,
+		Static:    true,
 	})
 
 	return s

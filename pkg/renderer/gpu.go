@@ -30,6 +30,7 @@ type GPUBackend struct {
 	ovPass        *overlay.OverlayPass
 	sampler       overlay.Sampler
 	gpuScene      *scene.Scene // optional; if set, used for multi-mesh rendering
+	camNodeIdx    int          // index of camera-tracking cylinder node (-1 = none)
 	startTime     time.Time    // set on first frame for orbit angle calculation
 	// Previous-frame timing used for overlay display (current frame not yet complete
 	// when the overlay texture must be uploaded before Device.RenderFrame).
@@ -44,11 +45,18 @@ func (g *GPUBackend) SetScene(s *scene.Scene) {
 	g.gpuScene = s
 }
 
+// SetCameraNodeIndex sets the index of the scene node that should track
+// the orbiting camera's position and orientation each frame.
+func (g *GPUBackend) SetCameraNodeIndex(idx int) {
+	g.camNodeIdx = idx
+}
+
 // Init opens a GLFW window with ClientAPI=NoAPI, extracts the platform-specific
 // native window handle, and initialises pkg/gpu.Device (which owns the full
 // wgpu chain: instance → surface → adapter → device → queue → pipeline).
 // The overlay pass is created after the device is ready; failure is non-fatal.
 func (g *GPUBackend) Init(width, height int) error {
+	g.camNodeIdx = -1
 	g.width = width
 	g.height = height
 
@@ -148,6 +156,19 @@ func (g *GPUBackend) RenderFrame(scene *render.Scene) error {
 	cam := orbitCamera(g.width, g.height, angle)
 	g.device.UpdateCameraUniforms(cam.ViewProjectionMatrixWebGPU())
 
+	// --- Update camera cylinder node position + orientation ---
+	if g.camNodeIdx >= 0 && g.gpuScene != nil && g.camNodeIdx < len(g.gpuScene.Nodes) {
+		n := &g.gpuScene.Nodes[g.camNodeIdx]
+		// Place the cylinder 2 units ahead of the camera (toward the origin)
+		// so it's visible but doesn't block the camera's view.
+		fwd := cam.Position.Scale(-1).Normalize() // direction from camera to origin
+		n.Transform.Position = cam.Position.Add(fwd.Scale(2.0))
+		// Orient the cylinder (default axis +Y) to point toward the origin.
+		yaw := stdmath.Atan2(fwd.X, fwd.Z)
+		pitch := stdmath.Asin(-fwd.Y)
+		n.Transform.Rotation = math.Vec3{X: pitch, Y: yaw + stdmath.Pi/2, Z: 0}
+	}
+
 	// --- Light uniform (once per frame) ---
 	g.device.UpdateLightUniforms(gpu.LightUniforms{
 		Direction: math.Vec3{X: -0.3, Y: -1.0, Z: -0.5}.Normalize(),
@@ -164,13 +185,12 @@ func (g *GPUBackend) RenderFrame(scene *render.Scene) error {
 		nodes = make([]gpu.DrawNode, 0, len(g.gpuScene.Nodes))
 		for i := range g.gpuScene.Nodes {
 			n := &g.gpuScene.Nodes[i]
-			// Animate: each mesh spins around Y at a slightly different rate.
-			spin := math.NewRotationY(elapsed * (1.0 + 0.3*float64(i)))
-			base := n.Transform.ModelMatrix()
-			// Apply spin in local space: T * R_scene * Spin * S
-			// base already = T * R * S, so we insert spin before scale
-			// by multiplying base * spin (rotate the already-placed mesh).
-			model := base.Multiply(spin)
+			model := n.Transform.ModelMatrix()
+			if !n.Static {
+				// Animate: each mesh spins around Y at a slightly different rate.
+				spin := math.NewRotationY(elapsed * (1.0 + 0.3*float64(i)))
+				model = model.Multiply(spin)
+			}
 			nodes = append(nodes, gpu.DrawNode{
 				Mesh:         n.Mesh,
 				Model:        model,

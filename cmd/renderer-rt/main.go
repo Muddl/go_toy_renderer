@@ -45,12 +45,15 @@ func runRenderer(cfg Config) error {
 	}
 	defer r.Shutdown()
 
-	// Build GPU scene with cube + tetrahedron at different positions.
-	gpuScene := buildDemoScene()
+	// Build GPU scene with meshes + camera cylinder.
+	gpuScene, camCylIdx := buildDemoScene()
 
 	// If the backend supports scene-aware rendering, use it.
 	if gpuBackend, ok := r.(interface{ SetScene(*scene.Scene) }); ok {
 		gpuBackend.SetScene(gpuScene)
+	}
+	if gpuBackend, ok := r.(interface{ SetCameraNodeIndex(int) }); ok {
+		gpuBackend.SetCameraNodeIndex(camCylIdx)
 	}
 
 	// CPU fallback: render.Scene with just a cube.
@@ -67,9 +70,10 @@ func runRenderer(cfg Config) error {
 	}
 }
 
-// buildDemoScene creates a scene with a cube and a tetrahedron placed
-// side by side to demonstrate per-mesh transforms.
-func buildDemoScene() *scene.Scene {
+// buildDemoScene creates a scene with a cube, tetrahedron, ground plane,
+// and a camera cylinder. Returns the scene and the index of the camera
+// cylinder node so the render loop can update its transform each frame.
+func buildDemoScene() (*scene.Scene, int) {
 	s := scene.NewScene()
 
 	// Cube on the left.
@@ -89,5 +93,24 @@ func buildDemoScene() *scene.Scene {
 		Transform: tetraTransform,
 	})
 
-	return s
+	// Ground plane beneath the meshes (static — no spin animation).
+	planeTransform := scene.NewTransform()
+	planeTransform.Position = math.Vec3{X: 0, Y: -1, Z: 0}
+	s.AddNode(scene.Node{
+		Mesh:      geometry.NewPlane(10, 10),
+		Transform: planeTransform,
+		Static:    true,
+	})
+
+	// Small cylinder at the camera position (updated each frame by the renderer).
+	camCylTransform := scene.NewTransform()
+	camCylTransform.Scale = math.Vec3{X: 0.3, Y: 0.3, Z: 0.3}
+	camCylIdx := len(s.Nodes)
+	s.AddNode(scene.Node{
+		Mesh:      geometry.NewCylinder(12),
+		Transform: camCylTransform,
+		Static:    true,
+	})
+
+	return s, camCylIdx
 }

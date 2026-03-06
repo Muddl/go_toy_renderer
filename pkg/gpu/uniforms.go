@@ -4,8 +4,15 @@ import (
 	"encoding/binary"
 	gomath "math"
 
+	"github.com/muddl/go_toy_renderer/pkg/geometry"
 	"github.com/muddl/go_toy_renderer/pkg/math"
 )
+
+// DrawNode describes a mesh to draw with its model matrix.
+type DrawNode struct {
+	Mesh  *geometry.Mesh
+	Model math.Mat4x4
+}
 
 // CameraUniforms holds the camera view-projection matrix for GPU upload.
 // Layout: mat4x4<f32> (64 bytes, column-major, 16-byte aligned).

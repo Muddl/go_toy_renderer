@@ -33,6 +33,11 @@ func (d *Device) RenderFrame() error {
 	return errors.New("gpu: not available in headless builds")
 }
 
+// RenderFrameMulti returns an error in headless builds.
+func (d *Device) RenderFrameMulti(_ []DrawNode) error {
+	return errors.New("gpu: not available in headless builds")
+}
+
 // LoadGeometry returns an error in headless builds — no GPU device available.
 func (d *Device) LoadGeometry(_ *geometry.Mesh) error {
 	return errors.New("gpu: not available in headless builds")

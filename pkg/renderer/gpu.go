@@ -12,6 +12,7 @@ import (
 	"github.com/muddl/go_toy_renderer/pkg/math"
 	"github.com/muddl/go_toy_renderer/pkg/overlay"
 	"github.com/muddl/go_toy_renderer/pkg/render"
+	"github.com/muddl/go_toy_renderer/pkg/scene"
 )
 
 const gpuTargetFPS = 60
@@ -27,10 +28,18 @@ type GPUBackend struct {
 	ovLayer       *overlay.TextLayer
 	ovPass        *overlay.OverlayPass
 	sampler       overlay.Sampler
+	gpuScene      *scene.Scene // optional; if set, used for multi-mesh rendering
 	// Previous-frame timing used for overlay display (current frame not yet complete
 	// when the overlay texture must be uploaded before Device.RenderFrame).
 	prevFrameDur time.Duration
 	prevPassDur  time.Duration
+}
+
+// SetScene configures the GPU backend to use a scene.Scene for multi-mesh
+// rendering with per-mesh transforms. If set, RenderFrame ignores the
+// render.Scene meshes and uses the scene nodes instead.
+func (g *GPUBackend) SetScene(s *scene.Scene) {
+	g.gpuScene = s
 }
 
 // Init opens a GLFW window with ClientAPI=NoAPI, extracts the platform-specific
@@ -129,21 +138,35 @@ func (g *GPUBackend) RenderFrame(scene *render.Scene) error {
 	cam := defaultCamera(g.width, g.height)
 	g.device.UpdateCameraUniforms(cam.ViewProjectionMatrixWebGPU())
 
-	// --- Geometry upload ---
+	// --- Build draw nodes ---
 	geoStart := time.Now()
-	if len(scene.Meshes) > 0 {
-		if err := g.device.LoadGeometry(scene.Meshes[0]); err != nil {
-			return fmt.Errorf("gpu backend: load geometry: %w", err)
+	var nodes []gpu.DrawNode
+	if g.gpuScene != nil {
+		nodes = make([]gpu.DrawNode, 0, len(g.gpuScene.Nodes))
+		for i := range g.gpuScene.Nodes {
+			n := &g.gpuScene.Nodes[i]
+			nodes = append(nodes, gpu.DrawNode{
+				Mesh:  n.Mesh,
+				Model: n.Transform.ModelMatrix(),
+			})
 		}
-		// Per-mesh model matrix: identity for now (single mesh).
-		g.device.UpdateMeshUniforms(math.NewIdentity())
+	} else {
+		nodes = make([]gpu.DrawNode, 0, len(scene.Meshes))
+		for _, mesh := range scene.Meshes {
+			nodes = append(nodes, gpu.DrawNode{
+				Mesh:  mesh,
+				Model: math.NewIdentity(),
+			})
+		}
 	}
 	geoElapsed := time.Since(geoStart)
 
 	verts, tris := 0, 0
-	for _, mesh := range scene.Meshes {
-		verts += len(mesh.Vertices)
-		tris += len(mesh.Indices) / 3
+	for i := range nodes {
+		if nodes[i].Mesh != nil {
+			verts += len(nodes[i].Mesh.Vertices)
+			tris += len(nodes[i].Mesh.Indices) / 3
+		}
 	}
 
 	// Build overlay metrics from the PREVIOUS frame's timing so that meaningful
@@ -170,7 +193,7 @@ func (g *GPUBackend) RenderFrame(scene *render.Scene) error {
 
 	// --- GPU render pass (geometry + overlay composited in same pass) ---
 	passStart := time.Now()
-	if err := g.device.RenderFrame(); err != nil {
+	if err := g.device.RenderFrameMulti(nodes); err != nil {
 		return err
 	}
 	g.prevPassDur = time.Since(passStart)

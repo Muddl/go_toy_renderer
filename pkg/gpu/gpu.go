@@ -306,10 +306,20 @@ func (d *Device) UpdateMeshUniforms(model math.Mat4x4) {
 // before calling RenderFrame.
 // Returns an error if Init has not been called successfully.
 func (d *Device) RenderFrame() error {
+	return d.RenderFrameMulti(nil)
+}
+
+// RenderFrameMulti renders one frame with multiple draw nodes.
+// If nodes is nil or empty, falls back to the single cached geometry (Phase 12 compat).
+// Camera uniform should be uploaded via UpdateCameraUniforms before calling.
+// Each node's model matrix is uploaded to the mesh uniform buffer before its draw call.
+func (d *Device) RenderFrameMulti(nodes []DrawNode) error {
 	if !d.ready {
 		return errors.New("gpu: Device not initialized — call Init first")
 	}
-	if d.vertexBuf == nil || d.indexBuf == nil {
+
+	useLegacy := len(nodes) == 0
+	if useLegacy && (d.vertexBuf == nil || d.indexBuf == nil) {
 		return errors.New("gpu: no geometry loaded — call LoadGeometry before RenderFrame")
 	}
 
@@ -357,11 +367,26 @@ func (d *Device) RenderFrame() error {
 
 	pass.SetPipeline(d.pipeline)
 	pass.SetBindGroup(0, d.cameraBindGroup, nil)
-	pass.SetVertexBuffer(0, d.vertexBuf, 0, d.vertexBufSize)
-	pass.SetIndexBuffer(d.indexBuf, gputypes.IndexFormatUint32, 0, d.indexBufSize)
-	pass.DrawIndexed(d.indexCount, 1, 0, 0, 0)
-	// Optional overlay: renders additional draw calls into the same pass
-	// (alpha-blended, no depth write) after the geometry draw.
+
+	if useLegacy {
+		// Single-mesh legacy path (Phase 12 compat).
+		pass.SetVertexBuffer(0, d.vertexBuf, 0, d.vertexBufSize)
+		pass.SetIndexBuffer(d.indexBuf, gputypes.IndexFormatUint32, 0, d.indexBufSize)
+		pass.DrawIndexed(d.indexCount, 1, 0, 0, 0)
+	} else {
+		// Multi-mesh path: load geometry + update model uniform per node.
+		for i := range nodes {
+			if err := d.LoadGeometry(nodes[i].Mesh); err != nil {
+				continue
+			}
+			d.UpdateMeshUniforms(nodes[i].Model)
+			pass.SetVertexBuffer(0, d.vertexBuf, 0, d.vertexBufSize)
+			pass.SetIndexBuffer(d.indexBuf, gputypes.IndexFormatUint32, 0, d.indexBufSize)
+			pass.DrawIndexed(d.indexCount, 1, 0, 0, 0)
+		}
+	}
+
+	// Optional overlay.
 	if d.overlayRenderer != nil {
 		_ = d.overlayRenderer.RenderIntoPass(pass)
 	}

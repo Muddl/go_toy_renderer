@@ -159,9 +159,11 @@ func (g *GPUBackend) RenderFrame(scene *render.Scene) error {
 	// --- Update camera cylinder node position + orientation ---
 	if g.camNodeIdx >= 0 && g.gpuScene != nil && g.camNodeIdx < len(g.gpuScene.Nodes) {
 		n := &g.gpuScene.Nodes[g.camNodeIdx]
-		n.Transform.Position = cam.Position
-		// Orient the cylinder (default axis +Y) to point from camera toward origin.
+		// Place the cylinder 2 units ahead of the camera (toward the origin)
+		// so it's visible but doesn't block the camera's view.
 		fwd := cam.Position.Scale(-1).Normalize() // direction from camera to origin
+		n.Transform.Position = cam.Position.Add(fwd.Scale(2.0))
+		// Orient the cylinder (default axis +Y) to point toward the origin.
 		yaw := stdmath.Atan2(fwd.X, fwd.Z)
 		pitch := stdmath.Asin(-fwd.Y)
 		n.Transform.Rotation = math.Vec3{X: pitch, Y: yaw + stdmath.Pi/2, Z: 0}

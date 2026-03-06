@@ -5,6 +5,7 @@ package gpu
 import (
 	"errors"
 	"fmt"
+	"unsafe"
 
 	"github.com/go-webgpu/webgpu/wgpu"
 	"github.com/gogpu/gputypes"
@@ -169,7 +170,7 @@ func (d *Device) Init(width, height uint32, handle NativeWindowHandle) error {
 		{
 			Binding:    0,
 			Visibility: gputypes.ShaderStageVertex,
-			Buffer: &wgpu.BufferBindingLayout{
+			Buffer: wgpu.BufferBindingLayout{
 				Type:           gputypes.BufferBindingTypeUniform,
 				MinBindingSize: uniformBufferSize,
 			},
@@ -177,38 +178,30 @@ func (d *Device) Init(width, height uint32, handle NativeWindowHandle) error {
 		{
 			Binding:    1,
 			Visibility: gputypes.ShaderStageVertex,
-			Buffer: &wgpu.BufferBindingLayout{
+			Buffer: wgpu.BufferBindingLayout{
 				Type:           gputypes.BufferBindingTypeUniform,
 				MinBindingSize: uniformBufferSize,
 			},
 		},
 	}
 	bgl := dev.CreateBindGroupLayout(&wgpu.BindGroupLayoutDescriptor{
-		EntryCount: uint32(len(bglEntries)),
-		Entries:    &bglEntries[0],
+		EntryCount: uintptr(len(bglEntries)),
+		Entries:    uintptr(unsafe.Pointer(&bglEntries[0])),
 	})
 	if bgl == nil {
 		return errors.New("gpu: create bind group layout: returned nil")
 	}
 	d.bindGroupLayout = bgl
 
-	// Step 9c: Create bind groups.
+	// Step 9c: Create bind groups using the helper that handles Handle() conversion.
 	cameraBGEntries := []wgpu.BindGroupEntry{
-		{
-			Binding: 0,
-			Buffer:  d.cameraUniformBuf,
-			Size:    uniformBufferSize,
-		},
-		{
-			Binding: 1,
-			Buffer:  d.meshUniformBuf,
-			Size:    uniformBufferSize,
-		},
+		wgpu.BufferBindingEntry(0, d.cameraUniformBuf, 0, uniformBufferSize),
+		wgpu.BufferBindingEntry(1, d.meshUniformBuf, 0, uniformBufferSize),
 	}
 	cameraBindGroup := dev.CreateBindGroup(&wgpu.BindGroupDescriptor{
-		Layout:     bgl,
-		EntryCount: uint32(len(cameraBGEntries)),
-		Entries:    &cameraBGEntries[0],
+		Layout:     bgl.Handle(),
+		EntryCount: uintptr(len(cameraBGEntries)),
+		Entries:    uintptr(unsafe.Pointer(&cameraBGEntries[0])),
 	})
 	if cameraBindGroup == nil {
 		return errors.New("gpu: create bind group: returned nil")
@@ -216,9 +209,10 @@ func (d *Device) Init(width, height uint32, handle NativeWindowHandle) error {
 	d.cameraBindGroup = cameraBindGroup
 
 	// Step 9d: Create pipeline layout.
+	bglHandles := [1]uintptr{bgl.Handle()}
 	plLayout := dev.CreatePipelineLayout(&wgpu.PipelineLayoutDescriptor{
 		BindGroupLayoutCount: 1,
-		BindGroupLayouts:     []*wgpu.BindGroupLayout{bgl},
+		BindGroupLayouts:     uintptr(unsafe.Pointer(&bglHandles[0])),
 	})
 	if plLayout == nil {
 		return errors.New("gpu: create pipeline layout: returned nil")

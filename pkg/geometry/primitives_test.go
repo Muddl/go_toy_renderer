@@ -1,6 +1,7 @@
 package geometry
 
 import (
+	stdmath "math"
 	"testing"
 
 	"github.com/muddl/go_toy_renderer/pkg/math"
@@ -245,5 +246,109 @@ func TestNewPlane_DimensionsMatchArguments(t *testing.T) {
 	}
 	if d < 5.999 || d > 6.001 {
 		t.Errorf("plane depth = %f, want 6", d)
+	}
+}
+
+// --- Cylinder tests ---
+
+// TestNewCylinder_CreatesValidMesh tests cylinder creation with 16 segments.
+// Lateral: 16 quads × 4 verts = 64 verts, 16×2 tris = 96 indices.
+// Top cap: 16+1 = 17 verts, 16 tris = 48 indices.
+// Bottom cap: same. Total: 98 verts, 192 indices, 64 triangles.
+func TestNewCylinder_CreatesValidMesh(t *testing.T) {
+	seg := 16
+	mesh := NewCylinder(seg)
+
+	wantVerts := 4*seg + 2*(seg+1) // 98
+	wantIdx := 12 * seg             // 192
+	wantTris := 4 * seg             // 64
+
+	if len(mesh.Vertices) != wantVerts {
+		t.Errorf("Cylinder Vertices = %d, want %d", len(mesh.Vertices), wantVerts)
+	}
+	if len(mesh.Indices) != wantIdx {
+		t.Errorf("Cylinder Indices = %d, want %d", len(mesh.Indices), wantIdx)
+	}
+	if mesh.TriangleCount() != wantTris {
+		t.Errorf("Cylinder TriangleCount() = %d, want %d", mesh.TriangleCount(), wantTris)
+	}
+	if !mesh.ValidateIndices() {
+		t.Error("Cylinder has invalid indices")
+	}
+}
+
+// TestNewCylinder_LateralNormalsAreRadial tests that lateral vertices have
+// horizontal unit normals (Y=0, length=1) pointing radially outward.
+func TestNewCylinder_LateralNormalsAreRadial(t *testing.T) {
+	seg := 12
+	mesh := NewCylinder(seg)
+
+	// Lateral vertices are the first 4*seg vertices.
+	for i := 0; i < 4*seg; i++ {
+		v := mesh.Vertices[i]
+		n := v.Normal
+		// Lateral normals should have Y ≈ 0.
+		if n.Y < -0.001 || n.Y > 0.001 {
+			t.Errorf("lateral vertex %d: normal.Y = %f, want ~0", i, n.Y)
+		}
+		// Should be unit length.
+		length := n.Length()
+		if length < 0.999 || length > 1.001 {
+			t.Errorf("lateral vertex %d: normal length = %f, want ~1", i, length)
+		}
+	}
+}
+
+// TestNewCylinder_CapNormalsAreAxisAligned tests that top cap normals are +Y
+// and bottom cap normals are -Y.
+func TestNewCylinder_CapNormalsAreAxisAligned(t *testing.T) {
+	seg := 8
+	mesh := NewCylinder(seg)
+
+	lateralCount := 4 * seg
+	capSize := seg + 1
+
+	// Top cap vertices: [lateralCount .. lateralCount+capSize)
+	topUp := math.Vec3{Y: 1}
+	for i := lateralCount; i < lateralCount+capSize; i++ {
+		if !mesh.Vertices[i].Normal.Equals(topUp, 0.0001) {
+			t.Errorf("top cap vertex %d: normal = %v, want +Y", i, mesh.Vertices[i].Normal)
+		}
+	}
+
+	// Bottom cap vertices: [lateralCount+capSize .. lateralCount+2*capSize)
+	botDown := math.Vec3{Y: -1}
+	for i := lateralCount + capSize; i < lateralCount+2*capSize; i++ {
+		if !mesh.Vertices[i].Normal.Equals(botDown, 0.0001) {
+			t.Errorf("bottom cap vertex %d: normal = %v, want -Y", i, mesh.Vertices[i].Normal)
+		}
+	}
+}
+
+// TestNewCylinder_HeightAndRadius tests the cylinder spans Y=-0.5 to Y=0.5
+// with radius 0.5 on the XZ plane.
+func TestNewCylinder_HeightAndRadius(t *testing.T) {
+	mesh := NewCylinder(16)
+	var minY, maxY, maxR float64
+	for i, v := range mesh.Vertices {
+		if i == 0 || v.Position.Y < minY {
+			minY = v.Position.Y
+		}
+		if i == 0 || v.Position.Y > maxY {
+			maxY = v.Position.Y
+		}
+		r := stdmath.Sqrt(v.Position.X*v.Position.X + v.Position.Z*v.Position.Z)
+		if r > maxR {
+			maxR = r
+		}
+	}
+	if minY < -0.501 || minY > -0.499 {
+		t.Errorf("cylinder minY = %f, want -0.5", minY)
+	}
+	if maxY < 0.499 || maxY > 0.501 {
+		t.Errorf("cylinder maxY = %f, want 0.5", maxY)
+	}
+	if maxR < 0.499 || maxR > 0.501 {
+		t.Errorf("cylinder maxR = %f, want 0.5", maxR)
 	}
 }

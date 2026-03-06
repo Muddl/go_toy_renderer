@@ -375,7 +375,7 @@ func (d *Device) RenderFrameMulti(nodes []DrawNode) error {
 				LoadOp:  gputypes.LoadOpClear,
 				StoreOp: gputypes.StoreOpStore,
 				ClearValue: wgpu.Color{
-					R: 0.1, G: 0.1, B: 0.1, A: 1.0, // dark grey background
+					R: 0.53, G: 0.81, B: 0.98, A: 1.0, // sky blue background
 				},
 			},
 		},

@@ -148,6 +148,14 @@ func (g *GPUBackend) RenderFrame(scene *render.Scene) error {
 	cam := orbitCamera(g.width, g.height, angle)
 	g.device.UpdateCameraUniforms(cam.ViewProjectionMatrixWebGPU())
 
+	// --- Light uniform (once per frame) ---
+	g.device.UpdateLightUniforms(gpu.LightUniforms{
+		Direction: math.Vec3{X: -0.3, Y: -1.0, Z: -0.5}.Normalize(),
+		Color:     math.Vec3{X: 1, Y: 1, Z: 1},
+		Ambient:   math.Vec3{X: 0.15, Y: 0.15, Z: 0.15},
+		CameraPos: math.Vec3{X: cam.Position.X, Y: cam.Position.Y, Z: cam.Position.Z},
+	})
+
 	// --- Build draw nodes ---
 	geoStart := time.Now()
 	var nodes []gpu.DrawNode
@@ -155,17 +163,20 @@ func (g *GPUBackend) RenderFrame(scene *render.Scene) error {
 		nodes = make([]gpu.DrawNode, 0, len(g.gpuScene.Nodes))
 		for i := range g.gpuScene.Nodes {
 			n := &g.gpuScene.Nodes[i]
+			model := n.Transform.ModelMatrix()
 			nodes = append(nodes, gpu.DrawNode{
-				Mesh:  n.Mesh,
-				Model: n.Transform.ModelMatrix(),
+				Mesh:         n.Mesh,
+				Model:        model,
+				NormalMatrix: math.NormalMatrix(model),
 			})
 		}
 	} else {
 		nodes = make([]gpu.DrawNode, 0, len(scene.Meshes))
 		for _, mesh := range scene.Meshes {
 			nodes = append(nodes, gpu.DrawNode{
-				Mesh:  mesh,
-				Model: math.NewIdentity(),
+				Mesh:         mesh,
+				Model:        math.NewIdentity(),
+				NormalMatrix: math.NewIdentity(),
 			})
 		}
 	}

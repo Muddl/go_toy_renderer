@@ -106,6 +106,67 @@ func (m Mat4x4) Transpose() Mat4x4 {
 	return result
 }
 
+// Inverse returns the inverse of the matrix and true, or a zero matrix and false
+// if the matrix is singular (determinant ≈ 0).
+func (m Mat4x4) Inverse() (Mat4x4, bool) {
+	// Cofactor expansion of a 4x4 matrix.
+	// Using direct element access for clarity (column-major: m[col*4+row]).
+	a := func(r, c int) float64 { return m[c*4+r] }
+
+	s0 := a(0, 0)*a(1, 1) - a(1, 0)*a(0, 1)
+	s1 := a(0, 0)*a(1, 2) - a(1, 0)*a(0, 2)
+	s2 := a(0, 0)*a(1, 3) - a(1, 0)*a(0, 3)
+	s3 := a(0, 1)*a(1, 2) - a(1, 1)*a(0, 2)
+	s4 := a(0, 1)*a(1, 3) - a(1, 1)*a(0, 3)
+	s5 := a(0, 2)*a(1, 3) - a(1, 2)*a(0, 3)
+
+	c5 := a(2, 2)*a(3, 3) - a(3, 2)*a(2, 3)
+	c4 := a(2, 1)*a(3, 3) - a(3, 1)*a(2, 3)
+	c3 := a(2, 1)*a(3, 2) - a(3, 1)*a(2, 2)
+	c2 := a(2, 0)*a(3, 3) - a(3, 0)*a(2, 3)
+	c1 := a(2, 0)*a(3, 2) - a(3, 0)*a(2, 2)
+	c0 := a(2, 0)*a(3, 1) - a(3, 0)*a(2, 1)
+
+	det := s0*c5 - s1*c4 + s2*c3 + s3*c2 - s4*c1 + s5*c0
+	if stdmath.Abs(det) < 1e-12 {
+		return Mat4x4{}, false
+	}
+
+	invDet := 1.0 / det
+	var inv Mat4x4
+	inv.Set(0, 0, (a(1, 1)*c5-a(1, 2)*c4+a(1, 3)*c3)*invDet)
+	inv.Set(0, 1, (-a(0, 1)*c5+a(0, 2)*c4-a(0, 3)*c3)*invDet)
+	inv.Set(0, 2, (a(3, 1)*s5-a(3, 2)*s4+a(3, 3)*s3)*invDet)
+	inv.Set(0, 3, (-a(2, 1)*s5+a(2, 2)*s4-a(2, 3)*s3)*invDet)
+
+	inv.Set(1, 0, (-a(1, 0)*c5+a(1, 2)*c2-a(1, 3)*c1)*invDet)
+	inv.Set(1, 1, (a(0, 0)*c5-a(0, 2)*c2+a(0, 3)*c1)*invDet)
+	inv.Set(1, 2, (-a(3, 0)*s5+a(3, 2)*s2-a(3, 3)*s1)*invDet)
+	inv.Set(1, 3, (a(2, 0)*s5-a(2, 2)*s2+a(2, 3)*s1)*invDet)
+
+	inv.Set(2, 0, (a(1, 0)*c4-a(1, 1)*c2+a(1, 3)*c0)*invDet)
+	inv.Set(2, 1, (-a(0, 0)*c4+a(0, 1)*c2-a(0, 3)*c0)*invDet)
+	inv.Set(2, 2, (a(3, 0)*s4-a(3, 1)*s2+a(3, 3)*s0)*invDet)
+	inv.Set(2, 3, (-a(2, 0)*s4+a(2, 1)*s2-a(2, 3)*s0)*invDet)
+
+	inv.Set(3, 0, (-a(1, 0)*c3+a(1, 1)*c1-a(1, 2)*c0)*invDet)
+	inv.Set(3, 1, (a(0, 0)*c3-a(0, 1)*c1+a(0, 2)*c0)*invDet)
+	inv.Set(3, 2, (-a(3, 0)*s3+a(3, 1)*s1-a(3, 2)*s0)*invDet)
+	inv.Set(3, 3, (a(2, 0)*s3-a(2, 1)*s1+a(2, 2)*s0)*invDet)
+
+	return inv, true
+}
+
+// NormalMatrix computes transpose(inverse(model)) for transforming normals.
+// If the model matrix is singular, returns identity as a safe fallback.
+func NormalMatrix(model Mat4x4) Mat4x4 {
+	inv, ok := model.Inverse()
+	if !ok {
+		return NewIdentity()
+	}
+	return inv.Transpose()
+}
+
 // NewTranslation creates a translation matrix that moves points by (tx, ty, tz).
 // When applied to a vector (x, y, z), produces (x+tx, y+ty, z+tz).
 func NewTranslation(tx, ty, tz float64) Mat4x4 {

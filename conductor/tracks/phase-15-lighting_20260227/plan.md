@@ -3,7 +3,7 @@
 **Track ID:** phase-15-lighting_20260227
 **Spec:** [spec.md](./spec.md)
 **Created:** 2026-02-27
-**Status:** [ ] Not Started
+**Status:** [x] Complete
 
 ## Overview
 
@@ -15,9 +15,9 @@ Add per-vertex normals to the geometry, upload a directional light uniform, and 
 
 ### Tasks
 
-- [ ] Task 1.1: Write tests for updated `geometry.Vertex` (Normal field) and verify `NewCube()` + `NewTetrahedron()` return correct face normals. Commit `test:`.
-- [ ] Task 1.2: Extend `geometry.Vertex` with `Normal Vec3`; update both primitive constructors. Commit `feat: add per-vertex normals to geometry`.
-- [ ] Task 1.3: Update `pkg/gpu.PackVertices` to include normals; update vertex stride (36 bytes). Commit `feat: pack normals into vertex buffer`.
+- [x] Task 1.1: Write tests for updated `geometry.Vertex` (Normal field) and verify `NewCube()` + `NewTetrahedron()` return correct face normals. Commit `test:`.
+- [x] Task 1.2: Extend `geometry.Vertex` with `Normal Vec3`; update both primitive constructors. Commit `feat: add per-vertex normals to geometry`.
+- [x] Task 1.3: Update `pkg/gpu.PackVertices` to include normals; update vertex stride (36 bytes). Commit `feat: pack normals into vertex buffer`.
 
 ### Verification
 
@@ -30,10 +30,10 @@ Add per-vertex normals to the geometry, upload a directional light uniform, and 
 
 ### Tasks
 
-- [ ] Task 2.1: Add `LightUniforms` buffer to `GPUBackend`; upload directional light direction + colour + ambient. Commit `feat: add light uniform buffer`.
-- [ ] Task 2.2: Update `vertex.wgsl` to pass world-space normal + world position to fragment stage. Commit `feat: pass normals through vertex shader`.
-- [ ] Task 2.3: Update `fragment.wgsl` to implement Phong lighting (ambient + diffuse N·L + specular R·V^shininess). Commit `feat: implement Phong lighting in WGSL`.
-- [ ] Task 2.4: Add normal matrix (`transpose(inverse(model))`) to `MeshUniforms`; update `vertex.wgsl` and uniform upload. Commit `feat: add normal matrix uniform`.
+- [x] Task 2.1: Add `LightUniforms` buffer to `GPUBackend`; upload directional light direction + colour + ambient. Commit `feat: add light uniform buffer`.
+- [x] Task 2.2: Update `vertex.wgsl` to pass world-space normal + world position to fragment stage. Commit `feat: pass normals through vertex shader`.
+- [x] Task 2.3: Update `fragment.wgsl` to implement Phong lighting (ambient + diffuse N·L + specular R·V^shininess). Commit `feat: implement Phong lighting in WGSL`.
+- [x] Task 2.4: Add normal matrix (`transpose(inverse(model))`) to `MeshUniforms`; update `vertex.wgsl` and uniform upload. Commit `feat: add normal matrix uniform`.
 
 ### Verification
 
@@ -46,8 +46,8 @@ Add per-vertex normals to the geometry, upload a directional light uniform, and 
 
 ### Tasks
 
-- [ ] Task 3.1: Add rotation animation to demo cube — compute elapsed time in Go, update model matrix uniform each frame. Commit `feat: animate cube rotation`.
-- [ ] Task 3.2: Run `go test ./...`; all pass. Commit `chore: mark Phase 15 complete`.
+- [x] Task 3.1: Add rotation animation to demo cube — compute elapsed time in Go, update model matrix uniform each frame. Commit `feat: animate cube rotation`.
+- [x] Task 3.2: Run `go test ./...`; all pass. Commit `chore: mark Phase 15 complete`.
 
 ### Verification
 

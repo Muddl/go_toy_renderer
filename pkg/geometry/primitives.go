@@ -18,10 +18,10 @@ func NewTetrahedron() *Mesh {
 
 	// Per-face colors.
 	colors := [4]math.Vec3{
-		{X: 1, Y: 0, Z: 0},   // Red
-		{X: 0, Y: 1, Z: 0},   // Green
-		{X: 0, Y: 0, Z: 1},   // Blue
-		{X: 1, Y: 1, Z: 0},   // Yellow
+		{X: 1, Y: 0, Z: 0}, // Red
+		{X: 0, Y: 1, Z: 0}, // Green
+		{X: 0, Y: 0, Z: 1}, // Blue
+		{X: 1, Y: 1, Z: 0}, // Yellow
 	}
 
 	// Faces with CCW winding (outward-facing).

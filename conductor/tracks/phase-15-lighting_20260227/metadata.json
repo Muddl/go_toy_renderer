@@ -2,15 +2,15 @@
   "id": "phase-15-lighting_20260227",
   "title": "Phase 15: Lighting, Normals & Physical Shading",
   "type": "feature",
-  "status": "pending",
+  "status": "complete",
   "created": "2026-02-27T00:00:00Z",
-  "updated": "2026-02-27T00:00:00Z",
+  "updated": "2026-03-06T00:00:00Z",
   "phases": {
     "total": 3,
-    "completed": 0
+    "completed": 3
   },
   "tasks": {
-    "total": 10,
-    "completed": 0
+    "total": 9,
+    "completed": 9
   }
 }

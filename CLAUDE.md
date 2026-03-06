@@ -102,8 +102,8 @@ CI enforces this automatically for `windows-latest` builds.
 
 ## Recent Updates
 
-**2026-03-06 (Latest):** Phase 14 complete — `pkg/scene`: `Transform` (position/rotation/scale), `Node`, `Scene` types for GPU scene graph. `pkg/gpu`: `CameraUniforms`/`MeshUniforms` with 64-byte serialization; `DrawNode` + `RenderFrameMulti` for multi-mesh rendering; bind group layout + bind groups for camera (viewProj) and mesh (model) uniforms. `assets/shaders/cube.wgsl` updated with `@group(0)/@binding(0-1)` uniform bindings; `CubeWGSLTemplate` renamed to `CubeWGSL`. `pkg/camera`: `ProjectionMatrixWebGPU`/`ViewProjectionMatrixWebGPU` (Z in [0,1]). `cmd/renderer-rt`: demo scene with cube + tetrahedron at different positions via `pkg/scene`.
+**2026-03-06 (Latest):** Phase 15 complete — Phong lighting. `geometry.Vertex` gains `Normal Vec3`; `NewCube()` now 24 vertices with per-face axis-aligned normals, `NewTetrahedron()` 12 vertices with computed outward normals. `PackVertices` stride 36 bytes (pos+color+normal). `pkg/math`: `Mat4x4.Inverse()` (cofactor), `NormalMatrix()` = transpose(inverse(model)). `pkg/gpu`: `LightUniforms` (direction/color/ambient/cameraPos, 64 bytes) at `@binding(2)`; `MeshUniforms` extended to 128 bytes (model + normalMatrix). `cube.wgsl`: Blinn-Phong fragment shader (ambient + diffuse N·L + specular H·N^32). Demo: meshes spin on Y axis, camera orbits origin.
 
-**2026-03-04:** Phase 13 complete — `assets/shaders/cube.wgsl`: combined vertex+fragment WGSL shader extracted from inline Go string; `assets/shaders/embed.go` (package `shaders`) exports `CubeWGSL` via `//go:embed`. `pkg/gpu/gpu.go` uses embedded shader.
+**2026-03-06:** Phase 14 complete — `pkg/scene`: Transform, Node, Scene types. `pkg/gpu`: uniform buffers, DrawNode + RenderFrameMulti, bind groups for camera/mesh uniforms. `cube.wgsl` with uniform bindings. `pkg/camera`: WebGPU projection (Z∈[0,1]).
 
-**2026-03-01:** perf-debug-overlay complete — `pkg/overlay`: Metrics, Level/CycleLevel, Sampler, 8x8 bitmap font, TextLayer.Render. CPU: ComposeIntoFramebuffer. GPU: OverlayPass via gpu.OverlayRenderer. F3 toggles Off/FPS/Timings/Detail.
+**2026-03-04:** Phase 13 complete — `assets/shaders/cube.wgsl` extracted from inline Go string; `CubeWGSL` via `//go:embed`.

@@ -7,6 +7,7 @@ import (
 	"runtime"
 
 	"github.com/muddl/go_toy_renderer/pkg/geometry"
+	"github.com/muddl/go_toy_renderer/pkg/loader"
 	"github.com/muddl/go_toy_renderer/pkg/math"
 	"github.com/muddl/go_toy_renderer/pkg/render"
 	"github.com/muddl/go_toy_renderer/pkg/renderer"
@@ -70,27 +71,28 @@ func runRenderer(cfg Config) error {
 	}
 }
 
-// buildDemoScene creates a scene with a cube, tetrahedron, ground plane,
-// and a camera cylinder. Returns the scene and the index of the camera
-// cylinder node so the render loop can update its transform each frame.
+// buildDemoScene creates a scene with a Utah teapot, cube, ground plane,
+// and a camera cylinder. The teapot is loaded from assets/models/teapot.obj;
+// if the file is not found the slot is filled with a tetrahedron fallback.
+// Returns the scene and the index of the camera cylinder node.
 func buildDemoScene() (*scene.Scene, int) {
 	s := scene.NewScene()
 
+	// Utah Teapot at centre — the star of the show.
+	teapotMesh := loadTeapotOrFallback()
+	teapotTransform := scene.NewTransform()
+	teapotTransform.Scale = math.Vec3{X: 0.5, Y: 0.5, Z: 0.5}
+	s.AddNode(scene.Node{
+		Mesh:      teapotMesh,
+		Transform: teapotTransform,
+	})
+
 	// Cube on the left.
 	cubeTransform := scene.NewTransform()
-	cubeTransform.Position = math.Vec3{X: -2, Y: 0, Z: 0}
+	cubeTransform.Position = math.Vec3{X: -3.5, Y: 0, Z: 0}
 	s.AddNode(scene.Node{
 		Mesh:      geometry.NewCube(),
 		Transform: cubeTransform,
-	})
-
-	// Tetrahedron on the right (scaled down to 0.5 so it matches the cube's size).
-	tetraTransform := scene.NewTransform()
-	tetraTransform.Position = math.Vec3{X: 2, Y: 0, Z: 0}
-	tetraTransform.Scale = math.Vec3{X: 0.5, Y: 0.5, Z: 0.5}
-	s.AddNode(scene.Node{
-		Mesh:      geometry.NewTetrahedron(),
-		Transform: tetraTransform,
 	})
 
 	// Ground plane beneath the meshes (static — no spin animation).
@@ -113,4 +115,16 @@ func buildDemoScene() (*scene.Scene, int) {
 	})
 
 	return s, camCylIdx
+}
+
+// loadTeapotOrFallback loads the Utah Teapot OBJ from assets/models/teapot.obj.
+// If the file is not found or cannot be parsed, a tetrahedron is returned as a
+// fallback so the demo still runs in environments without the asset file.
+func loadTeapotOrFallback() *geometry.Mesh {
+	meshes, err := loader.LoadOBJ("assets/models/teapot.obj")
+	if err == nil && len(meshes) > 0 {
+		return meshes[0]
+	}
+	fmt.Fprintf(os.Stderr, "teapot: %v — using fallback tetrahedron\n", err)
+	return geometry.NewTetrahedron()
 }

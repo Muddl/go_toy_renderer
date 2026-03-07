@@ -14,8 +14,12 @@ import (
 	"github.com/muddl/go_toy_renderer/pkg/math"
 )
 
-// vertexStride is the byte stride for one packed vertex: 3×f32 position + 3×f32 color + 3×f32 normal.
-const vertexStride = 36 // 9 × float32 = 9 × 4 bytes
+// timestampQueryBufSize is 2 uint64 timestamps × 8 bytes each.
+const timestampQueryBufSize = 16
+
+// vertexStride is the byte stride for one packed vertex:
+// 3×f32 position + 3×f32 color + 3×f32 normal + 2×f32 UV = 11 floats = 44 bytes.
+const vertexStride = 44 // 11 × float32 = 11 × 4 bytes
 
 // Uniform buffer sizes in bytes.
 const (
@@ -62,6 +66,21 @@ type Device struct {
 	bindGroupLayout  *wgpu.BindGroupLayout
 	cameraBindGroup  *wgpu.BindGroup
 	pipelineLayout   *wgpu.PipelineLayout
+
+	// Texture + sampler resources (Phase 16).
+	// defaultTexture is a 1x1 white fallback; SetAlbedoTexture overrides it.
+	defaultTexture         *wgpu.Texture
+	defaultTextureView     *wgpu.TextureView
+	defaultSampler         *wgpu.Sampler
+	textureBindGroupLayout *wgpu.BindGroupLayout
+	textureBindGroup       *wgpu.BindGroup // @group(1)
+
+	// Timestamp query resources (Phase 16). querySet is nil when the GPU
+	// does not support the TIMESTAMP_QUERY feature; profiling is skipped.
+	querySet        *wgpu.QuerySet
+	queryResultBuf  *wgpu.Buffer // QueryResolve | CopySrc, 16 bytes
+	queryStagingBuf *wgpu.Buffer // MapRead | CopyDst, 16 bytes
+	frameTimer      *FrameTimer
 
 	// Optional overlay renderer (Phase 13 / perf-debug-overlay).
 	// Set via SetOverlayRenderer; called after the geometry draw in each frame.
@@ -131,6 +150,29 @@ func (d *Device) Init(width, height uint32, handle NativeWindowHandle) error {
 		return fmt.Errorf("gpu: get queue: returned nil")
 	}
 	d.queue = q
+
+	// Step 6b: Attempt to create timestamp query set (optional — may be nil
+	// if the TIMESTAMP_QUERY feature is not supported by the adapter/driver).
+	d.frameTimer = NewFrameTimer()
+	qs := dev.CreateQuerySet(&wgpu.QuerySetDescriptor{
+		Type:  wgpu.QueryTypeTimestamp,
+		Count: 2,
+	})
+	if qs != nil {
+		d.querySet = qs
+		d.queryResultBuf = dev.CreateBuffer(&wgpu.BufferDescriptor{
+			Usage: gputypes.BufferUsageQueryResolve | gputypes.BufferUsageCopySrc,
+			Size:  timestampQueryBufSize,
+		})
+		d.queryStagingBuf = dev.CreateBuffer(&wgpu.BufferDescriptor{
+			Usage: gputypes.BufferUsageMapRead | gputypes.BufferUsageCopyDst,
+			Size:  timestampQueryBufSize,
+		})
+		if d.queryResultBuf == nil || d.queryStagingBuf == nil {
+			// Feature present but buffer creation failed — disable profiling.
+			d.querySet = nil
+		}
+	}
 
 	// Step 7: Choose the surface format and configure the swap-chain.
 	d.format = gputypes.TextureFormatBGRA8Unorm
@@ -231,10 +273,84 @@ func (d *Device) Init(width, height uint32, handle NativeWindowHandle) error {
 	}
 	d.cameraBindGroup = bindGroup
 
-	// Step 9d: Create pipeline layout.
-	bglHandles := [1]uintptr{bgl.Handle()}
+	// Step 9e: Create bind group layout for @group(1): texture_2d + sampler.
+	texBGLEntries := []wgpu.BindGroupLayoutEntry{
+		{
+			Binding:    0,
+			Visibility: gputypes.ShaderStageFragment,
+			Texture: wgpu.TextureBindingLayout{
+				SampleType:    gputypes.TextureSampleTypeFloat,
+				ViewDimension: gputypes.TextureViewDimension2D,
+				Multisampled:  0, // wgpu.Bool: 0 = false
+			},
+		},
+		{
+			Binding:    1,
+			Visibility: gputypes.ShaderStageFragment,
+			Sampler: wgpu.SamplerBindingLayout{
+				Type: gputypes.SamplerBindingTypeFiltering,
+			},
+		},
+	}
+	texBGL := dev.CreateBindGroupLayoutSimple(texBGLEntries)
+	if texBGL == nil {
+		return errors.New("gpu: create texture bind group layout: returned nil")
+	}
+	d.textureBindGroupLayout = texBGL
+
+	// Step 9f: Create default 1x1 white texture as albedo fallback.
+	whitePixel := []byte{255, 255, 255, 255}
+	defaultTex := dev.CreateTexture(&wgpu.TextureDescriptor{
+		Size:          gputypes.Extent3D{Width: 1, Height: 1, DepthOrArrayLayers: 1},
+		MipLevelCount: 1,
+		SampleCount:   1,
+		Dimension:     gputypes.TextureDimension2D,
+		Format:        gputypes.TextureFormatRGBA8Unorm,
+		Usage:         gputypes.TextureUsageTextureBinding | gputypes.TextureUsageCopyDst,
+	})
+	if defaultTex == nil {
+		return errors.New("gpu: create default texture: returned nil")
+	}
+	d.defaultTexture = defaultTex
+	q.WriteTexture(
+		&wgpu.TexelCopyTextureInfo{
+			Texture:  defaultTex.Handle(),
+			MipLevel: 0,
+			Origin:   gputypes.Origin3D{},
+			Aspect:   wgpu.TextureAspectAll,
+		},
+		whitePixel,
+		&wgpu.TexelCopyBufferLayout{Offset: 0, BytesPerRow: 4, RowsPerImage: 1},
+		&gputypes.Extent3D{Width: 1, Height: 1, DepthOrArrayLayers: 1},
+	)
+	defaultView := defaultTex.CreateView(nil)
+	if defaultView == nil {
+		return errors.New("gpu: create default texture view: returned nil")
+	}
+	d.defaultTextureView = defaultView
+
+	// Step 9g: Create linear sampler.
+	sampler := dev.CreateLinearSampler()
+	if sampler == nil {
+		return errors.New("gpu: create sampler: returned nil")
+	}
+	d.defaultSampler = sampler
+
+	// Step 9h: Create texture bind group with default white texture + sampler.
+	texBGEntries := []wgpu.BindGroupEntry{
+		wgpu.TextureBindingEntry(0, defaultView),
+		wgpu.SamplerBindingEntry(1, sampler),
+	}
+	texBindGroup := dev.CreateBindGroupSimple(texBGL, texBGEntries)
+	if texBindGroup == nil {
+		return errors.New("gpu: create texture bind group: returned nil")
+	}
+	d.textureBindGroup = texBindGroup
+
+	// Step 9d: Create pipeline layout with both bind group layouts.
+	bglHandles := [2]uintptr{bgl.Handle(), texBGL.Handle()}
 	plLayout := dev.CreatePipelineLayout(&wgpu.PipelineLayoutDescriptor{
-		BindGroupLayoutCount: 1,
+		BindGroupLayoutCount: 2,
 		BindGroupLayouts:     uintptr(unsafe.Pointer(&bglHandles[0])),
 	})
 	if plLayout == nil {
@@ -250,10 +366,12 @@ func (d *Device) Init(width, height uint32, handle NativeWindowHandle) error {
 	d.shader = shader
 
 	// Step 11: Create the render pipeline with vertex buffer layout and depth stencil.
+	// Stride 44 bytes: pos(12) + color(12) + normal(12) + uv(8).
 	attrs := []wgpu.VertexAttribute{
 		{Format: gputypes.VertexFormatFloat32x3, Offset: 0, ShaderLocation: 0},  // position
 		{Format: gputypes.VertexFormatFloat32x3, Offset: 12, ShaderLocation: 1}, // color
 		{Format: gputypes.VertexFormatFloat32x3, Offset: 24, ShaderLocation: 2}, // normal
+		{Format: gputypes.VertexFormatFloat32x2, Offset: 36, ShaderLocation: 3}, // uv
 	}
 	pipeline := d.device.CreateRenderPipeline(&wgpu.RenderPipelineDescriptor{
 		Layout: plLayout,
@@ -318,6 +436,33 @@ func (d *Device) UpdateMeshUniforms(model, normalMatrix math.Mat4x4) {
 	d.queue.WriteBuffer(d.meshUniformBuf, 0, mu.Bytes())
 }
 
+// SetAlbedoTexture replaces the active albedo texture for subsequent draw calls.
+// Pass nil to revert to the default 1x1 white texture.
+// The Texture2D remains owned by the caller; do not Release it while rendering.
+func (d *Device) SetAlbedoTexture(t *Texture2D) {
+	if d.device == nil || d.textureBindGroupLayout == nil || d.defaultSampler == nil {
+		return
+	}
+	var view *wgpu.TextureView
+	if t != nil && t.view != nil {
+		view = t.view
+	} else {
+		view = d.defaultTextureView
+	}
+	entries := []wgpu.BindGroupEntry{
+		wgpu.TextureBindingEntry(0, view),
+		wgpu.SamplerBindingEntry(1, d.defaultSampler),
+	}
+	newBG := d.device.CreateBindGroupSimple(d.textureBindGroupLayout, entries)
+	if newBG == nil {
+		return
+	}
+	if d.textureBindGroup != nil {
+		d.textureBindGroup.Release()
+	}
+	d.textureBindGroup = newBG
+}
+
 // UpdateLightUniforms uploads the light parameters to the light uniform buffer.
 func (d *Device) UpdateLightUniforms(lu LightUniforms) {
 	if d.queue == nil || d.lightUniformBuf == nil {
@@ -368,6 +513,11 @@ func (d *Device) RenderFrameMulti(nodes []DrawNode) error {
 		return errors.New("gpu: create command encoder: returned nil")
 	}
 
+	// Optional: write start timestamp before the render pass.
+	if d.querySet != nil {
+		enc.WriteTimestamp(d.querySet, 0)
+	}
+
 	pass := enc.BeginRenderPass(&wgpu.RenderPassDescriptor{
 		ColorAttachments: []wgpu.RenderPassColorAttachment{
 			{
@@ -393,6 +543,7 @@ func (d *Device) RenderFrameMulti(nodes []DrawNode) error {
 
 	pass.SetPipeline(d.pipeline)
 	pass.SetBindGroup(0, d.cameraBindGroup, nil)
+	pass.SetBindGroup(1, d.textureBindGroup, nil)
 
 	if useLegacy {
 		// Single-mesh legacy path (Phase 12 compat).
@@ -419,6 +570,13 @@ func (d *Device) RenderFrameMulti(nodes []DrawNode) error {
 	pass.End()
 	pass.Release()
 
+	// Optional: write end timestamp, resolve to result buffer, copy to staging.
+	if d.querySet != nil {
+		enc.WriteTimestamp(d.querySet, 1)
+		enc.ResolveQuerySet(d.querySet, 0, 2, d.queryResultBuf, 0)
+		enc.CopyBufferToBuffer(d.queryResultBuf, 0, d.queryStagingBuf, 0, timestampQueryBufSize)
+	}
+
 	cmd := enc.Finish(nil)
 	enc.Release()
 	if cmd == nil {
@@ -429,12 +587,52 @@ func (d *Device) RenderFrameMulti(nodes []DrawNode) error {
 	cmd.Release()
 
 	d.surface.Present()
+
+	// Once per second: read back timestamp data and log GPU frame time.
+	if d.querySet != nil && d.frameTimer != nil {
+		d.device.Poll(true) // wait for GPU to finish resolving timestamps
+		if err := d.queryStagingBuf.MapAsync(d.device, wgpu.MapModeRead, 0, timestampQueryBufSize); err == nil {
+			ptr := d.queryStagingBuf.GetMappedRange(0, timestampQueryBufSize)
+			if ptr != nil {
+				data := (*[timestampQueryBufSize]byte)(ptr)
+				t0 := *(*uint64)(unsafe.Pointer(&data[0]))
+				t1 := *(*uint64)(unsafe.Pointer(&data[8]))
+				d.queryStagingBuf.Unmap()
+				if t1 > t0 {
+					d.frameTimer.Record(t1 - t0)
+				}
+			} else {
+				d.queryStagingBuf.Unmap()
+			}
+		}
+		if msg := d.frameTimer.MaybePrint(); msg != "" {
+			fmt.Println(msg)
+		}
+	}
+
 	return nil
 }
 
 // Shutdown releases all wgpu resources held by the Device.
 // Safe to call on an uninitialised Device and to call multiple times.
 func (d *Device) Shutdown() {
+	// Release timestamp query resources.
+	if d.queryStagingBuf != nil {
+		d.queryStagingBuf.Destroy()
+		d.queryStagingBuf.Release()
+		d.queryStagingBuf = nil
+	}
+	if d.queryResultBuf != nil {
+		d.queryResultBuf.Destroy()
+		d.queryResultBuf.Release()
+		d.queryResultBuf = nil
+	}
+	if d.querySet != nil {
+		d.querySet.Destroy()
+		d.querySet.Release()
+		d.querySet = nil
+	}
+
 	// Release all cached mesh GPU buffers.
 	for _, entry := range d.meshCache {
 		if entry.vertexBuf != nil {
@@ -449,6 +647,27 @@ func (d *Device) Shutdown() {
 	d.meshCache = nil
 	d.vertexBuf = nil
 	d.indexBuf = nil
+	if d.textureBindGroup != nil {
+		d.textureBindGroup.Release()
+		d.textureBindGroup = nil
+	}
+	if d.textureBindGroupLayout != nil {
+		d.textureBindGroupLayout.Release()
+		d.textureBindGroupLayout = nil
+	}
+	if d.defaultTextureView != nil {
+		d.defaultTextureView.Release()
+		d.defaultTextureView = nil
+	}
+	if d.defaultTexture != nil {
+		d.defaultTexture.Destroy()
+		d.defaultTexture.Release()
+		d.defaultTexture = nil
+	}
+	if d.defaultSampler != nil {
+		d.defaultSampler.Release()
+		d.defaultSampler = nil
+	}
 	if d.cameraBindGroup != nil {
 		d.cameraBindGroup.Release()
 		d.cameraBindGroup = nil

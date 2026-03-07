@@ -2,15 +2,28 @@
   "id": "phase-16-advanced_20260227",
   "title": "Phase 16: Advanced Features & Polish",
   "type": "feature",
-  "status": "pending",
+  "status": "complete",
   "created": "2026-02-27T00:00:00Z",
-  "updated": "2026-02-27T00:00:00Z",
+  "updated": "2026-03-07T00:00:00Z",
   "phases": {
     "total": 3,
-    "completed": 0
+    "completed": 3
   },
   "tasks": {
     "total": 11,
-    "completed": 0
-  }
+    "completed": 9
+  },
+  "commits": [
+    "test: add failing tests for pkg/loader.LoadOBJ",
+    "feat: implement OBJ file loader",
+    "test: add failing tests for gpu.Texture2D helper",
+    "feat: add GPU texture2D helper and UV vertex attribute",
+    "test: add failing tests for WGSL texture sampling",
+    "feat: add texture sampling to WGSL shaders",
+    "feat: demo OBJ model with texture",
+    "test: add failing tests for FrameTimer GPU profiler",
+    "feat: add GPU timestamp profiling",
+    "docs: update README for GPU roadmap completion",
+    "chore: mark Phase 16 complete — GPU roadmap done"
+  ]
 }

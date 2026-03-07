@@ -3,7 +3,7 @@
 **Track ID:** phase-16-advanced_20260227
 **Spec:** [spec.md](./spec.md)
 **Created:** 2026-02-27
-**Status:** [ ] Not Started
+**Status:** [x] Complete
 
 ## Overview
 
@@ -15,10 +15,10 @@ Complete the GPU roadmap: OBJ loader, texture mapping, GPU timestamp profiling, 
 
 ### Tasks
 
-- [ ] Task 1.1: Write tests for `pkg/loader.LoadOBJ` — parsing positions, normals, UVs, face indices from a minimal OBJ fixture. Commit `test:`.
-- [ ] Task 1.2: Implement `LoadOBJ` with `bufio.Scanner`; return `[]geometry.Mesh`. Commit `feat: implement OBJ file loader`.
-- [ ] Task 1.3: Write tests for `pkg/gpu.Texture2D` helper — `CreateTexture` + staging buffer upload. Commit `test:`.
-- [ ] Task 1.4: Implement `Texture2D` helper; update vertex struct to include UV (float32×2); update stride to 44 bytes. Commit `feat: add GPU texture2D helper and UV vertex attribute`.
+- [x] Task 1.1: Write tests for `pkg/loader.LoadOBJ` — parsing positions, normals, UVs, face indices from a minimal OBJ fixture. Commit `test:`.
+- [x] Task 1.2: Implement `LoadOBJ` with `bufio.Scanner`; return `[]geometry.Mesh`. Commit `feat: implement OBJ file loader`.
+- [x] Task 1.3: Write tests for `pkg/gpu.Texture2D` helper — `CreateTexture` + staging buffer upload. Commit `test:`.
+- [x] Task 1.4: Implement `Texture2D` helper; update vertex struct to include UV (float32×2); update stride to 44 bytes. Commit `feat: add GPU texture2D helper and UV vertex attribute`.
 
 ### Verification
 
@@ -31,9 +31,9 @@ Complete the GPU roadmap: OBJ loader, texture mapping, GPU timestamp profiling, 
 
 ### Tasks
 
-- [ ] Task 2.1: Update `vertex.wgsl` to pass UV to fragment stage; update `fragment.wgsl` to sample `texture_2d` + `sampler` as albedo. Commit `feat: add texture sampling to WGSL shaders`.
-- [ ] Task 2.2: Add freely-licensed `.obj` + `.png` test asset to `assets/models/`; load and render it in demo. Commit `feat: demo OBJ model with texture`.
-- [ ] Task 2.3: Add `wgpu.QuerySet` timestamp queries around render pass; log GPU frame time to stdout. Commit `feat: add GPU timestamp profiling`.
+- [x] Task 2.1: Update `vertex.wgsl` to pass UV to fragment stage; update `fragment.wgsl` to sample `texture_2d` + `sampler` as albedo. Commit `feat: add texture sampling to WGSL shaders`.
+- [x] Task 2.2: Add freely-licensed `.obj` + `.png` test asset to `assets/models/`; load and render it in demo. Commit `feat: demo OBJ model with texture`.
+- [x] Task 2.3: Add `wgpu.QuerySet` timestamp queries around render pass; log GPU frame time to stdout. Commit `feat: add GPU timestamp profiling`.
 
 ### Verification
 
@@ -46,10 +46,10 @@ Complete the GPU roadmap: OBJ loader, texture mapping, GPU timestamp profiling, 
 
 ### Tasks
 
-- [ ] Task 3.1: Update `README.md`: GPU quick start, wgpu-native setup steps, WGSL shader authoring guide, performance table (CPU ~1.2 ms vs GPU target <1 ms at 1080p). Commit `docs: update README for GPU roadmap completion`.
+- [x] Task 3.1: Update `README.md`: GPU quick start, wgpu-native setup steps, WGSL shader authoring guide, performance table (CPU ~1.2 ms vs GPU target <1 ms at 1080p). Commit `docs: update README for GPU roadmap completion`.
 - [ ] Task 3.2: **(Stretch)** PBR fragment shader in WGSL (Fresnel, GGX NDF, Smith geometry). Commit `feat: add PBR WGSL shader (stretch)`.
 - [ ] Task 3.3: **(Stretch)** Fullscreen post-processing pass for tone mapping / gamma correction. Commit `feat: add post-processing pass (stretch)`.
-- [ ] Task 3.4: Run `go test ./...`; confirm all non-GPU tests pass on CI. Commit `chore: mark Phase 16 complete — GPU roadmap done`.
+- [x] Task 3.4: Run `go test ./...`; confirm all non-GPU tests pass on CI. Commit `chore: mark Phase 16 complete — GPU roadmap done`.
 
 ### Verification
 

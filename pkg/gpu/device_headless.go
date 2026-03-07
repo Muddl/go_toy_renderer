@@ -52,5 +52,8 @@ func (d *Device) UpdateMeshUniforms(_, _ math.Mat4x4) {}
 // UpdateLightUniforms is a no-op in headless builds.
 func (d *Device) UpdateLightUniforms(_ LightUniforms) {}
 
+// SetAlbedoTexture is a no-op in headless builds.
+func (d *Device) SetAlbedoTexture(_ *Texture2D) {}
+
 // Shutdown is a no-op in headless builds.
 func (d *Device) Shutdown() {}

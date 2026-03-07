@@ -25,10 +25,16 @@ struct LightUniforms {
 @group(0) @binding(1) var<uniform> mesh: MeshUniforms;
 @group(0) @binding(2) var<uniform> light: LightUniforms;
 
+// Albedo texture and sampler (group 1).
+// When no texture is provided, a 1x1 white default texture is bound.
+@group(1) @binding(0) var albedo_texture: texture_2d<f32>;
+@group(1) @binding(1) var albedo_sampler: sampler;
+
 struct VertexInput {
     @location(0) position: vec3<f32>,
     @location(1) color: vec3<f32>,
     @location(2) normal: vec3<f32>,
+    @location(3) uv: vec2<f32>,
 }
 
 struct VertexOutput {
@@ -36,6 +42,7 @@ struct VertexOutput {
     @location(0) color: vec3<f32>,
     @location(1) world_normal: vec3<f32>,
     @location(2) world_pos: vec3<f32>,
+    @location(3) uv: vec2<f32>,
 }
 
 @vertex
@@ -47,6 +54,7 @@ fn vs_main(in: VertexInput) -> VertexOutput {
     out.world_pos = world_pos.xyz;
     // Transform normal by the upper-left 3x3 of the normal matrix.
     out.world_normal = normalize((mesh.normalMatrix * vec4<f32>(in.normal, 0.0)).xyz);
+    out.uv = in.uv;
     return out;
 }
 
@@ -54,6 +62,10 @@ fn vs_main(in: VertexInput) -> VertexOutput {
 fn fs_main(in: VertexOutput) -> @location(0) vec4<f32> {
     let N = normalize(in.world_normal);
     let L = normalize(-light.direction);
+
+    // Albedo from texture * vertex color (white texture = vertex color only).
+    let tex_color = textureSample(albedo_texture, albedo_sampler, in.uv).rgb;
+    let albedo = tex_color * in.color;
 
     // Diffuse (Lambertian).
     let NdotL = max(dot(N, L), 0.0);
@@ -66,6 +78,6 @@ fn fs_main(in: VertexOutput) -> @location(0) vec4<f32> {
     let shininess = 32.0;
     let specular = light.color * pow(NdotH, shininess);
 
-    let result = (light.ambient + diffuse) * in.color + specular * 0.3;
+    let result = (light.ambient + diffuse) * albedo + specular * 0.3;
     return vec4<f32>(result, 1.0);
 }

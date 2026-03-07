@@ -64,6 +64,14 @@ type Device struct {
 	cameraBindGroup  *wgpu.BindGroup
 	pipelineLayout   *wgpu.PipelineLayout
 
+	// Texture + sampler resources (Phase 16).
+	// defaultTexture is a 1x1 white fallback; SetAlbedoTexture overrides it.
+	defaultTexture         *wgpu.Texture
+	defaultTextureView     *wgpu.TextureView
+	defaultSampler         *wgpu.Sampler
+	textureBindGroupLayout *wgpu.BindGroupLayout
+	textureBindGroup       *wgpu.BindGroup // @group(1)
+
 	// Optional overlay renderer (Phase 13 / perf-debug-overlay).
 	// Set via SetOverlayRenderer; called after the geometry draw in each frame.
 	overlayRenderer OverlayRenderer
@@ -232,10 +240,84 @@ func (d *Device) Init(width, height uint32, handle NativeWindowHandle) error {
 	}
 	d.cameraBindGroup = bindGroup
 
-	// Step 9d: Create pipeline layout.
-	bglHandles := [1]uintptr{bgl.Handle()}
+	// Step 9e: Create bind group layout for @group(1): texture_2d + sampler.
+	texBGLEntries := []wgpu.BindGroupLayoutEntry{
+		{
+			Binding:    0,
+			Visibility: gputypes.ShaderStageFragment,
+			Texture: wgpu.TextureBindingLayout{
+				SampleType:    gputypes.TextureSampleTypeFloat,
+				ViewDimension: gputypes.TextureViewDimension2D,
+				Multisampled:  0, // wgpu.Bool: 0 = false
+			},
+		},
+		{
+			Binding:    1,
+			Visibility: gputypes.ShaderStageFragment,
+			Sampler: wgpu.SamplerBindingLayout{
+				Type: gputypes.SamplerBindingTypeFiltering,
+			},
+		},
+	}
+	texBGL := dev.CreateBindGroupLayoutSimple(texBGLEntries)
+	if texBGL == nil {
+		return errors.New("gpu: create texture bind group layout: returned nil")
+	}
+	d.textureBindGroupLayout = texBGL
+
+	// Step 9f: Create default 1x1 white texture as albedo fallback.
+	whitePixel := []byte{255, 255, 255, 255}
+	defaultTex := dev.CreateTexture(&wgpu.TextureDescriptor{
+		Size:          gputypes.Extent3D{Width: 1, Height: 1, DepthOrArrayLayers: 1},
+		MipLevelCount: 1,
+		SampleCount:   1,
+		Dimension:     gputypes.TextureDimension2D,
+		Format:        gputypes.TextureFormatRGBA8Unorm,
+		Usage:         gputypes.TextureUsageTextureBinding | gputypes.TextureUsageCopyDst,
+	})
+	if defaultTex == nil {
+		return errors.New("gpu: create default texture: returned nil")
+	}
+	d.defaultTexture = defaultTex
+	q.WriteTexture(
+		&wgpu.TexelCopyTextureInfo{
+			Texture:  defaultTex.Handle(),
+			MipLevel: 0,
+			Origin:   gputypes.Origin3D{},
+			Aspect:   wgpu.TextureAspectAll,
+		},
+		whitePixel,
+		&wgpu.TexelCopyBufferLayout{Offset: 0, BytesPerRow: 4, RowsPerImage: 1},
+		&gputypes.Extent3D{Width: 1, Height: 1, DepthOrArrayLayers: 1},
+	)
+	defaultView := defaultTex.CreateView(nil)
+	if defaultView == nil {
+		return errors.New("gpu: create default texture view: returned nil")
+	}
+	d.defaultTextureView = defaultView
+
+	// Step 9g: Create linear sampler.
+	sampler := dev.CreateLinearSampler()
+	if sampler == nil {
+		return errors.New("gpu: create sampler: returned nil")
+	}
+	d.defaultSampler = sampler
+
+	// Step 9h: Create texture bind group with default white texture + sampler.
+	texBGEntries := []wgpu.BindGroupEntry{
+		wgpu.TextureBindingEntry(0, defaultView),
+		wgpu.SamplerBindingEntry(1, sampler),
+	}
+	texBindGroup := dev.CreateBindGroupSimple(texBGL, texBGEntries)
+	if texBindGroup == nil {
+		return errors.New("gpu: create texture bind group: returned nil")
+	}
+	d.textureBindGroup = texBindGroup
+
+	// Step 9d: Create pipeline layout with both bind group layouts.
+	bglHandles := [2]uintptr{bgl.Handle(), texBGL.Handle()}
 	plLayout := dev.CreatePipelineLayout(&wgpu.PipelineLayoutDescriptor{
-		BindGroupLayoutCount: 1,
+		BindGroupLayoutCount: 2,
 		BindGroupLayouts:     uintptr(unsafe.Pointer(&bglHandles[0])),
 	})
 	if plLayout == nil {
@@ -251,10 +333,12 @@ func (d *Device) Init(width, height uint32, handle NativeWindowHandle) error {
 	d.shader = shader
 
 	// Step 11: Create the render pipeline with vertex buffer layout and depth stencil.
+	// Stride 44 bytes: pos(12) + color(12) + normal(12) + uv(8).
 	attrs := []wgpu.VertexAttribute{
 		{Format: gputypes.VertexFormatFloat32x3, Offset: 0, ShaderLocation: 0},  // position
 		{Format: gputypes.VertexFormatFloat32x3, Offset: 12, ShaderLocation: 1}, // color
 		{Format: gputypes.VertexFormatFloat32x3, Offset: 24, ShaderLocation: 2}, // normal
+		{Format: gputypes.VertexFormatFloat32x2, Offset: 36, ShaderLocation: 3}, // uv
 	}
 	pipeline := d.device.CreateRenderPipeline(&wgpu.RenderPipelineDescriptor{
 		Layout: plLayout,
@@ -317,6 +401,33 @@ func (d *Device) UpdateMeshUniforms(model, normalMatrix math.Mat4x4) {
 	}
 	mu := MeshUniforms{Model: model, NormalMatrix: normalMatrix}
 	d.queue.WriteBuffer(d.meshUniformBuf, 0, mu.Bytes())
+}
+
+// SetAlbedoTexture replaces the active albedo texture for subsequent draw calls.
+// Pass nil to revert to the default 1x1 white texture.
+// The Texture2D remains owned by the caller; do not Release it while rendering.
+func (d *Device) SetAlbedoTexture(t *Texture2D) {
+	if d.device == nil || d.textureBindGroupLayout == nil || d.defaultSampler == nil {
+		return
+	}
+	var view *wgpu.TextureView
+	if t != nil && t.view != nil {
+		view = t.view
+	} else {
+		view = d.defaultTextureView
+	}
+	entries := []wgpu.BindGroupEntry{
+		wgpu.TextureBindingEntry(0, view),
+		wgpu.SamplerBindingEntry(1, d.defaultSampler),
+	}
+	newBG := d.device.CreateBindGroupSimple(d.textureBindGroupLayout, entries)
+	if newBG == nil {
+		return
+	}
+	if d.textureBindGroup != nil {
+		d.textureBindGroup.Release()
+	}
+	d.textureBindGroup = newBG
 }
 
 // UpdateLightUniforms uploads the light parameters to the light uniform buffer.
@@ -394,6 +505,7 @@ func (d *Device) RenderFrameMulti(nodes []DrawNode) error {
 
 	pass.SetPipeline(d.pipeline)
 	pass.SetBindGroup(0, d.cameraBindGroup, nil)
+	pass.SetBindGroup(1, d.textureBindGroup, nil)
 
 	if useLegacy {
 		// Single-mesh legacy path (Phase 12 compat).
@@ -450,6 +562,27 @@ func (d *Device) Shutdown() {
 	d.meshCache = nil
 	d.vertexBuf = nil
 	d.indexBuf = nil
+	if d.textureBindGroup != nil {
+		d.textureBindGroup.Release()
+		d.textureBindGroup = nil
+	}
+	if d.textureBindGroupLayout != nil {
+		d.textureBindGroupLayout.Release()
+		d.textureBindGroupLayout = nil
+	}
+	if d.defaultTextureView != nil {
+		d.defaultTextureView.Release()
+		d.defaultTextureView = nil
+	}
+	if d.defaultTexture != nil {
+		d.defaultTexture.Destroy()
+		d.defaultTexture.Release()
+		d.defaultTexture = nil
+	}
+	if d.defaultSampler != nil {
+		d.defaultSampler.Release()
+		d.defaultSampler = nil
+	}
 	if d.cameraBindGroup != nil {
 		d.cameraBindGroup.Release()
 		d.cameraBindGroup = nil

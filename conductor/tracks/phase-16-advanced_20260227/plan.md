@@ -33,7 +33,7 @@ Complete the GPU roadmap: OBJ loader, texture mapping, GPU timestamp profiling, 
 
 - [x] Task 2.1: Update `vertex.wgsl` to pass UV to fragment stage; update `fragment.wgsl` to sample `texture_2d` + `sampler` as albedo. Commit `feat: add texture sampling to WGSL shaders`.
 - [x] Task 2.2: Add freely-licensed `.obj` + `.png` test asset to `assets/models/`; load and render it in demo. Commit `feat: demo OBJ model with texture`.
-- [~] Task 2.3: Add `wgpu.QuerySet` timestamp queries around render pass; log GPU frame time to stdout. Commit `feat: add GPU timestamp profiling`.
+- [x] Task 2.3: Add `wgpu.QuerySet` timestamp queries around render pass; log GPU frame time to stdout. Commit `feat: add GPU timestamp profiling`.
 
 ### Verification
 

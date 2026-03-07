@@ -17,20 +17,21 @@ func TestPackVertices_EmptySlice_ReturnsEmpty(t *testing.T) {
 	}
 }
 
-// TestPackVertices_SingleVertex_PacksPositionColorNormal verifies the float32
-// layout for a single vertex: px, py, pz, cr, cg, cb, nx, ny, nz (9 floats, stride 36 bytes).
-func TestPackVertices_SingleVertex_PacksPositionColorNormal(t *testing.T) {
+// TestPackVertices_SingleVertex_PacksPositionColorNormalUV verifies the float32
+// layout for a single vertex: px,py,pz, cr,cg,cb, nx,ny,nz, u,v (11 floats, stride 44 bytes).
+func TestPackVertices_SingleVertex_PacksPositionColorNormalUV(t *testing.T) {
 	v := geometry.NewVertex(
 		math.Vec3{X: 1.0, Y: 2.0, Z: 3.0},
 		math.Vec3{X: 0.5, Y: 0.25, Z: 0.75},
 	)
 	v.Normal = math.Vec3{X: 0, Y: 1, Z: 0}
+	v.UV = [2]float64{0.25, 0.75}
 	result := gpu.PackVertices([]geometry.Vertex{v})
 
-	if len(result) != 9 {
-		t.Fatalf("expected 9 floats for one vertex, got %d", len(result))
+	if len(result) != 11 {
+		t.Fatalf("expected 11 floats for one vertex, got %d", len(result))
 	}
-	expected := [9]float32{1.0, 2.0, 3.0, 0.5, 0.25, 0.75, 0, 1, 0}
+	expected := [11]float32{1.0, 2.0, 3.0, 0.5, 0.25, 0.75, 0, 1, 0, 0.25, 0.75}
 	for i, want := range expected {
 		if result[i] != want {
 			t.Errorf("result[%d] = %v, want %v", i, result[i], want)
@@ -38,19 +39,19 @@ func TestPackVertices_SingleVertex_PacksPositionColorNormal(t *testing.T) {
 	}
 }
 
-// TestPackVertices_Stride_Is9FloatsPerVertex verifies that consecutive vertices
-// are laid out without gaps: stride = 9 floats = 36 bytes.
-func TestPackVertices_Stride_Is9FloatsPerVertex(t *testing.T) {
+// TestPackVertices_Stride_Is11FloatsPerVertex verifies that consecutive vertices
+// are laid out without gaps: stride = 11 floats = 44 bytes.
+func TestPackVertices_Stride_Is11FloatsPerVertex(t *testing.T) {
 	v0 := geometry.NewVertex(math.Vec3{X: 1, Y: 0, Z: 0}, math.Vec3{X: 1, Y: 0, Z: 0})
 	v1 := geometry.NewVertex(math.Vec3{X: 2, Y: 0, Z: 0}, math.Vec3{X: 0, Y: 1, Z: 0})
 	result := gpu.PackVertices([]geometry.Vertex{v0, v1})
 
-	if len(result) != 18 {
-		t.Fatalf("two vertices should produce 18 floats, got %d", len(result))
+	if len(result) != 22 {
+		t.Fatalf("two vertices should produce 22 floats, got %d", len(result))
 	}
-	// Second vertex starts at index 9 (stride = 9 floats).
-	if result[9] != float32(2.0) {
-		t.Errorf("second vertex position.X = %v, want 2.0", result[9])
+	// Second vertex starts at index 11 (stride = 11 floats).
+	if result[11] != float32(2.0) {
+		t.Errorf("second vertex position.X = %v, want 2.0", result[11])
 	}
 }
 

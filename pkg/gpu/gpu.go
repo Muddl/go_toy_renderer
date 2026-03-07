@@ -14,8 +14,9 @@ import (
 	"github.com/muddl/go_toy_renderer/pkg/math"
 )
 
-// vertexStride is the byte stride for one packed vertex: 3×f32 position + 3×f32 color + 3×f32 normal.
-const vertexStride = 36 // 9 × float32 = 9 × 4 bytes
+// vertexStride is the byte stride for one packed vertex:
+// 3×f32 position + 3×f32 color + 3×f32 normal + 2×f32 UV = 11 floats = 44 bytes.
+const vertexStride = 44 // 11 × float32 = 11 × 4 bytes
 
 // Uniform buffer sizes in bytes.
 const (

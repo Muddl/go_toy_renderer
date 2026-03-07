@@ -14,6 +14,9 @@ import (
 	"github.com/muddl/go_toy_renderer/pkg/math"
 )
 
+// timestampQueryBufSize is 2 uint64 timestamps × 8 bytes each.
+const timestampQueryBufSize = 16
+
 // vertexStride is the byte stride for one packed vertex:
 // 3×f32 position + 3×f32 color + 3×f32 normal + 2×f32 UV = 11 floats = 44 bytes.
 const vertexStride = 44 // 11 × float32 = 11 × 4 bytes
@@ -71,6 +74,13 @@ type Device struct {
 	defaultSampler         *wgpu.Sampler
 	textureBindGroupLayout *wgpu.BindGroupLayout
 	textureBindGroup       *wgpu.BindGroup // @group(1)
+
+	// Timestamp query resources (Phase 16). querySet is nil when the GPU
+	// does not support the TIMESTAMP_QUERY feature; profiling is skipped.
+	querySet        *wgpu.QuerySet
+	queryResultBuf  *wgpu.Buffer // QueryResolve | CopySrc, 16 bytes
+	queryStagingBuf *wgpu.Buffer // MapRead | CopyDst, 16 bytes
+	frameTimer      *FrameTimer
 
 	// Optional overlay renderer (Phase 13 / perf-debug-overlay).
 	// Set via SetOverlayRenderer; called after the geometry draw in each frame.
@@ -140,6 +150,29 @@ func (d *Device) Init(width, height uint32, handle NativeWindowHandle) error {
 		return fmt.Errorf("gpu: get queue: returned nil")
 	}
 	d.queue = q
+
+	// Step 6b: Attempt to create timestamp query set (optional — may be nil
+	// if the TIMESTAMP_QUERY feature is not supported by the adapter/driver).
+	d.frameTimer = NewFrameTimer()
+	qs := dev.CreateQuerySet(&wgpu.QuerySetDescriptor{
+		Type:  wgpu.QueryTypeTimestamp,
+		Count: 2,
+	})
+	if qs != nil {
+		d.querySet = qs
+		d.queryResultBuf = dev.CreateBuffer(&wgpu.BufferDescriptor{
+			Usage: gputypes.BufferUsageQueryResolve | gputypes.BufferUsageCopySrc,
+			Size:  timestampQueryBufSize,
+		})
+		d.queryStagingBuf = dev.CreateBuffer(&wgpu.BufferDescriptor{
+			Usage: gputypes.BufferUsageMapRead | gputypes.BufferUsageCopyDst,
+			Size:  timestampQueryBufSize,
+		})
+		if d.queryResultBuf == nil || d.queryStagingBuf == nil {
+			// Feature present but buffer creation failed — disable profiling.
+			d.querySet = nil
+		}
+	}
 
 	// Step 7: Choose the surface format and configure the swap-chain.
 	d.format = gputypes.TextureFormatBGRA8Unorm
@@ -480,6 +513,11 @@ func (d *Device) RenderFrameMulti(nodes []DrawNode) error {
 		return errors.New("gpu: create command encoder: returned nil")
 	}
 
+	// Optional: write start timestamp before the render pass.
+	if d.querySet != nil {
+		enc.WriteTimestamp(d.querySet, 0)
+	}
+
 	pass := enc.BeginRenderPass(&wgpu.RenderPassDescriptor{
 		ColorAttachments: []wgpu.RenderPassColorAttachment{
 			{
@@ -532,6 +570,13 @@ func (d *Device) RenderFrameMulti(nodes []DrawNode) error {
 	pass.End()
 	pass.Release()
 
+	// Optional: write end timestamp, resolve to result buffer, copy to staging.
+	if d.querySet != nil {
+		enc.WriteTimestamp(d.querySet, 1)
+		enc.ResolveQuerySet(d.querySet, 0, 2, d.queryResultBuf, 0)
+		enc.CopyBufferToBuffer(d.queryResultBuf, 0, d.queryStagingBuf, 0, timestampQueryBufSize)
+	}
+
 	cmd := enc.Finish(nil)
 	enc.Release()
 	if cmd == nil {
@@ -542,12 +587,52 @@ func (d *Device) RenderFrameMulti(nodes []DrawNode) error {
 	cmd.Release()
 
 	d.surface.Present()
+
+	// Once per second: read back timestamp data and log GPU frame time.
+	if d.querySet != nil && d.frameTimer != nil {
+		d.device.Poll(true) // wait for GPU to finish resolving timestamps
+		if err := d.queryStagingBuf.MapAsync(d.device, wgpu.MapModeRead, 0, timestampQueryBufSize); err == nil {
+			ptr := d.queryStagingBuf.GetMappedRange(0, timestampQueryBufSize)
+			if ptr != nil {
+				data := (*[timestampQueryBufSize]byte)(ptr)
+				t0 := *(*uint64)(unsafe.Pointer(&data[0]))
+				t1 := *(*uint64)(unsafe.Pointer(&data[8]))
+				d.queryStagingBuf.Unmap()
+				if t1 > t0 {
+					d.frameTimer.Record(t1 - t0)
+				}
+			} else {
+				d.queryStagingBuf.Unmap()
+			}
+		}
+		if msg := d.frameTimer.MaybePrint(); msg != "" {
+			fmt.Println(msg)
+		}
+	}
+
 	return nil
 }
 
 // Shutdown releases all wgpu resources held by the Device.
 // Safe to call on an uninitialised Device and to call multiple times.
 func (d *Device) Shutdown() {
+	// Release timestamp query resources.
+	if d.queryStagingBuf != nil {
+		d.queryStagingBuf.Destroy()
+		d.queryStagingBuf.Release()
+		d.queryStagingBuf = nil
+	}
+	if d.queryResultBuf != nil {
+		d.queryResultBuf.Destroy()
+		d.queryResultBuf.Release()
+		d.queryResultBuf = nil
+	}
+	if d.querySet != nil {
+		d.querySet.Destroy()
+		d.querySet.Release()
+		d.querySet = nil
+	}
+
 	// Release all cached mesh GPU buffers.
 	for _, entry := range d.meshCache {
 		if entry.vertexBuf != nil {

@@ -63,3 +63,23 @@ func TestCubeShaderWGSL_NoFormatVerbs(t *testing.T) {
 		t.Fatal("CubeWGSL: should not contain format verbs (uniforms replaced template)")
 	}
 }
+
+func TestCubeShaderWGSL_HasUVInput(t *testing.T) {
+	if !strings.Contains(shaders.CubeWGSL, "@location(3) uv") {
+		t.Fatal("CubeWGSL: missing UV input at location 3")
+	}
+}
+
+func TestCubeShaderWGSL_HasTextureAndSamplerBindings(t *testing.T) {
+	for _, want := range []string{
+		"@group(1) @binding(0)",
+		"@group(1) @binding(1)",
+		"texture_2d",
+		"sampler",
+		"textureSample",
+	} {
+		if !strings.Contains(shaders.CubeWGSL, want) {
+			t.Fatalf("CubeWGSL: missing %q", want)
+		}
+	}
+}
